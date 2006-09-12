@@ -1,0 +1,4 @@
+system.runMode=integrationTest
+system.integrationTest.targetPlugin.id=${pluginId}
+system.integrationTest.targetPlugin.classes.dir=${projectRoot?j_string}/build/classes
+system.developingPluginId=${pluginId}

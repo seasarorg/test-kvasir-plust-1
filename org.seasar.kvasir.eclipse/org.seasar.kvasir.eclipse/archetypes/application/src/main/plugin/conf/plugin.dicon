@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//SEASAR2.3//DTD S2Container//EN" "http://www.seasar.org/dtd/components23.dtd">
+<components>
+  <component name="plugin" class="${pluginId}.impl.${pluginClassName}Impl" />
+  <component name="${pluginShortId}Application" class="org.seasar.kvasir.cms.ymir.impl.ApplicationImpl" />
+  <component class="org.seasar.cms.pluggable.hotdeploy.LocalOndemandS2Container">
+    <initMethod name="addProject">
+      <arg>
+        <component class="org.seasar.framework.container.hotdeploy.impl.OndemandProjectImpl" />
+      </arg>
+    </initMethod>
+  </component>
+  <!-- POP -->
+  <component name="${pluginShortId}Pop" class="${pluginId}.${pluginShortId}.pop.${pluginShortId?cap_first}Pop" instance="prototype" />
+</components>
