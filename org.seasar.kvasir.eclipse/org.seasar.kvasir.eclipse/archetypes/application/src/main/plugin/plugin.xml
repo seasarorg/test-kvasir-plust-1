@@ -13,6 +13,8 @@
 
   <requires>
     <import plugin="org.seasar.kvasir.page" />
+    <import plugin="org.seasar.kvasir.page.ability.content" />
+    <import plugin="org.seasar.kvasir.page.ability.template" />
     <import plugin="org.seasar.kvasir.page.auth" />
     <import plugin="org.seasar.kvasir.cms" />
     <import plugin="org.seasar.kvasir.cms.pop" />
@@ -20,7 +22,7 @@
   </requires>
 
   <extension point="org.seasar.kvasir.page.pageGards">
-    <page-gard id="${pluginShortId}" version="1.0.0" singleton="true" />
+    <page-gard id="${pluginShortId}" version="${pluginVersion}" singleton="true" />
   </extension>
 
   <extension point="org.seasar.kvasir.page.pageGardInstalls">

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.seasar.kvasir.plugin</groupId>
     <artifactId>plugin-project</artifactId>
-    <version>3.0.0-EA3-SNAPSHOT</version>
+    <version>${testEnvironmentVersion}</version>
   </parent>
   <groupId>${pluginId}</groupId>
   <artifactId>${pluginId}</artifactId>
@@ -36,65 +36,89 @@
     <dependency>
       <groupId>org.seasar.kvasir</groupId>
       <artifactId>kvasir-webapp</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.page</groupId>
       <artifactId>org.seasar.kvasir.page</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.page</groupId>
       <artifactId>org.seasar.kvasir.page</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
+      <type>zip</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.page.ability.content</groupId>
+      <artifactId>org.seasar.kvasir.page.ability.content</artifactId>
+      <version>${testEnvironmentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.page.ability.content</groupId>
+      <artifactId>org.seasar.kvasir.page.ability.content</artifactId>
+      <version>${testEnvironmentVersion}</version>
+      <type>zip</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.page.ability.template</groupId>
+      <artifactId>org.seasar.kvasir.page.ability.template</artifactId>
+      <version>${testEnvironmentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.page.ability.template</groupId>
+      <artifactId>org.seasar.kvasir.page.ability.template</artifactId>
+      <version>${testEnvironmentVersion}</version>
       <type>zip</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.page.auth</groupId>
       <artifactId>org.seasar.kvasir.page.auth</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.page.auth</groupId>
       <artifactId>org.seasar.kvasir.page.auth</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
       <type>zip</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.cms</groupId>
       <artifactId>org.seasar.kvasir.cms</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.cms</groupId>
       <artifactId>org.seasar.kvasir.cms</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
       <type>zip</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.cms.pop</groupId>
       <artifactId>org.seasar.kvasir.cms.pop</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.cms.pop</groupId>
       <artifactId>org.seasar.kvasir.cms.pop</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
       <type>zip</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.cms.ymir</groupId>
       <artifactId>org.seasar.kvasir.cms.ymir</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.seasar.kvasir.cms.ymir</groupId>
       <artifactId>org.seasar.kvasir.cms.ymir</artifactId>
-      <version>3.0.0-EA3-SNAPSHOT</version>
+      <version>${testEnvironmentVersion}</version>
       <type>zip</type>
       <scope>runtime</scope>
     </dependency>
