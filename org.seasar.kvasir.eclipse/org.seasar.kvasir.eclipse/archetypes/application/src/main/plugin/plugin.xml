@@ -19,6 +19,7 @@
     <import plugin="org.seasar.kvasir.cms" />
     <import plugin="org.seasar.kvasir.cms.pop" />
     <import plugin="org.seasar.kvasir.cms.ymir" />
+    <import plugin="net.skirnir.freyja" />
   </requires>
 
   <extension point="org.seasar.kvasir.page.pageGards">

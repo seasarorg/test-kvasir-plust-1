@@ -12,13 +12,15 @@
   <version>${pluginVersion}</version>
   <packaging>kvasir-plugin</packaging>
   <name>${pluginName?html}</name>
-<#if license?exists>  <licenses>
+  <#if license?exists>
+  <licenses>
     <license>
       <name>${license?html}</name>
       <url>/LICENSE.txt</url>
     </license>
   </licenses>
-</#if>  <build>
+  </#if>
+  <build>
     <plugins>
       <plugin>
         <groupId>org.seasar.kvasir.maven.plugin</groupId>
@@ -119,6 +121,18 @@
       <groupId>org.seasar.kvasir.cms.ymir</groupId>
       <artifactId>org.seasar.kvasir.cms.ymir</artifactId>
       <version>${testEnvironmentVersion}</version>
+      <type>zip</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.skirnir.freyja</groupId>
+      <artifactId>net.skirnir.freyja</artifactId>
+      <version>1.0.4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>net.skirnir.freyja</groupId>
+      <artifactId>net.skirnir.freyja</artifactId>
+      <version>1.0.4-SNAPSHOT</version>
       <type>zip</type>
       <scope>runtime</scope>
     </dependency>
