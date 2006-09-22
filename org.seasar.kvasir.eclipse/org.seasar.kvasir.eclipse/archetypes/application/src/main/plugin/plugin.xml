@@ -34,7 +34,7 @@
 
   <extension point="org.seasar.kvasir.cms.pop.pops">
     <pop id="${pluginShortId}Pop" body-type="text/x-zpt"
-      body-resource-path="gards/${pluginShortId}/template/${pluginShortId}.html" />
+      body-resource-path="gards/${pluginShortId}/pop/${pluginShortId}.html" />
   </extension>
 
   <extension point="org.seasar.kvasir.cms.ymir.applications">
