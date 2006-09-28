@@ -10,6 +10,4 @@
       </arg>
     </initMethod>
   </component>
-  <!-- POP -->
-  <component name="${pluginShortId}Pop" class="${pluginId}.${pluginShortId}.pop.${pluginShortId?cap_first}Pop" instance="prototype" />
 </components>
