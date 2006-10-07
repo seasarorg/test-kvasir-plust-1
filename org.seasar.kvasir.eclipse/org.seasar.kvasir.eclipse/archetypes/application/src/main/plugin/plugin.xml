@@ -7,14 +7,16 @@
   <runtime>
     <library name="conf" />
     <library name="${pluginId}-${pluginVersion}.jar">
-      <export name="*" />
+      <export name="**" />
     </library>
   </runtime>
 
   <requires>
+    <import plugin="org.seasar.kvasir.base.dao" />
     <import plugin="org.seasar.kvasir.page" />
     <import plugin="org.seasar.kvasir.page.ability.content" />
     <import plugin="org.seasar.kvasir.page.ability.template" />
+    <import plugin="org.seasar.kvasir.page.ability.table" />
     <import plugin="org.seasar.kvasir.page.auth" />
     <import plugin="org.seasar.kvasir.cms" />
     <import plugin="org.seasar.kvasir.cms.pop" />
