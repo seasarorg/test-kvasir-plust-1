@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  org.eclipse.ui.console
-Eclipse-LazyStart: true
+Eclipse-AutoStart: true
 Bundle-ClassPath: kvasir-eclipse.jar,
  lib/freemarker-2.3.4.jar,
  lib/m2plugin-0.0.5.jar,

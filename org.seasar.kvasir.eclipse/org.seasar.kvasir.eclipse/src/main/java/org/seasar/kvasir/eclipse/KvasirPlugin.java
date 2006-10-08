@@ -812,6 +812,10 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public static String getString(String key)
     {
+        if (getDefault() == null) {
+            // FIXME nullにならないようにしたいのだが…。
+            return key;
+        }
         return Platform.getResourceString(getDefault().getBundle(), "%" + key);
     }
 }
