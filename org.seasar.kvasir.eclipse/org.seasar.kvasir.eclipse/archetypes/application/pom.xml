@@ -41,6 +41,18 @@
       <version>${testEnvironmentVersion}</version>
     </dependency>
     <dependency>
+      <groupId>org.seasar.kvasir.base.dao</groupId>
+      <artifactId>org.seasar.kvasir.base.dao</artifactId>
+      <version>${testEnvironmentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.base.dao</groupId>
+      <artifactId>org.seasar.kvasir.base.dao</artifactId>
+      <version>${testEnvironmentVersion}</version>
+      <type>zip</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.seasar.kvasir.page</groupId>
       <artifactId>org.seasar.kvasir.page</artifactId>
       <version>${testEnvironmentVersion}</version>
@@ -72,6 +84,18 @@
     <dependency>
       <groupId>org.seasar.kvasir.page.ability.template</groupId>
       <artifactId>org.seasar.kvasir.page.ability.template</artifactId>
+      <version>${testEnvironmentVersion}</version>
+      <type>zip</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.page.ability.table</groupId>
+      <artifactId>org.seasar.kvasir.page.ability.table</artifactId>
+      <version>${testEnvironmentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.seasar.kvasir.page.ability.table</groupId>
+      <artifactId>org.seasar.kvasir.page.ability.table</artifactId>
       <version>${testEnvironmentVersion}</version>
       <type>zip</type>
       <scope>runtime</scope>
