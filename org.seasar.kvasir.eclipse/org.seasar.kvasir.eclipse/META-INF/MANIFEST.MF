@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Kvasir/Sora Plugin
 Bundle-SymbolicName: org.seasar.kvasir.eclipse; singleton:=true
-Bundle-Version: 0.0.1
+Bundle-Version: 0.0.2
 Bundle-Activator: org.seasar.kvasir.eclipse.KvasirPlugin
 Bundle-Vendor: The Seasar Foundation
 Bundle-Localization: plugin
