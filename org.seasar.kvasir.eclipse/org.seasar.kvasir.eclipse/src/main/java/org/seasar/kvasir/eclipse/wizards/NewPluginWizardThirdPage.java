@@ -18,6 +18,11 @@ public class NewPluginWizardThirdPage extends WizardPage
 {
     private TemplateMetaData[] templates_ = new TemplateMetaData[] {
         new TemplateMetaData(
+            "empty", //$NON-NLS-1$
+            KvasirPlugin.getString("NewPluginWizardThirdPage.TEMPLATE_EMPTY"), //$NON-NLS-1$
+            KvasirPlugin
+                .getString("NewPluginWizardThirdPage.TEMPLATE_EMPTY_DESCRIPTION")), //$NON-NLS-1$
+        new TemplateMetaData(
             "generic", //$NON-NLS-1$
             KvasirPlugin.getString("NewPluginWizardThirdPage.TEMPLATE_GENERIC"), //$NON-NLS-1$
             KvasirPlugin
