@@ -760,6 +760,15 @@ public class KvasirPlugin extends AbstractUIPlugin
                 continue;
             }
 
+            String name = path.substring(targetPath.length());
+            if (name.endsWith("/")) {
+                name = name.substring(0, name.length() - 1);
+            }
+            if (name.equals(".svn") || name.equals("_svn")
+                || name.equals("CVS")) {
+                continue;
+            }
+
             StringWriter sw = new StringWriter();
             try {
                 new Template("pathName", new StringReader(URLDecoder.decode(
