@@ -301,6 +301,19 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     file.delete();
                 }
             }
+
+            // 開発対象のプラグインがdistributionに同梱されている場合は、
+            // 同梱されている方のプラグインを削除しておく。
+            String targetPluginDirectoryName = mavenProject.getArtifactId()
+                + "-" + mavenProject.getArtifact().getVersion();
+            IFolder targetPluginDirectory = getProject().getFolder(
+                KvasirPlugin.TEST_PLUGINS_PATH + "/"
+                    + targetPluginDirectoryName);
+            if (targetPluginDirectory.exists()) {
+                targetPluginDirectory.delete(false, new SubProgressMonitor(
+                    monitor, 1));
+            }
+
         } finally {
             monitor.done();
         }
