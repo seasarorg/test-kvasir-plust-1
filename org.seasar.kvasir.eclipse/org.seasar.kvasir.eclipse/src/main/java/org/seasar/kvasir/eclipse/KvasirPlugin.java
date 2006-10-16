@@ -214,60 +214,88 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
+    public static boolean shouldResourceBeIgnored(String path)
+    {
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        String name;
+        int slash = path.lastIndexOf('/');
+        if (slash >= 0) {
+            name = path.substring(slash + 1);
+        } else {
+            name = path;
+        }
+        return name.equalsIgnoreCase(".svn") || name.equalsIgnoreCase("_svn")
+            || name.equalsIgnoreCase("CVS");
+    }
+
+
     public static void copy(IResource source, IPath destination, boolean force,
         IProgressMonitor monitor)
         throws CoreException
     {
         monitor.beginTask("Copying resources", IProgressMonitor.UNKNOWN);
         try {
-            IResource destinationResource = ResourcesPlugin.getWorkspace()
-                .getRoot().findMember(destination);
-            if (source.getType() == IResource.FILE) {
-                if (destinationResource != null
-                    && destinationResource.getType() == IResource.FILE) {
-                    IFile destinationFile = ResourcesPlugin.getWorkspace()
-                        .getRoot().getFile(destination);
-                    destinationFile.setContents(((IFile)source).getContents(),
-                        false, false, new SubProgressMonitor(monitor, 1));
-                } else {
-                    if (destinationResource != null) {
-                        destinationResource.delete(false,
-                            new SubProgressMonitor(monitor, 1));
-                    }
-                    IFile destinationFile = ResourcesPlugin.getWorkspace()
-                        .getRoot().getFile(destination);
-                    mkdirs(destinationFile.getParent(), new SubProgressMonitor(
-                        monitor, 1));
-                    source.copy(destination, false, new SubProgressMonitor(
-                        monitor, 1));
-                }
-            } else if (source.getType() == IResource.FOLDER) {
-                if (destinationResource != null
-                    && destinationResource.getType() == IResource.FOLDER) {
-                    IResource[] members = ((IFolder)source).members();
-                    for (int i = 0; i < members.length; i++) {
-                        copy(members[i], destination.append(members[i]
-                            .getName()), false, new SubProgressMonitor(monitor,
-                            1));
-                    }
-                } else {
-                    if (destinationResource != null) {
-                        destinationResource.delete(false,
-                            new SubProgressMonitor(monitor, 1));
-                    }
-                    IFolder destinationFolder = ResourcesPlugin.getWorkspace()
-                        .getRoot().getFolder(destination);
-                    mkdirs(destinationFolder.getParent(),
-                        new SubProgressMonitor(monitor, 1));
-                    source.copy(destination, false, new SubProgressMonitor(
-                        monitor, 1));
-                }
-            } else {
-                throw new CoreException(constructStatus("Can't copy resource "
-                    + source + " to " + destination));
-            }
+            copy0(source, destination, force, monitor);
         } finally {
             monitor.done();
+        }
+    }
+
+
+    static void copy0(IResource source, IPath destination, boolean force,
+        IProgressMonitor monitor)
+        throws CoreException
+    {
+        if (shouldResourceBeIgnored(source.getName())) {
+            return;
+        }
+        IResource destinationResource = ResourcesPlugin.getWorkspace()
+            .getRoot().findMember(destination);
+        if (source.getType() == IResource.FILE) {
+            if (destinationResource != null
+                && destinationResource.getType() == IResource.FILE) {
+                IFile destinationFile = ResourcesPlugin.getWorkspace()
+                    .getRoot().getFile(destination);
+                destinationFile.setContents(((IFile)source).getContents(),
+                    false, false, new SubProgressMonitor(monitor, 1));
+            } else {
+                if (destinationResource != null) {
+                    destinationResource.delete(false, new SubProgressMonitor(
+                        monitor, 1));
+                }
+                IFile destinationFile = ResourcesPlugin.getWorkspace()
+                    .getRoot().getFile(destination);
+                mkdirs(destinationFile.getParent(), new SubProgressMonitor(
+                    monitor, 1));
+                source.copy(destination, false, new SubProgressMonitor(monitor,
+                    1));
+            }
+        } else if (source.getType() == IResource.FOLDER) {
+            IFolder destinationFolder = null;
+            if (destinationResource != null) {
+                if (destinationResource.getType() == IResource.FOLDER) {
+                    destinationFolder = (IFolder)destinationResource;
+                } else {
+                    destinationResource.delete(false, new SubProgressMonitor(
+                        monitor, 1));
+                }
+            }
+            if (destinationFolder == null) {
+                destinationFolder = ResourcesPlugin.getWorkspace().getRoot()
+                    .getFolder(destination);
+                mkdirs(destinationFolder, new SubProgressMonitor(monitor, 1));
+            }
+            IResource[] members = ((IFolder)source).members();
+            for (int i = 0; i < members.length; i++) {
+                copy0(members[i], destination.append(members[i].getName()),
+                    false, monitor);
+            }
+        } else {
+            throw new CoreException(constructStatus("Can't copy resource "
+                + source + " to " + destination));
         }
     }
 
@@ -760,12 +788,7 @@ public class KvasirPlugin extends AbstractUIPlugin
                 continue;
             }
 
-            String name = path.substring(targetPath.length());
-            if (name.endsWith("/")) {
-                name = name.substring(0, name.length() - 1);
-            }
-            if (name.equals(".svn") || name.equals("_svn")
-                || name.equals("CVS")) {
+            if (shouldResourceBeIgnored(path.substring(targetPath.length()))) {
                 continue;
             }
 

@@ -170,14 +170,12 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                                 .getContents(), false, new SubProgressMonitor(
                                 monitor, 1));
                         }
-                        destinationFile.setDerived(true);
                     } else {
                         IFolder destinationFolder = project
                             .getFolder(destination);
                         if (!destinationFolder.exists()) {
                             destinationFolder.create(false, true,
                                 new SubProgressMonitor(monitor, 1));
-                            destinationFolder.setDerived(true);
                         }
                     }
                 }
@@ -387,7 +385,6 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     KvasirPlugin.getDefault().unzip(artifacts[i].getFile(),
                         destinationFolder, false,
                         new SubProgressMonitor(monitor, 1));
-                    destinationFolder.setDerived(true);
                 }
             } finally {
                 subMonitor.done();
@@ -413,12 +410,6 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             KvasirPlugin.copy(pluginResources, project.getFullPath().append(
                 KvasirPlugin.TEST_PLUGIN_TARGET_PATH), false,
                 new SubProgressMonitor(monitor, 1));
-
-            IResource[] members = project.getFolder(
-                KvasirPlugin.TEST_PLUGIN_TARGET_PATH).members();
-            for (int i = 0; i < members.length; i++) {
-                members[i].setDerived(true);
-            }
         } finally {
             monitor.done();
         }
@@ -676,7 +667,6 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             IFolder target = getProject().getFolder(KvasirPlugin.BUILD_PATH);
             if (!target.exists()) {
                 target.create(false, true, new SubProgressMonitor(monitor, 1));
-                target.setDerived(true);
             } else {
                 target.refreshLocal(IResource.DEPTH_INFINITE,
                     new SubProgressMonitor(monitor, 1));
@@ -807,8 +797,12 @@ public class KvasirBuilder extends IncrementalProjectBuilder
 
             if (KvasirPlugin.POM_FILE_NAME.equals(path)) {
                 pomXmlUpdated = true;
+                return false;
+            } else if (KvasirPlugin.PLUGIN_RESOURCES_PATH.startsWith(path)) {
+                return true;
             } else if (path
-                .startsWith(KvasirPlugin.PLUGIN_RESOURCES_PATH + "/")) {
+                .startsWith(KvasirPlugin.PLUGIN_RESOURCES_PATH + "/")
+                && !KvasirPlugin.shouldResourceBeIgnored(path)) {
                 if (kind == IResourceDelta.REMOVED) {
                     removedPluginResources.add(resource);
                 } else {
@@ -818,9 +812,11 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 if (KvasirPlugin.PLUGIN_FILE_PATH.equals(path)) {
                     pluginXmlUpdated = true;
                 }
-            }
 
-            return true;
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }
