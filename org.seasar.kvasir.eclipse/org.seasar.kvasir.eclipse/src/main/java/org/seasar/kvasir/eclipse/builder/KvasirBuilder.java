@@ -187,7 +187,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 Properties prop = KvasirPlugin.getDefault()
                     .loadBuildProperties(project);
                 String testEnvironmentVersion = prop
-                    .getProperty("testEnvironmentVersion");
+                    .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTVERSION);
                 if (testEnvironmentVersion != null) {
                     prepareTestEnvironment(testEnvironmentVersion,
                         new SubProgressMonitor(monitor, 1));
@@ -737,9 +737,18 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     .getLocation().toFile()), "UTF-8")));
             Import[] imports = context.getImports();
 
-            KvasirPlugin.getDefault().executeInEmbedder(
-                new UpdatePluginDependenciesTask(pomFile, imports),
-                new SubProgressMonitor(monitor, 1));
+            Properties prop = KvasirPlugin.getDefault().loadBuildProperties(
+                project);
+            String testEnvironmentVersion = prop
+                .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTVERSION);
+
+            KvasirPlugin.getDefault()
+                .executeInEmbedder(
+                    new UpdatePluginDependenciesTask(pomFile, imports,
+                        testEnvironmentVersion),
+                    new SubProgressMonitor(monitor, 1));
+        } catch (CoreException ex) {
+            KvasirPlugin.getDefault().log(ex);
         } catch (IOException ex) {
             KvasirPlugin.getDefault().log(ex);
         } finally {

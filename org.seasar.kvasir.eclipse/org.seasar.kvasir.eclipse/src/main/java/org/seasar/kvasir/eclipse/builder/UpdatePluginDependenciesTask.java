@@ -33,11 +33,17 @@ public class UpdatePluginDependenciesTask
 
     private Import[] imports_;
 
+    private String defaultVersion_ = "RELEASE";
 
-    public UpdatePluginDependenciesTask(IFile pomFile, Import[] imports)
+
+    public UpdatePluginDependenciesTask(IFile pomFile, Import[] imports,
+        String defaultVersion)
     {
         pomFile_ = pomFile;
         imports_ = imports;
+        if (defaultVersion != null) {
+            defaultVersion_ = defaultVersion;
+        }
     }
 
 
@@ -85,7 +91,7 @@ public class UpdatePluginDependenciesTask
                 if (version == null) {
                     version = (String)pluginVersionMap.get(plugin);
                     if (version == null) {
-                        version = "RELEASE";
+                        version = defaultVersion_;
                     }
                 }
                 dependency.setGroupId(plugin);

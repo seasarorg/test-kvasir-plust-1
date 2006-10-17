@@ -106,6 +106,8 @@ public class KvasirPlugin extends AbstractUIPlugin
     /** reise embedder instance or create new one on every operation */
     private static final boolean REUSE_EMBEDDER = false;
 
+    public static final String PROP_TESTENVIRONMENTVERSION = "testEnvironmentVersion";
+
     //The shared instance.
     private static KvasirPlugin plugin;
 
