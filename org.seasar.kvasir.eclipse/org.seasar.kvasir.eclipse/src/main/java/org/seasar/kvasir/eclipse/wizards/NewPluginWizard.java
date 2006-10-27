@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
@@ -35,6 +36,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.maven.ide.eclipse.Maven2Plugin;
 import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
+import org.seasar.kvasir.eclipse.Globals;
 import org.seasar.kvasir.eclipse.KvasirPlugin;
 
 
@@ -164,8 +166,14 @@ public class NewPluginWizard extends Wizard
             }
 
             IProjectDescription description = project_.getDescription();
-            String[] newNatures = new String[] { JavaCore.NATURE_ID,
-                KvasirPlugin.NATURE_ID };
+            List newNatureList = new ArrayList();
+            newNatureList.add(JavaCore.NATURE_ID);
+            newNatureList.add(KvasirPlugin.NATURE_ID);
+            if (Platform.getBundle(Globals.BUNDLENAME_TOMCATPLUGIN) != null) {
+                newNatureList.add(Globals.NATURE_ID_TOMCAT);
+            }
+            String[] newNatures = (String[])newNatureList
+                .toArray(new String[0]);
             description.setNatureIds(newNatures);
             project_.setDescription(description, new SubProgressMonitor(
                 monitor, 1));
