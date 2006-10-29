@@ -6,11 +6,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,13 +48,20 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint;
+import org.seasar.kvasir.base.plugin.descriptor.Import;
+import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.eclipse.builder.GatherArtifactsTask;
+import org.seasar.kvasir.eclipse.kvasir.IExtensionPointInfo;
+import org.seasar.kvasir.eclipse.kvasir.impl.ExtensionPointInfo;
 import org.seasar.kvasir.eclipse.launch.console.KvasirConsole;
 import org.seasar.kvasir.eclipse.maven.ConsoleMavenEmbeddedLogger;
 
@@ -61,6 +70,17 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
+import net.skirnir.kvasir.m2.plugin.kvasir.KvasirPluginUtils;
+import net.skirnir.xom.IllegalSyntaxException;
+import net.skirnir.xom.ValidationException;
+import net.skirnir.xom.XMLDocument;
+import net.skirnir.xom.XMLParser;
+import net.skirnir.xom.XMLParserFactory;
+import net.skirnir.xom.XOMapper;
+import net.skirnir.xom.XOMapperFactory;
+import net.skirnir.xom.annotation.bean.BeanAccessorBean;
+import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
 
 
 /**
@@ -108,6 +128,11 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public static final String PROP_TESTENVIRONMENTVERSION = "testEnvironmentVersion";
 
+    private static final String METAINF_KVASIR = "META-INF/kvasir/";
+
+    private static final String METAINF_KVASIR_EXTENSIONPOINTS = METAINF_KVASIR
+        + "extension-points/";
+
     //The shared instance.
     private static KvasirPlugin plugin;
 
@@ -116,6 +141,11 @@ public class KvasirPlugin extends AbstractUIPlugin
     private KvasirConsole console_;
 
     private Set sourceCheckedArtifactIdSet_ = new HashSet();
+
+    private XMLParser parser_ = XMLParserFactory.newInstance();
+
+    private XOMapper mapper_ = XOMapperFactory.newInstance()
+        .setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
 
 
     /**
@@ -851,5 +881,129 @@ public class KvasirPlugin extends AbstractUIPlugin
             return key;
         }
         return Platform.getResourceString(getDefault().getBundle(), "%" + key);
+    }
+
+
+    /**
+     * 指定されたKvasirプラグインプロジェクトが持つplugin.xmlの中で利用できる拡張ポイントに関する情報の配列を返します。
+     * <p>このメソッドが返すのは、
+     * plugin.xmlのrequiresタグで指定されているそれぞれのプラグインで提供されている拡張ポイントと、
+     * plugin.xmlで定義されている拡張ポイントに関する情報を表す
+     * IExtensionPointInfoの配列です。
+     * </p>
+     * 
+     * @param javaProject Kvasirプラグインプロジェクト。
+     * @return IExtensionPointの配列。
+     */
+    public IExtensionPointInfo[] getExtensionPoints(IJavaProject javaProject)
+        throws CoreException
+    {
+        IProject project = javaProject.getProject();
+        IFile pluginFile = project.getFile(PLUGIN_FILE_PATH);
+        if (!pluginFile.exists()) {
+            return new IExtensionPointInfo[0];
+        }
+
+        ClassLoader classLoader = new ProjectClassLoader(javaProject);
+        PluginDescriptor plugin;
+        try {
+            plugin = KvasirPluginUtils.getPluginDescriptor(pluginFile
+                .getContents());
+        } catch (IllegalSyntaxException ex) {
+            throw new CoreException(constructStatus("Can't read " + pluginFile,
+                ex));
+        } catch (ValidationException ex) {
+            throw new CoreException(constructStatus("Can't read " + pluginFile,
+                ex));
+        } catch (IOException ex) {
+            throw new CoreException(constructStatus("Can't read " + pluginFile,
+                ex));
+        }
+
+        List exrensionPointList = new ArrayList();
+        Requires requires = plugin.getRequires();
+        if (requires != null) {
+            Import[] imports = requires.getImports();
+            for (int i = 0; i < imports.length; i++) {
+                String pluginResource = METAINF_KVASIR + imports[i].getPlugin()
+                    + "/" + PLUGIN_FILE_NAME;
+                PluginDescriptor p;
+                try {
+                    p = KvasirPluginUtils.getPluginDescriptor(classLoader
+                        .getResourceAsStream(pluginResource));
+                } catch (IllegalSyntaxException ex) {
+                    throw new CoreException(constructStatus("Can't read "
+                        + pluginResource, ex));
+                } catch (ValidationException ex) {
+                    throw new CoreException(constructStatus("Can't read "
+                        + pluginResource, ex));
+                } catch (IOException ex) {
+                    throw new CoreException(constructStatus("Can't read "
+                        + pluginResource, ex));
+                }
+                ExtensionPoint[] eps = p.getExtensionPoints();
+                for (int j = 0; j < eps.length; j++) {
+                    exrensionPointList.add(newExtensionPointInfo(eps[j],
+                        classLoader));
+                }
+            }
+        }
+        ExtensionPoint[] eps = plugin.getExtensionPoints();
+        for (int i = 0; i < eps.length; i++) {
+            exrensionPointList.add(newExtensionPointInfo(eps[i], classLoader));
+        }
+
+        return (IExtensionPointInfo[])exrensionPointList
+            .toArray(new IExtensionPointInfo[0]);
+    }
+
+
+    IExtensionPointInfo newExtensionPointInfo(ExtensionPoint point,
+        ClassLoader classLoader)
+        throws CoreException
+    {
+        String id = point.getFullId();
+        String resourcePath = METAINF_KVASIR_EXTENSIONPOINTS + id
+            + "-schema.xml";
+        InputStream is = classLoader.getResourceAsStream(resourcePath);
+        BeanAccessorBean accessorBean;
+        if (is != null) {
+            try {
+                XMLDocument document = parser_.parse(new InputStreamReader(is,
+                    "UTF-8"));
+                accessorBean = (BeanAccessorBean)mapper_.toBean(document
+                    .getRootElement(), BeanAccessorBean.class);
+            } catch (ValidationException ex) {
+                throw new CoreException(constructStatus(
+                    "Can't get element schema: extension-point=" + id
+                        + ": Can't read " + resourcePath, ex));
+            } catch (IOException ex) {
+                throw new CoreException(constructStatus(
+                    "Can't get element schema: extension-point=" + id
+                        + ": Can't read " + resourcePath, ex));
+            } catch (IllegalSyntaxException ex) {
+                throw new CoreException(constructStatus(
+                    "Can't get element schema: extension-point=" + id
+                        + ": Can't read " + resourcePath, ex));
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException ignore) {
+                }
+            }
+        } else {
+            String elementClassName = point.getElementClassName();
+            Class elementClass;
+            try {
+                elementClass = classLoader.loadClass(elementClassName);
+            } catch (ClassNotFoundException ex) {
+                throw new CoreException(constructStatus(
+                    "Can't get element schema: extension-point=" + id, ex));
+            }
+            accessorBean = new BeanAccessorBean(mapper_
+                .getBeanAccessor(elementClass));
+        }
+
+        return new ExtensionPointInfo(id, accessorBean);
     }
 }
