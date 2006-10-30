@@ -891,7 +891,7 @@ public class KvasirPlugin extends AbstractUIPlugin
      * plugin.xmlで定義されている拡張ポイントに関する情報を表す
      * IExtensionPointInfoの配列です。
      * </p>
-     * 
+     *
      * @param javaProject Kvasirプラグインプロジェクト。
      * @return IExtensionPointの配列。
      */
@@ -968,6 +968,11 @@ public class KvasirPlugin extends AbstractUIPlugin
         InputStream is = classLoader.getResourceAsStream(resourcePath);
         BeanAccessorBean accessorBean;
         if (is != null) {
+            // TODO 現在のXOMの実装では循環参照的に入れ子になっているエレメントについて
+            // 正しくスキーマを出力できないため、 プラグインのJARにはスキーマ定義を入れていない。
+            // そんなわけで実際はこのロジックは使われることはないが、
+            // 将来的にやっぱりプラグインのJARにスキーマを入れておいてそれを使うとなったら
+            // 以下のコードを適宜修正して利用することにしよう。
             try {
                 XMLDocument document = parser_.parse(new InputStreamReader(is,
                     "UTF-8"));
