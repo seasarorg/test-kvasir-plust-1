@@ -1,9 +1,9 @@
 package ${pluginId}.${pluginShortId}.web;
 
-public class DefaultPage
+public class _RootPage
 {
     public String _get()
     {
-        return "string:${pluginName}";
+        return "html:${pluginName}";
     }
 }

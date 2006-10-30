@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE components PUBLIC "-//SEASAR2.3//DTD S2Container//EN" "http://www.seasar.org/dtd/components23.dtd">
+<!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
+  "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <component name="plugin" class="${pluginId}.impl.${pluginClassName}Impl" />
   <component name="${pluginShortId}Application" class="org.seasar.kvasir.cms.ymir.impl.ApplicationImpl" />
@@ -10,4 +11,5 @@
       </arg>
     </initMethod>
   </component>
+  <component name="${pluginShortId}Pop" class="org.seasar.kvasir.cms.pop.pop.GenericPop" instance="prototype" />
 </components>
