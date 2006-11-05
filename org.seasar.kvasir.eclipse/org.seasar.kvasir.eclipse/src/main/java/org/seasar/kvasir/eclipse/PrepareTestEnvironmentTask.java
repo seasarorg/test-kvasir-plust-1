@@ -28,7 +28,7 @@ public class PrepareTestEnvironmentTask
         monitor.beginTask("Resolving", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
         try {
             Artifact artifact = mavenEmbedder.createArtifact(
-                "org.seasar.kvasir.distribution", "kvasir-generic", version_, null, //$NON-NLS-1$ //$NON-NLS-2$
+                "org.seasar.kvasir.distribution", "kvasir-cms", version_, null, //$NON-NLS-1$ //$NON-NLS-2$
                 "zip"); //$NON-NLS-1$
             mavenEmbedder.resolve(artifact, project_
                 .getRemoteArtifactRepositories(), mavenEmbedder
