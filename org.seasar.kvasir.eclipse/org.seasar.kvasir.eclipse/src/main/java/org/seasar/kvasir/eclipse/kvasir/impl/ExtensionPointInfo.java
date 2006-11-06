@@ -20,6 +20,13 @@ public class ExtensionPointInfo
     }
 
 
+    public String toString()
+    {
+        return "{id=" + id_ + ", elementClassAccessor=" + elementClassAccessor_
+            + "}";
+    }
+
+
     public BeanAccessor getElementClassAccessor()
     {
         return elementClassAccessor_;

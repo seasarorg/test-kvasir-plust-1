@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
+import org.seasar.kvasir.eclipse.IKvasirProject;
 import org.seasar.kvasir.eclipse.KvasirPlugin;
 import org.seasar.kvasir.eclipse.PrepareTestEnvironmentTask;
 
@@ -278,7 +279,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 copyZipEntryAsFile(zipFile, entry, file);
 
                 IFolder webapp = getProject().getFolder(
-                    KvasirPlugin.WEBAPP_PATH);
+                    IKvasirProject.WEBAPP_PATH);
                 plugin.unzip(file, webapp, true, new SubProgressMonitor(
                     monitor, 1));
                 webapp.setDerived(true);
@@ -305,7 +306,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             String targetPluginDirectoryName = mavenProject.getArtifactId()
                 + "-" + mavenProject.getArtifact().getVersion();
             IFolder targetPluginDirectory = getProject().getFolder(
-                KvasirPlugin.TEST_PLUGINS_PATH + "/"
+                IKvasirProject.TEST_PLUGINS_PATH + "/"
                     + targetPluginDirectoryName);
             if (targetPluginDirectory.exists()) {
                 targetPluginDirectory.delete(false, new SubProgressMonitor(
@@ -379,7 +380,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     }
 
                     IFolder destinationFolder = project
-                        .getFolder(KvasirPlugin.TEST_PLUGINS_PATH + "/"
+                        .getFolder(IKvasirProject.TEST_PLUGINS_PATH + "/"
                             + artifacts[i].getArtifactId() + "-"
                             + artifacts[i].getVersion());
                     KvasirPlugin.getDefault().unzip(artifacts[i].getFile(),
@@ -402,13 +403,13 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             IProgressMonitor.UNKNOWN);
         try {
             IFolder pluginResources = project
-                .getFolder(KvasirPlugin.PLUGIN_RESOURCES_PATH);
+                .getFolder(IKvasirProject.PLUGIN_RESOURCES_PATH);
             if (!pluginResources.exists()) {
                 return;
             }
 
             KvasirPlugin.copy(pluginResources, project.getFullPath().append(
-                KvasirPlugin.TEST_PLUGIN_TARGET_PATH), false,
+                IKvasirProject.TEST_PLUGIN_TARGET_PATH), false,
                 new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
@@ -458,11 +459,12 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             }
 
             IFolder target = project
-                .getFolder(KvasirPlugin.TEST_PLUGIN_TARGET_PATH);
+                .getFolder(IKvasirProject.TEST_PLUGIN_TARGET_PATH);
             if (!target.exists()) {
                 return;
             }
-            IFolder lib = project.getFolder(KvasirPlugin.TEST_PLUGIN_LIB_PATH);
+            IFolder lib = project
+                .getFolder(IKvasirProject.TEST_PLUGIN_LIB_PATH);
             if (lib.exists()) {
                 IResource[] members = lib.members();
                 for (int i = 0; i < members.length; i++) {
@@ -653,9 +655,9 @@ public class KvasirBuilder extends IncrementalProjectBuilder
 
     IPath toDestinationPath(IResource resource)
     {
-        return new Path(KvasirPlugin.TEST_PLUGIN_TARGET_PATH
+        return new Path(IKvasirProject.TEST_PLUGIN_TARGET_PATH
             + resource.getProjectRelativePath().toPortableString().substring(
-                KvasirPlugin.PLUGIN_RESOURCES_PATH.length()));
+                IKvasirProject.PLUGIN_RESOURCES_PATH.length()));
     }
 
 
@@ -664,7 +666,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
     {
         monitor.beginTask("Cleaning project", 3);
         try {
-            IFolder target = getProject().getFolder(KvasirPlugin.BUILD_PATH);
+            IFolder target = getProject().getFolder(IKvasirProject.BUILD_PATH);
             if (!target.exists()) {
                 target.create(false, true, new SubProgressMonitor(monitor, 1));
             } else {
@@ -721,7 +723,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
     {
         monitor.beginTask("Updating pom.xml", 1);
         try {
-            IFile pluginFile = project.getFile(KvasirPlugin.PLUGIN_FILE_PATH);
+            IFile pluginFile = project.getFile(IKvasirProject.PLUGIN_FILE_PATH);
             if (!pluginFile.exists()) {
                 return;
             }
@@ -807,10 +809,10 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             if (KvasirPlugin.POM_FILE_NAME.equals(path)) {
                 pomXmlUpdated = true;
                 return false;
-            } else if (KvasirPlugin.PLUGIN_RESOURCES_PATH.startsWith(path)) {
+            } else if (IKvasirProject.PLUGIN_RESOURCES_PATH.startsWith(path)) {
                 return true;
-            } else if (path
-                .startsWith(KvasirPlugin.PLUGIN_RESOURCES_PATH + "/")
+            } else if (path.startsWith(IKvasirProject.PLUGIN_RESOURCES_PATH
+                + "/")
                 && !KvasirPlugin.shouldResourceBeIgnored(path)) {
                 if (kind == IResourceDelta.REMOVED) {
                     removedPluginResources.add(resource);
@@ -818,7 +820,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     modifiedPluginResources.add(resource);
                 }
 
-                if (KvasirPlugin.PLUGIN_FILE_PATH.equals(path)) {
+                if (IKvasirProject.PLUGIN_FILE_PATH.equals(path)) {
                     pluginXmlUpdated = true;
                 }
 
