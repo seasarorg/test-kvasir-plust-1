@@ -8,6 +8,7 @@
     <library name="conf" />
     <library name="${pluginId}-${pluginVersion}.jar">
       <export name="**" />
+      <export name="**" resource="true" />
     </library>
   </runtime>
 
