@@ -44,8 +44,12 @@ public class ExtensionPoint
     public String getDescription(Locale locale)
     {
         if (description_ != null) {
-            return description_.getString(locale);
-        } else if (elementClassAccessor_ != null) {
+            String description = description_.getString(locale);
+            if (description != null) {
+                return description;
+            }
+        }
+        if (elementClassAccessor_ != null) {
             return elementClassAccessor_.getDescription(locale);
         } else {
             return null;

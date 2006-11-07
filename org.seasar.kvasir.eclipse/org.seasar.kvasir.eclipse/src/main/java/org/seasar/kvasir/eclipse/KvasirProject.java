@@ -9,8 +9,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -20,7 +22,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.seasar.kvasir.base.plugin.PluginAlfr;
+import org.seasar.kvasir.base.plugin.descriptor.Import;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.base.xom.KvasirBeanAccessorFactory;
 import org.seasar.kvasir.util.collection.I18NProperties;
 import org.seasar.kvasir.util.io.impl.FileResource;
@@ -101,13 +105,14 @@ public class KvasirProject
                         new File(folder.getLocation().toOSString())),
                     PluginDescriptor.PROPERTIES_BASENAME,
                     PluginDescriptor.PROPERTIES_SUFFIX);
-                pluginMap.put(plugin.getId(),
-                    new PluginInfo(plugin, properties));
+                pluginMap.put(plugin.getId(), new PluginInfo(mapper, plugin,
+                    properties));
             }
 
             pluginMap = resolvePlugins(pluginMap, mapper);
 
             ClassLoader classLoader = new ProjectClassLoader(javaProject_);
+            Set importedPluginIdSet = getImportedPluginIdSet(mapper);
             List importedExtensionPointList = new ArrayList();
             for (Iterator itr = pluginMap.values().iterator(); itr.hasNext();) {
                 PluginInfo info = (PluginInfo)itr.next();
@@ -118,7 +123,12 @@ public class KvasirProject
                         points[i], info, classLoader, mapper);
                     extensionPointMap_.put(points[i].getFullId(),
                         extensionPoint);
-                    if (extensionPoint.getElementClassAccessor() != null) {
+                    // kvasir-baseやkvasir-webappなどで定義されているelementClassを
+                    // 使用するような拡張ポイントを持っているプラグインは、requiresされていなくても
+                    // ElementClassAccessorが非nullになってしまうため、
+                    // 単に「ElementClassAccessorがnullでなければ」という風にはできない。
+                    if (importedPluginIdSet.contains(points[i].getParent()
+                        .getId())) {
                         importedExtensionPointList.add(extensionPoint);
                     }
                 }
@@ -131,59 +141,77 @@ public class KvasirProject
     }
 
 
+    Set getImportedPluginIdSet(XOMapper mapper)
+        throws CoreException
+    {
+        Set importedPluginIdSet = new TreeSet();
+        IProject project = javaProject_.getProject();
+        IFile pluginFile = project.getFile(PLUGIN_FILE_PATH);
+        if (pluginFile.exists()) {
+            PluginDescriptor plugin = getPluginDescriptor(pluginFile, mapper);
+            importedPluginIdSet.add(plugin.getId());
+            Requires requires = plugin.getRequires();
+            if (requires != null) {
+                Import[] imports = requires.getImports();
+                for (int i = 0; i < imports.length; i++) {
+                    importedPluginIdSet.add(imports[i].getPlugin());
+                }
+            }
+        }
+        return importedPluginIdSet;
+    }
+
+
     Map resolvePlugins(Map pluginMap, XOMapper mapper)
         throws CoreException
     {
         Map resolved = new HashMap();
         for (Iterator itr = pluginMap.values().iterator(); itr.hasNext();) {
             PluginInfo info = (PluginInfo)itr.next();
-            PluginDescriptor plugin = info.getDescriptor();
-            resolved
-                .put(plugin.getId(), resolvePlugin(info, pluginMap, mapper));
+            resolvePlugin(info, pluginMap, mapper);
+            resolved.put(info.getDescriptor().getId(), info);
         }
         return resolved;
     }
 
 
-    PluginInfo resolvePlugin(PluginInfo info, Map pluginMap, XOMapper mapper)
+    void resolvePlugin(PluginInfo info, Map pluginMap, XOMapper mapper)
         throws CoreException
     {
-        return resolvePlugin(info, pluginMap, info.getDescriptor(), mapper);
+        resolvePlugin(info, pluginMap, info.getDescriptor().getId(), mapper);
     }
 
 
-    PluginInfo resolvePlugin(PluginInfo info, Map pluginMap,
-        PluginDescriptor startPoint, XOMapper mapper)
+    void resolvePlugin(PluginInfo info, Map pluginMap, String startPluginId,
+        XOMapper mapper)
         throws CoreException
     {
         PluginDescriptor plugin = info.getDescriptor();
 
         if (plugin.getBase() == null) {
             // 他のプラグインを継承していない場合は何もしない。
-            return info;
+            return;
         }
 
-        PluginDescriptor parentPlugin = (PluginDescriptor)pluginMap.get(plugin
-            .getBase().getPlugin());
-        if (parentPlugin == null) {
+        PluginInfo parentInfo = (PluginInfo)pluginMap.get(plugin.getBase()
+            .getPlugin());
+        if (parentInfo == null) {
             // 親プラグインが見つからない場合は無視する。
             KvasirPlugin.getDefault().log(
                 constructStatus("Parent plugin does not exist: parent="
                     + plugin.getBase().getPlugin() + ", target plugin="
                     + plugin.getId()));
-            return info;
-        } else if (parentPlugin == startPoint) {
+            return;
+        } else if (parentInfo.getDescriptor().getId().equals(startPluginId)) {
             // ループを検出した。
             throw new CoreException(constructStatus("Loop detected: plugin="
-                + startPoint));
+                + startPluginId));
         }
 
         // 親プラグインを解決してからマージする。
-        // TODO plugin.xpropertiesをマージするように。
-        PluginInfo resolved = resolvePlugin(new PluginInfo(parentPlugin, null),
-            pluginMap, startPoint, mapper);
-        return new PluginInfo((PluginDescriptor)mapper.merge(resolved
-            .getDescriptor(), plugin), null);
+        resolvePlugin(parentInfo, pluginMap, startPluginId, mapper);
+
+        info.merge(parentInfo);
     }
 
 
@@ -252,6 +280,9 @@ public class KvasirProject
             Class elementClass = classLoader.loadClass(elementClassName);
             accessor = mapper.getBeanAccessor(elementClass);
         } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+            // クラス自体が見つかっても、そのクラスが依存しているクラスが見つからないとこれがスローされることがある。
+            // その場合は、クラス自体が見つからなかったのと同じ扱いにする。
         }
 
         return new ExtensionPoint(id, pluginInfo.getDescriptor().getId(),
