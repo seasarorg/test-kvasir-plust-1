@@ -1,15 +1,13 @@
-package org.seasar.kvasir.eclipse.kvasir.impl;
+package org.seasar.kvasir.eclipse;
 
 import java.util.Locale;
-
-import org.seasar.kvasir.eclipse.kvasir.IExtensionPointInfo;
 
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.I18NString;
 
 
-public class ExtensionPointInfo
-    implements IExtensionPointInfo
+public class ExtensionPoint
+    implements IExtensionPoint
 {
     private String id_;
 
@@ -20,8 +18,8 @@ public class ExtensionPointInfo
     private BeanAccessor elementClassAccessor_;
 
 
-    public ExtensionPointInfo(String id, String pluginId,
-        I18NString description, BeanAccessor elementClassAccessor)
+    public ExtensionPoint(String id, String pluginId, I18NString description,
+        BeanAccessor elementClassAccessor)
     {
         id_ = id;
         pluginId_ = pluginId;

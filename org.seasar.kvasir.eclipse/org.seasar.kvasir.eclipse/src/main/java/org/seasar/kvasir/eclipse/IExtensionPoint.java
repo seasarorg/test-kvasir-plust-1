@@ -1,4 +1,4 @@
-package org.seasar.kvasir.eclipse.kvasir;
+package org.seasar.kvasir.eclipse;
 
 import java.util.Locale;
 
@@ -10,7 +10,7 @@ import net.skirnir.xom.BeanAccessor;
  * 
  * @author YOKOTA Takehiko
  */
-public interface IExtensionPointInfo
+public interface IExtensionPoint
 {
     /**
      * 拡張ポイントのIDを返します。
