@@ -39,6 +39,8 @@ import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
 import org.seasar.kvasir.eclipse.Globals;
 import org.seasar.kvasir.eclipse.KvasirPlugin;
 
+import net.skirnir.xom.XOMUtils;
+
 
 public class NewPluginWizard extends Wizard
     implements INewWizard, IExecutableExtension
@@ -215,6 +217,9 @@ public class NewPluginWizard extends Wizard
             prop.setProperty("testEnvironmentVersion", secondPage_ //$NON-NLS-1$
                 .getTestEnvironmentVersion());
             prop.setProperty("archetypeId", thirdPage_.getTemplateId()); //$NON-NLS-1$
+            prop.setProperty(
+                "pluginClassName_XML", XOMUtils.toXMLName(secondPage_ //$NON-NLS-1$
+                    .getPluginClassName()));
             LicenseMetaData license = secondPage_.getSelectedLicense();
             if (license != null) {
                 prop.setProperty("license", license.getName()); //$NON-NLS-1$
