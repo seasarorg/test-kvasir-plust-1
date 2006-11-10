@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.seasar.kvasir.plust.feature"
-      label="PLUST Feature"
+      label="+PLUST Feature"
       version="0.0.3"
-      provider-name="The Seasar Foundation"
+      provider-name="The Seasar Project"
       os="linux,macosx,win32"
       ws="carbon,gtk,motif,win32"
       nl="en,ja_JP,ja"
