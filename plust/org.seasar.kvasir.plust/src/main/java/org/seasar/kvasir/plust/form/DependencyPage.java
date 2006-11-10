@@ -29,7 +29,8 @@ public class DependencyPage extends KvasirFormPage
         ScrolledForm form = managedForm.getForm();
         FormToolkit toolkit = managedForm.getToolkit();
         form.setText("依存関係とランタイムライブラリ"); //$NON-NLS-1$
-        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
+        // TODO Eclipse3.1では存在しないAPI呼び出し。
+//        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;
         form.getBody().setLayout(layout);

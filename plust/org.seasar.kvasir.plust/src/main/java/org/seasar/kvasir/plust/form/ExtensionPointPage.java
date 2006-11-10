@@ -19,7 +19,8 @@ public class ExtensionPointPage extends KvasirFormPage
     protected void createFormContent(final IManagedForm managedForm) {
         final ScrolledForm form = managedForm.getForm();
         form.setText(Messages.getString("ExtensionPointPage.title")); //$NON-NLS-1$
-        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
+        // TODO Eclipse3.1では存在しないAPI呼び出し。
+//        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
         block.createContent(managedForm);
     }
 }

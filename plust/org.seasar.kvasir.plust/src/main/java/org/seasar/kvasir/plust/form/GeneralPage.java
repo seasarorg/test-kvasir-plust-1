@@ -38,7 +38,8 @@ public class GeneralPage extends KvasirFormPage
         ScrolledForm form = managedForm.getForm();
         FormToolkit toolkit = managedForm.getToolkit();
         form.setText(Messages.getString("GeneralPage.title")); //$NON-NLS-1$
-        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
+        // TODO Eclipse3.1では存在しないAPI呼び出し。
+//        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
         GridLayout gridLayout = new GridLayout();
         form.getBody().setLayout(gridLayout);
         Composite composite = toolkit.createComposite(form.getBody());
