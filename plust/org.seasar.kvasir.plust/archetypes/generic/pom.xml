@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.seasar.kvasir.plugin</groupId>
     <artifactId>plugin-project</artifactId>
-    <version>3.0.0-EA3-SNAPSHOT</version>
+    <version>3.0.0-EA3</version>
   </parent>
   <groupId>${pluginId}</groupId>
   <artifactId>${pluginId}</artifactId>
