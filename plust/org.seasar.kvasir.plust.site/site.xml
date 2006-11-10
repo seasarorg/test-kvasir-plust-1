@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <description url="http://eclipse.seasar.org/updates/3.1beta/">
+   </description>
    <feature url="features/org.seasar.kvasir.plust.feature_0.0.3.jar" id="org.seasar.kvasir.plust.feature" version="0.0.3" os="linux,macosx,win32" ws="carbon,gtk,motif,win32" nl="en,ja_JP,ja" arch="x86,x86_64">
       <category name="Kvasir"/>
    </feature>
