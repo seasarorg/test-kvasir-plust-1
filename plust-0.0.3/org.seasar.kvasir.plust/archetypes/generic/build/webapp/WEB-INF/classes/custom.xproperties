@@ -1,0 +1,2 @@
+system.developedPlugin.classes.dir=${projectRoot?j_string}/build/classes
+system.developedPluginId=${pluginId}
