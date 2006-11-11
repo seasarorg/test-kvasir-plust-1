@@ -2,7 +2,7 @@
 <feature
       id="org.seasar.kvasir.plust.feature"
       label="+PLUST Feature"
-      version="0.0.3"
+      version="0.0.4"
       provider-name="The Seasar Project"
       os="linux,macosx,win32"
       ws="carbon,gtk,motif,win32"
