@@ -53,6 +53,8 @@ public class KvasirProject
 
     private IJavaProject javaProject_;
 
+    private Map pluginMap_;
+
     private SortedMap extensionPointMap_ = new TreeMap();
 
     private IExtensionPoint[] importedExtensionPoints_ = new IExtensionPoint[0];
@@ -88,7 +90,7 @@ public class KvasirProject
         if (pluginsFolder.exists()) {
             XOMapper mapper = newMapper();
             IResource[] children = pluginsFolder.members();
-            Map pluginMap = new HashMap();
+            pluginMap_ = new HashMap();
             for (int i = 0; i < children.length; i++) {
                 if (children[i].getType() != IResource.FOLDER) {
                     continue;
@@ -105,17 +107,17 @@ public class KvasirProject
                         new File(folder.getLocation().toOSString())),
                     PluginDescriptor.PROPERTIES_BASENAME,
                     PluginDescriptor.PROPERTIES_SUFFIX);
-                pluginMap.put(plugin.getId(), new PluginInfo(mapper, plugin,
+                pluginMap_.put(plugin.getId(), new Plugin(mapper, plugin,
                     properties));
             }
 
-            pluginMap = resolvePlugins(pluginMap, mapper);
+            pluginMap_ = resolvePlugins(pluginMap_, mapper);
 
             ClassLoader classLoader = new ProjectClassLoader(javaProject_);
             Set importedPluginIdSet = getImportedPluginIdSet(mapper);
             List importedExtensionPointList = new ArrayList();
-            for (Iterator itr = pluginMap.values().iterator(); itr.hasNext();) {
-                PluginInfo info = (PluginInfo)itr.next();
+            for (Iterator itr = pluginMap_.values().iterator(); itr.hasNext();) {
+                Plugin info = (Plugin)itr.next();
                 org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint[] points = info
                     .getDescriptor().getExtensionPoints();
                 for (int i = 0; i < points.length; i++) {
@@ -167,7 +169,7 @@ public class KvasirProject
     {
         Map resolved = new HashMap();
         for (Iterator itr = pluginMap.values().iterator(); itr.hasNext();) {
-            PluginInfo info = (PluginInfo)itr.next();
+            Plugin info = (Plugin)itr.next();
             resolvePlugin(info, pluginMap, mapper);
             resolved.put(info.getDescriptor().getId(), info);
         }
@@ -175,14 +177,14 @@ public class KvasirProject
     }
 
 
-    void resolvePlugin(PluginInfo info, Map pluginMap, XOMapper mapper)
+    void resolvePlugin(Plugin info, Map pluginMap, XOMapper mapper)
         throws CoreException
     {
         resolvePlugin(info, pluginMap, info.getDescriptor().getId(), mapper);
     }
 
 
-    void resolvePlugin(PluginInfo info, Map pluginMap, String startPluginId,
+    void resolvePlugin(Plugin info, Map pluginMap, String startPluginId,
         XOMapper mapper)
         throws CoreException
     {
@@ -193,8 +195,7 @@ public class KvasirProject
             return;
         }
 
-        PluginInfo parentInfo = (PluginInfo)pluginMap.get(plugin.getBase()
-            .getPlugin());
+        Plugin parentInfo = (Plugin)pluginMap.get(plugin.getBase().getPlugin());
         if (parentInfo == null) {
             // 親プラグインが見つからない場合は無視する。
             KvasirPlugin.getDefault().log(
@@ -270,7 +271,7 @@ public class KvasirProject
 
     IExtensionPoint newExtensionPoint(
         org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint point,
-        PluginInfo pluginInfo, ClassLoader classLoader, XOMapper mapper)
+        Plugin pluginInfo, ClassLoader classLoader, XOMapper mapper)
         throws CoreException
     {
         String id = point.getFullId();
@@ -313,5 +314,12 @@ public class KvasirProject
         prepareForExtensionPoints();
 
         return importedExtensionPoints_;
+    }
+
+
+    public IPlugin[] getPlugins()
+        throws CoreException
+    {
+        return (IPlugin[])pluginMap_.values().toArray(new IPlugin[0]);
     }
 }

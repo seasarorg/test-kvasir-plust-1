@@ -7,7 +7,8 @@ import org.seasar.kvasir.util.collection.I18NPropertyHandler;
 import net.skirnir.xom.XOMapper;
 
 
-public class PluginInfo
+public class Plugin
+    implements IPlugin
 {
     private XOMapper mapper_;
 
@@ -16,12 +17,22 @@ public class PluginInfo
     private I18NPropertyHandler properties_;
 
 
-    public PluginInfo(XOMapper mapper, PluginDescriptor descriptor,
+    public Plugin(XOMapper mapper, PluginDescriptor descriptor,
         I18NPropertyHandler properties)
     {
         mapper_ = mapper;
         descriptor_ = descriptor;
         properties_ = properties;
+    }
+
+
+    public String getId()
+    {
+        if (descriptor_ != null) {
+            return descriptor_.getId();
+        } else {
+            return null;
+        }
     }
 
 
@@ -37,7 +48,7 @@ public class PluginInfo
     }
 
 
-    public void merge(PluginInfo parentInfo)
+    public void merge(Plugin parentInfo)
     {
         descriptor_ = (PluginDescriptor)mapper_.merge(parentInfo
             .getDescriptor(), descriptor_);

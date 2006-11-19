@@ -78,4 +78,8 @@ public interface IKvasirProject
      */
     IExtensionPoint[] getImportedExtensionPoints()
         throws CoreException;
+
+
+    IPlugin[] getPlugins()
+        throws CoreException;
 }
