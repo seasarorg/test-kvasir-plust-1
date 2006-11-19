@@ -18,6 +18,7 @@ public class ExtensionPage extends KvasirFormPage
     
     protected void createFormContent(final IManagedForm managedForm) {
         final ScrolledForm form = managedForm.getForm();
+        managedForm.setInput(getEditorInput());
         form.setText(Messages.getString("ExtensionPage.title")); //$NON-NLS-1$
         // TODO Eclipse3.1では存在しないAPI呼び出し。
 //        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());

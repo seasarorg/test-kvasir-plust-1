@@ -32,6 +32,13 @@
             class="org.seasar.kvasir.plust.form.PluginsFormEditor"
             id="org.seasar.kvasir.plust.editors.PluginsFormEditor">
       </editor>
+      <editor
+            class="org.seasar.kvasir.plust.editors.MultiPageEditor"
+            contributorClass="org.seasar.kvasir.plust.editors.MultiPageEditorContributor"
+            extensions="mpe"
+            icon="icons/sample.gif"
+            id="org.seasar.kvasir.plust.editors.MultiPageEditor"
+            name="Sample Multi-page Editor"/>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

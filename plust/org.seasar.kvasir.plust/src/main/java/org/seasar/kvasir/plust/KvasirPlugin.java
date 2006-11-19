@@ -46,9 +46,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.osgi.framework.Bundle;
@@ -98,6 +101,8 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public static final String IMG_DECORATION = "icons/kvasir-decoration.gif";
 
+    public static final String IMG_REQUIRED = "icons/required-plugin.gif";
+
     //The shared instance.
     private static KvasirPlugin plugin;
 
@@ -106,6 +111,8 @@ public class KvasirPlugin extends AbstractUIPlugin
     private KvasirConsole console_;
 
     private Set sourceCheckedArtifactIdSet_ = new HashSet();
+
+    private KvasirProject kvasirProject;
 
 
     /**
@@ -169,16 +176,17 @@ public class KvasirPlugin extends AbstractUIPlugin
      */
     public static ImageDescriptor getImageDescriptor(String path)
     {
-        return AbstractUIPlugin.imageDescriptorFromPlugin(
-            PLUGIN_ID, path);
+        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
+
 
     @Override
     protected void initializeImageRegistry(ImageRegistry reg)
     {
-        
+
         super.initializeImageRegistry(reg);
     }
+
 
     public static IStatus constructStatus(Throwable t)
     {
@@ -848,5 +856,13 @@ public class KvasirPlugin extends AbstractUIPlugin
         }
         return Platform.getResourceString(getDefault().getBundle(), "%" + key);
     }
-    
+
+
+    public KvasirProject getKvasirProject(IEditorInput input)
+    {
+        IFileEditorInput editorInput = (IFileEditorInput)input;
+        IProject project = editorInput.getFile().getProject();
+        IJavaProject javaProject = JavaCore.create(project);
+        return new KvasirProject(javaProject);
+    }
 }

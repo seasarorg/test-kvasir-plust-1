@@ -6,13 +6,17 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.IllegalSyntaxException;
 import net.skirnir.xom.ValidationException;
@@ -33,12 +37,20 @@ public class PluginsFormEditor extends FormEditor
     
     private IEditorCommandStack commandStack;
     
+    private KvasirProject kvasirProject;
+    
     protected void setInput(IEditorInput input)
     {
         super.setInput(input);
         // TODO this cast is not safe. Editor's inputs are not only File.
         FileEditorInput editorInput = (FileEditorInput)input;
         IFile file = editorInput.getFile();
+        
+        //setup the java project.
+        IProject project = file.getProject();
+        IJavaProject javaProject = JavaCore.create(project);
+        kvasirProject = new KvasirProject(javaProject);
+        
         //load target file.
         try {
             descriptor = loadXML(file.getLocation().toFile());

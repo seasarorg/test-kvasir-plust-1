@@ -4,12 +4,18 @@
 package org.seasar.kvasir.plust.form;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -17,6 +23,13 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
+import org.seasar.kvasir.plust.IExtensionPoint;
+import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.KvasirProject;
+import org.seasar.kvasir.plust.form.provider.PropertyEditor;
+
+import net.skirnir.xom.BeanAccessor;
+import net.skirnir.xom.PropertyDescriptor;
 
 /**
  * @author shida
@@ -29,6 +42,8 @@ public class ExtensionDetailsPage
     private Object bean;
     private String point;
     private IManagedForm form;
+    private KvasirProject kvasirProject;
+    private List<PropertyEditor> editors = new ArrayList<PropertyEditor>();
     
     
     public ExtensionDetailsPage(Object bean, String point)
@@ -63,18 +78,54 @@ public class ExtensionDetailsPage
         Composite client = toolkit.createComposite(s1);
         client.setLayout(new GridLayout(3,false));
         //TODO this is the only test code.
-        Field[] fields = bean.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            toolkit.createLabel(client, field.getName());
-            toolkit.createLabel(client, ":"); //$NON-NLS-1$
-            Text text = toolkit.createText(client, ""); //$NON-NLS-1$
-            text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        try {
+            IExtensionPoint extensionPoint = kvasirProject.getExtensionPoint(point);
+            BeanAccessor accessor = extensionPoint.getElementClassAccessor();
+            if (accessor != null) {
+                String[] names = accessor.getAttributeNames();
+                System.out.println(accessor.getClass().getName());
+                System.out.println(accessor.getBeanClass());
+                System.out.println(names.length);
+                for (String name : names) {
+                    PropertyDescriptor descriptor = accessor.getAttributeDescriptor(name);
+                    PropertyEditor editor = new PropertyEditor(descriptor, getValue(descriptor));
+                    editor.createContents(client, toolkit);
+                    editors.add(editor);
+                }
+            }
+            if (accessor != null) {
+                String[] names = accessor.getAttributeNames();
+                
+                System.out.println(names.length);
+                for (String name : names) {
+                    PropertyDescriptor descriptor = accessor.getAttributeDescriptor(name);
+                    PropertyEditor editor = new PropertyEditor(descriptor, getValue(descriptor));
+                    editor.createContents(client, toolkit);
+                    editors.add(editor);
+                }
+            }
+        } catch (CoreException e) {
+            // TODO 自動生成された catch ブロック
+            e.printStackTrace();
         }
-        
         toolkit.paintBordersFor(s1);
         s1.setClient(client);
     }
 
+    private String getValue(PropertyDescriptor descriptor) {
+        Method method = descriptor.getReadMethod();
+        try {
+            return String.valueOf(method.invoke(bean, new Object[]{}));
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.forms.IFormPart#commit(boolean)
@@ -90,7 +141,6 @@ public class ExtensionDetailsPage
      */
     public void dispose()
     {
-        // TODO Auto-generated method stub
 
     }
 
@@ -101,6 +151,8 @@ public class ExtensionDetailsPage
     public void initialize(IManagedForm form)
     {
         this.form = form;
+        IEditorInput input = (IEditorInput)form.getInput();
+        this.kvasirProject = KvasirPlugin.getDefault().getKvasirProject(input);
     }
 
 
