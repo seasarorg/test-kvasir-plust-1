@@ -112,7 +112,7 @@ public class NewPluginWizard extends Wizard
                         : new NullProgressMonitor());
                 }
             };
-            
+
             getContainer().run(false, true, operation);
         } catch (InvocationTargetException ex) {
             reportError(ex);
@@ -128,12 +128,15 @@ public class NewPluginWizard extends Wizard
         return true;
     }
 
-    void openPluginEditor() 
+
+    void openPluginEditor()
     {
-        IResource resource = project_.findMember(new Path(KvasirPlugin.MANIFEST_PATH));
+        IResource resource = project_.findMember(new Path(
+            KvasirPlugin.MANIFEST_PATH));
         if (resource.getType() == IResource.FILE) {
             FileEditorInput editorInput = new FileEditorInput((IFile)resource);
-            IWorkbenchPage page = workbench_.getActiveWorkbenchWindow().getActivePage();
+            IWorkbenchPage page = workbench_.getActiveWorkbenchWindow()
+                .getActivePage();
             try {
                 page.openEditor(editorInput, PluginsFormEditor.ID);
             } catch (PartInitException e) {
@@ -141,6 +144,7 @@ public class NewPluginWizard extends Wizard
             }
         }
     }
+
 
     void createProject(IProgressMonitor monitor)
         throws CoreException
@@ -234,8 +238,15 @@ public class NewPluginWizard extends Wizard
                 .replace('.', '/'));
             prop.setProperty("pluginClassName", secondPage_ //$NON-NLS-1$
                 .getPluginClassName());
-            prop.setProperty("testEnvironmentVersion", secondPage_ //$NON-NLS-1$
-                .getTestEnvironmentVersion());
+            prop.setProperty(KvasirPlugin.PROP_TESTENVIRONMENTGROUPID,
+                secondPage_ //$NON-NLS-1$
+                    .getTestEnvironmentGroupId());
+            prop.setProperty(KvasirPlugin.PROP_TESTENVIRONMENTARTIFACTID,
+                secondPage_ //$NON-NLS-1$
+                    .getTestEnvironmentArtifactId());
+            prop.setProperty(KvasirPlugin.PROP_TESTENVIRONMENTVERSION,
+                secondPage_ //$NON-NLS-1$
+                    .getTestEnvironmentVersion());
             prop.setProperty("archetypeId", thirdPage_.getTemplateId()); //$NON-NLS-1$
             prop.setProperty(
                 "pluginClassName_XML", XOMUtils.toXMLName(secondPage_ //$NON-NLS-1$

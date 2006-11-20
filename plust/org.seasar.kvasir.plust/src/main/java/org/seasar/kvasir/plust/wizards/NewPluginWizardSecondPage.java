@@ -19,46 +19,51 @@ import org.seasar.kvasir.plust.KvasirPlugin;
 
 public class NewPluginWizardSecondPage extends WizardPage
 {
-    private Text              pluginIdField_;
+    private Text pluginIdField_;
 
-    private Text              pluginNameField_;
+    private Text pluginNameField_;
 
-    private Text              pluginVersionField_;
+    private Text pluginVersionField_;
 
-    private Text              pluginProviderNameField_;
+    private Text pluginProviderNameField_;
 
-    private Text              pluginClassNameField_;
+    private Text pluginClassNameField_;
 
-    private Button            addLicenseFileButton_;
+    private Button addLicenseFileButton_;
 
-    private Label             licenseLabel_;
+    private Label licenseLabel_;
 
-    private Button[]          licenseButtons_;
+    private Button[] licenseButtons_;
 
-    private Text              testEnvironmentVersionField_;
+    private Text testEnvironmentGroupIdField_;
 
-    private Listener          mustFieldListener_ = new Listener() {
-                                                     public void handleEvent(
-                                                         Event e)
-                                                     {
-                                                         setPageComplete(validatePage());
-                                                     }
-                                                 };
+    private Text testEnvironmentArtifactIdField_;
 
-    private boolean           alreadyShown_;
+    private Text testEnvironmentVersionField_;
 
-    private boolean           addingLicenseFile_;
+    private Listener mustFieldListener_ = new Listener() {
+        public void handleEvent(Event e)
+        {
+            setPageComplete(validatePage());
+        }
+    };
 
-    private LicenseMetaData[] licenses_          = new LicenseMetaData[] { new LicenseMetaData(
-                                                     "asl-2.0.txt", //$NON-NLS-1$
-                                                     KvasirPlugin.getString("NewPluginWizardSecondPage.LICENSE_ASL2.0_NAME")), }; //$NON-NLS-1$
+    private boolean alreadyShown_;
+
+    private boolean addingLicenseFile_;
+
+    private LicenseMetaData[] licenses_ = new LicenseMetaData[] { new LicenseMetaData(
+        "asl-2.0.txt", //$NON-NLS-1$
+        KvasirPlugin.getString("NewPluginWizardSecondPage.LICENSE_ASL2.0_NAME")), }; //$NON-NLS-1$
 
 
     public NewPluginWizardSecondPage()
     {
         super("NewPluginWizardSecondPage"); //$NON-NLS-1$
-        setTitle(KvasirPlugin.getString("NewPluginWizardSecondPage.TITLE_PLUGIN_INFORMATION")); //$NON-NLS-1$
-        setDescription(KvasirPlugin.getString("NewPluginWizardSecondPage.DESCRIPTION_PLUGIN_INFORMATION")); //$NON-NLS-1$
+        setTitle(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.TITLE_PLUGIN_INFORMATION")); //$NON-NLS-1$
+        setDescription(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.DESCRIPTION_PLUGIN_INFORMATION")); //$NON-NLS-1$
         setPageComplete(false);
     }
 
@@ -89,10 +94,12 @@ public class NewPluginWizardSecondPage extends WizardPage
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         group.setFont(font);
-        group.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.GROUP_PLUGIN_PROPERTY")); //$NON-NLS-1$
+        group.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.GROUP_PLUGIN_PROPERTY")); //$NON-NLS-1$
 
         Label pluginNameLabel = new Label(group, SWT.NONE);
-        pluginNameLabel.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_PLUGIN_NAME")); //$NON-NLS-1$
+        pluginNameLabel.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.LABEL_PLUGIN_NAME")); //$NON-NLS-1$
         pluginNameLabel.setFont(font);
 
         pluginNameField_ = new Text(group, SWT.BORDER);
@@ -102,7 +109,8 @@ public class NewPluginWizardSecondPage extends WizardPage
         pluginNameField_.setFont(font);
 
         Label pluginIdLabel = new Label(group, SWT.NONE);
-        pluginIdLabel.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_PLUGIN_ID")); //$NON-NLS-1$
+        pluginIdLabel.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.LABEL_PLUGIN_ID")); //$NON-NLS-1$
         pluginIdLabel.setFont(font);
 
         pluginIdField_ = new Text(group, SWT.BORDER);
@@ -113,7 +121,8 @@ public class NewPluginWizardSecondPage extends WizardPage
         pluginIdField_.addListener(SWT.Modify, mustFieldListener_);
 
         Label pluginVersionLabel = new Label(group, SWT.NONE);
-        pluginVersionLabel.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_VERSION")); //$NON-NLS-1$
+        pluginVersionLabel.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.LABEL_VERSION")); //$NON-NLS-1$
         pluginVersionLabel.setFont(font);
 
         pluginVersionField_ = new Text(group, SWT.BORDER);
@@ -124,7 +133,8 @@ public class NewPluginWizardSecondPage extends WizardPage
         pluginVersionField_.addListener(SWT.Modify, mustFieldListener_);
 
         Label pluginProviderLabel = new Label(group, SWT.NONE);
-        pluginProviderLabel.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_PROVIDER")); //$NON-NLS-1$
+        pluginProviderLabel.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.LABEL_PROVIDER")); //$NON-NLS-1$
         pluginProviderLabel.setFont(font);
 
         pluginProviderNameField_ = new Text(group, SWT.BORDER);
@@ -134,7 +144,8 @@ public class NewPluginWizardSecondPage extends WizardPage
         pluginProviderNameField_.setFont(font);
 
         Label pluginClassNameLabel = new Label(group, SWT.NONE);
-        pluginClassNameLabel.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_INTERFACE")); //$NON-NLS-1$
+        pluginClassNameLabel.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.LABEL_INTERFACE")); //$NON-NLS-1$
         pluginClassNameLabel.setFont(font);
 
         pluginClassNameField_ = new Text(group, SWT.BORDER);
@@ -155,11 +166,13 @@ public class NewPluginWizardSecondPage extends WizardPage
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         group.setFont(font);
-        group.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.GROUP_LICENSE")); //$NON-NLS-1$
+        group.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.GROUP_LICENSE")); //$NON-NLS-1$
 
         addLicenseFileButton_ = new Button(group, SWT.CHECK | SWT.RIGHT);
         addLicenseFileButton_.setFont(font);
-        addLicenseFileButton_.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.BUTTON_CREATE_LICENSE_FILE")); //$NON-NLS-1$
+        addLicenseFileButton_.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.BUTTON_CREATE_LICENSE_FILE")); //$NON-NLS-1$
         addLicenseFileButton_.setSelection(addingLicenseFile_);
         addLicenseFileButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e)
@@ -174,7 +187,8 @@ public class NewPluginWizardSecondPage extends WizardPage
 
         licenseLabel_ = new Label(group, SWT.NONE);
         licenseLabel_.setFont(font);
-        licenseLabel_.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_APPLIED_LICENSE")); //$NON-NLS-1$
+        licenseLabel_.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.LABEL_APPLIED_LICENSE")); //$NON-NLS-1$
         licenseLabel_.setEnabled(addingLicenseFile_);
 
         licenseButtons_ = new Button[licenses_.length];
@@ -198,14 +212,41 @@ public class NewPluginWizardSecondPage extends WizardPage
         group.setLayout(layout);
         group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         group.setFont(font);
-        group.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.GROUP_TEST_ENVIRONMENT")); //$NON-NLS-1$
+        group.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.GROUP_TEST_ENVIRONMENT")); //$NON-NLS-1$
+
+        Label groupIdLabel = new Label(group, SWT.NONE);
+        groupIdLabel
+            .setText(KvasirPlugin
+                .getString("NewPluginWizardSecondPage.LABEL_TEST_ENVIRONMENT_GROUPID")); //$NON-NLS-1$
+        groupIdLabel.setFont(font);
+
+        testEnvironmentGroupIdField_ = new Text(group, SWT.BORDER);
+        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        data.widthHint = 250;
+        testEnvironmentGroupIdField_.setLayoutData(data);
+        testEnvironmentGroupIdField_.setFont(font);
+
+        Label artifactIdLabel = new Label(group, SWT.NONE);
+        artifactIdLabel
+            .setText(KvasirPlugin
+                .getString("NewPluginWizardSecondPage.LABEL_TEST_ENVIRONMENT_ARTIFACTID")); //$NON-NLS-1$
+        artifactIdLabel.setFont(font);
+
+        testEnvironmentArtifactIdField_ = new Text(group, SWT.BORDER);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.widthHint = 250;
+        testEnvironmentArtifactIdField_.setLayoutData(data);
+        testEnvironmentArtifactIdField_.setFont(font);
 
         Label versionLabel = new Label(group, SWT.NONE);
-        versionLabel.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.LABEL_TEST_ENVIRONMENT_VERSION")); //$NON-NLS-1$
+        versionLabel
+            .setText(KvasirPlugin
+                .getString("NewPluginWizardSecondPage.LABEL_TEST_ENVIRONMENT_VERSION")); //$NON-NLS-1$
         versionLabel.setFont(font);
 
         testEnvironmentVersionField_ = new Text(group, SWT.BORDER);
-        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        data = new GridData(GridData.FILL_HORIZONTAL);
         data.widthHint = 250;
         testEnvironmentVersionField_.setLayoutData(data);
         testEnvironmentVersionField_.setFont(font);
@@ -249,10 +290,19 @@ public class NewPluginWizardSecondPage extends WizardPage
 
         pluginNameField_.setText(toPluginName(projectName));
         pluginIdField_.setText(toPluginId(projectName));
-        pluginVersionField_.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.DEFAULT_VERSION")); //$NON-NLS-1$
+        pluginVersionField_.setText(KvasirPlugin
+            .getString("NewPluginWizardSecondPage.DEFAULT_VERSION")); //$NON-NLS-1$
         pluginClassNameField_.setText(toPluginClassName(projectName));
 
-        testEnvironmentVersionField_.setText(KvasirPlugin.getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_VERSION")); //$NON-NLS-1$
+        testEnvironmentGroupIdField_
+            .setText(KvasirPlugin
+                .getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_GROUPID")); //$NON-NLS-1$
+        testEnvironmentArtifactIdField_
+            .setText(KvasirPlugin
+                .getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_ARTIFACTID")); //$NON-NLS-1$
+        testEnvironmentVersionField_
+            .setText(KvasirPlugin
+                .getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_VERSION")); //$NON-NLS-1$
 
         setPageComplete(validatePage());
     }
@@ -345,6 +395,18 @@ public class NewPluginWizardSecondPage extends WizardPage
             }
         }
         return null;
+    }
+
+
+    public String getTestEnvironmentGroupId()
+    {
+        return testEnvironmentGroupIdField_.getText().trim();
+    }
+
+
+    public String getTestEnvironmentArtifactId()
+    {
+        return testEnvironmentArtifactIdField_.getText().trim();
     }
 
 

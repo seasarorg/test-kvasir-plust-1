@@ -13,12 +13,19 @@ public class PrepareTestEnvironmentTask
 {
     private final MavenProject project_;
 
-    private String             version_;
+    private String groupId_;
+
+    private String artifactId_;
+
+    private String version_;
 
 
-    public PrepareTestEnvironmentTask(MavenProject project, String version)
+    public PrepareTestEnvironmentTask(MavenProject project, String groupId,
+        String artifactId, String version)
     {
         project_ = project;
+        groupId_ = groupId;
+        artifactId_ = artifactId;
         version_ = version;
     }
 
@@ -27,8 +34,8 @@ public class PrepareTestEnvironmentTask
     {
         monitor.beginTask("Resolving", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
         try {
-            Artifact artifact = mavenEmbedder.createArtifact(
-                "org.seasar.kvasir.distribution", "kvasir-cms", version_, null, //$NON-NLS-1$ //$NON-NLS-2$
+            Artifact artifact = mavenEmbedder.createArtifact(groupId_,
+                artifactId_, version_, null, //$NON-NLS-1$ //$NON-NLS-2$
                 "zip"); //$NON-NLS-1$
             mavenEmbedder.resolve(artifact, project_
                 .getRemoteArtifactRepositories(), mavenEmbedder

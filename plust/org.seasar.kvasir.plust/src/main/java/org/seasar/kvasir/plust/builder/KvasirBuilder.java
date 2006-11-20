@@ -187,10 +187,23 @@ public class KvasirBuilder extends IncrementalProjectBuilder
 
                 Properties prop = KvasirPlugin.getDefault()
                     .loadBuildProperties(project);
+                String testEnvironmentGroupId = prop
+                    .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTGROUPID);
+                if (testEnvironmentGroupId == null) {
+                    testEnvironmentGroupId = KvasirPlugin
+                        .getString("NewPluginWizardSecondPage.DEFAULT_GROUPID");
+                }
+                String testEnvironmentArtifactId = prop
+                    .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTARTIFACTID);
+                if (testEnvironmentArtifactId == null) {
+                    testEnvironmentArtifactId = KvasirPlugin
+                        .getString("NewPluginWizardSecondPage.DEFAULT_ARTIFACTID");
+                }
                 String testEnvironmentVersion = prop
                     .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTVERSION);
                 if (testEnvironmentVersion != null) {
-                    prepareTestEnvironment(testEnvironmentVersion,
+                    prepareTestEnvironment(testEnvironmentGroupId,
+                        testEnvironmentArtifactId, testEnvironmentVersion,
                         new SubProgressMonitor(monitor, 1));
 
                     Artifact[] artifacts = KvasirPlugin.getDefault()
@@ -241,7 +254,8 @@ public class KvasirBuilder extends IncrementalProjectBuilder
     }
 
 
-    void prepareTestEnvironment(String version, IProgressMonitor monitor)
+    void prepareTestEnvironment(String groupId, String artifactId,
+        String version, IProgressMonitor monitor)
         throws CoreException
     {
         KvasirPlugin plugin = KvasirPlugin.getDefault();
@@ -253,8 +267,8 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 .getFile(KvasirPlugin.POM_FILE_NAME), new SubProgressMonitor(
                 monitor, 1));
             Artifact distArchive = (Artifact)plugin.executeInEmbedder(
-                new PrepareTestEnvironmentTask(mavenProject, version),
-                new SubProgressMonitor(monitor, 1));
+                new PrepareTestEnvironmentTask(mavenProject, groupId,
+                    artifactId, version), new SubProgressMonitor(monitor, 1));
             if (distArchive == null) {
                 plugin.getConsole().logError(
                     "Can't resolve archive: " + distArchive);

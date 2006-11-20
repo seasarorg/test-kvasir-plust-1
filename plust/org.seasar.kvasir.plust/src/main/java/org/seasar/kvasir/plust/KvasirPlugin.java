@@ -87,6 +87,10 @@ public class KvasirPlugin extends AbstractUIPlugin
     /** reise embedder instance or create new one on every operation */
     private static final boolean REUSE_EMBEDDER = false;
 
+    public static final String PROP_TESTENVIRONMENTGROUPID = "testEnvironmentGroupId";
+
+    public static final String PROP_TESTENVIRONMENTARTIFACTID = "testEnvironmentArtifactId";
+
     public static final String PROP_TESTENVIRONMENTVERSION = "testEnvironmentVersion";
 
     public static final String IMG_VERTICAL = "icons/th_vertical.gif";
