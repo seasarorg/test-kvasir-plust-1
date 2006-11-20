@@ -12,9 +12,9 @@ public class EmbedderJob extends Job
 {
     private final MavenEmbedderCallback template_;
 
-    private final MavenEmbedder         embedder_;
+    private final MavenEmbedder embedder_;
 
-    private Object                      callbackResult_;
+    private Object callbackResult_;
 
 
     public EmbedderJob(String name, MavenEmbedderCallback template,

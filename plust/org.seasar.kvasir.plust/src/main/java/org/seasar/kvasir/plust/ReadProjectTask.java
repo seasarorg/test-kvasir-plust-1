@@ -49,7 +49,8 @@ public class ReadProjectTask
             KvasirPlugin.getDefault().getConsole().logError(msg);
 
             try {
-                return mavenEmbedder.readProject(pomFile_.getLocation().toFile());
+                return mavenEmbedder.readProject(pomFile_.getLocation()
+                    .toFile());
             } catch (ProjectBuildingException ex2) {
                 handleProjectBuildingException(ex2);
                 return null;

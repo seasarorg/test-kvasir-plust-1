@@ -36,8 +36,10 @@ public class ExtensionPointDetailsPage
 
     private Text idText;
 
+    private Text description;
 
-    public ExtensionPointDetailsPage()
+
+    public ExtensionPointDetailsPage(KvasirFormPage formPage)
     {
         super();
     }
@@ -59,25 +61,34 @@ public class ExtensionPointDetailsPage
         section = toolkit.createSection(parent, Section.DESCRIPTION
             | Section.TITLE_BAR);
         section.marginWidth = 10;
-        section.setText(Messages.getString("ExtensionPointDetailsPage.section1")); //$NON-NLS-1$
+        section.setText(Messages
+            .getString("ExtensionPointDetailsPage.section1")); //$NON-NLS-1$
 
-        section.setDescription(Messages.getString("ExtensionPointDetailsPage.description1")); //$NON-NLS-1$
+        section.setDescription(Messages
+            .getString("ExtensionPointDetailsPage.description1")); //$NON-NLS-1$
         TableWrapData td = new TableWrapData(TableWrapData.FILL,
             TableWrapData.TOP);
         td.grabHorizontal = true;
         section.setLayoutData(td);
         Composite client = toolkit.createComposite(section);
         client.setLayout(new GridLayout(4, false));
-        toolkit.createLabel(client, Messages.getString("ExtensionPointDetailsPage.id")); //$NON-NLS-1$
+        toolkit.createLabel(client, Messages
+            .getString("ExtensionPointDetailsPage.id")); //$NON-NLS-1$
         toolkit.createLabel(client, ":"); //$NON-NLS-1$
         idText = toolkit.createText(client, ""); //$NON-NLS-1$
         idText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         toolkit.createLabel(client, ""); //$NON-NLS-1$
-        toolkit.createLabel(client, Messages.getString("ExtensionPointDetailsPage.clazz")); //$NON-NLS-1$
+        toolkit.createLabel(client, Messages
+            .getString("ExtensionPointDetailsPage.clazz")); //$NON-NLS-1$
         toolkit.createLabel(client, ":"); //$NON-NLS-1$
         className = toolkit.createText(client, ""); //$NON-NLS-1$
         className.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         toolkit.createButton(client, "...", SWT.NONE); //$NON-NLS-1$
+        toolkit.createLabel(client, "説明"); //$NON-NLS-1$
+        toolkit.createLabel(client, ":"); //$NON-NLS-1$
+        description = toolkit.createText(client, ""); //$NON-NLS-1$
+        description.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
         toolkit.paintBordersFor(section);
         section.setClient(client);
 
@@ -135,7 +146,6 @@ public class ExtensionPointDetailsPage
      */
     public void refresh()
     {
-        // TODO Auto-generated method stub
 
     }
 
@@ -166,8 +176,11 @@ public class ExtensionPointDetailsPage
         IStructuredSelection structuredSelection = (IStructuredSelection)selection;
         ExtensionPoint point = (ExtensionPoint)structuredSelection
             .getFirstElement();
-        section.setDescription(point.getId() + Messages.getString("ExtensionPointDetailsPage.description2")); //$NON-NLS-1$
+        section.setDescription(point.getId()
+            + Messages.getString("ExtensionPointDetailsPage.description2")); //$NON-NLS-1$
+        idText.setText(point.getId());
         className.setText(point.getElementClassName());
+        description.setText(point.getDescription());
     }
 
 }

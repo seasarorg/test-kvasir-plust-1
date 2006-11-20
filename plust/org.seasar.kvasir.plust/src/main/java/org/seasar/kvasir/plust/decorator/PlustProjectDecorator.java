@@ -10,11 +10,13 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.seasar.kvasir.plust.KvasirPlugin;
 
+
 /**
  * @author shida
  *
  */
-public class PlustProjectDecorator implements ILightweightLabelDecorator
+public class PlustProjectDecorator
+    implements ILightweightLabelDecorator
 {
 
     public void decorate(Object element, IDecoration decoration)
@@ -22,9 +24,11 @@ public class PlustProjectDecorator implements ILightweightLabelDecorator
         IProject project = (IProject)element;
         try {
             String[] natureIds = project.getDescription().getNatureIds();
-            for (String id : natureIds) {
+            for (int i = 0; i < natureIds.length; i++) {
+                String id = natureIds[i];
                 if (KvasirPlugin.NATURE_ID.equals(id)) {
-                    decoration.addOverlay(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_DECORATION));
+                    decoration.addOverlay(KvasirPlugin
+                        .getImageDescriptor(KvasirPlugin.IMG_DECORATION));
                 }
             }
         } catch (CoreException e) {
@@ -32,27 +36,29 @@ public class PlustProjectDecorator implements ILightweightLabelDecorator
         }
     }
 
+
     public void addListener(ILabelProviderListener listener)
     {
-        
+
     }
+
 
     public void dispose()
     {
         // TODO Auto-generated method stub
-        
+
     }
+
 
     public boolean isLabelProperty(Object element, String property)
     {
         return false;
     }
 
+
     public void removeListener(ILabelProviderListener listener)
     {
-        
+
     }
-
-
 
 }

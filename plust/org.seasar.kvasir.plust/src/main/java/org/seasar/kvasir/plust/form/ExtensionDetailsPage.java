@@ -3,7 +3,6 @@
  */
 package org.seasar.kvasir.plust.form;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -11,10 +10,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IFormPart;
@@ -31,6 +28,7 @@ import org.seasar.kvasir.plust.form.provider.PropertyEditor;
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.PropertyDescriptor;
 
+
 /**
  * @author shida
  *
@@ -40,12 +38,16 @@ public class ExtensionDetailsPage
 {
 
     private Object bean;
+
     private String point;
+
     private IManagedForm form;
+
     private KvasirProject kvasirProject;
-    private List<PropertyEditor> editors = new ArrayList<PropertyEditor>();
-    
-    
+
+    private List editors = new ArrayList();
+
+
     public ExtensionDetailsPage(Object bean, String point)
     {
         super();
@@ -65,42 +67,49 @@ public class ExtensionDetailsPage
         layout.rightMargin = 2;
         layout.bottomMargin = 2;
         parent.setLayout(layout);
-        
+
         FormToolkit toolkit = form.getToolkit();
-        Section s1 = toolkit.createSection(parent, Section.DESCRIPTION|Section.TITLE_BAR);
+        Section s1 = toolkit.createSection(parent, Section.DESCRIPTION
+            | Section.TITLE_BAR);
         s1.marginWidth = 10;
         s1.setText(Messages.getString("ExtensionDetailsPage.section")); //$NON-NLS-1$
-        
-        s1.setDescription(point + Messages.getString("ExtensionDetailsPage.description")); //$NON-NLS-1$
-        TableWrapData td = new TableWrapData(TableWrapData.FILL, TableWrapData.TOP);
+
+        s1.setDescription(point
+            + Messages.getString("ExtensionDetailsPage.description")); //$NON-NLS-1$
+        TableWrapData td = new TableWrapData(TableWrapData.FILL,
+            TableWrapData.TOP);
         td.grabHorizontal = true;
         s1.setLayoutData(td);
         Composite client = toolkit.createComposite(s1);
-        client.setLayout(new GridLayout(3,false));
+        client.setLayout(new GridLayout(3, false));
         //TODO this is the only test code.
 
         try {
-            IExtensionPoint extensionPoint = kvasirProject.getExtensionPoint(point);
+            IExtensionPoint extensionPoint = kvasirProject
+                .getExtensionPoint(point);
             BeanAccessor accessor = extensionPoint.getElementClassAccessor();
             if (accessor != null) {
                 String[] names = accessor.getAttributeNames();
-                System.out.println(accessor.getClass().getName());
-                System.out.println(accessor.getBeanClass());
-                System.out.println(names.length);
-                for (String name : names) {
-                    PropertyDescriptor descriptor = accessor.getAttributeDescriptor(name);
-                    PropertyEditor editor = new PropertyEditor(descriptor, getValue(descriptor));
+                for (int i = 0; i < names.length; i++) {
+                    String name = names[i];
+                    PropertyDescriptor descriptor = accessor
+                        .getAttributeDescriptor(name);
+                    PropertyEditor editor = new PropertyEditor(descriptor,
+                        getValue(descriptor));
                     editor.createContents(client, toolkit);
                     editors.add(editor);
                 }
             }
             if (accessor != null) {
                 String[] names = accessor.getAttributeNames();
-                
+
                 System.out.println(names.length);
-                for (String name : names) {
-                    PropertyDescriptor descriptor = accessor.getAttributeDescriptor(name);
-                    PropertyEditor editor = new PropertyEditor(descriptor, getValue(descriptor));
+                for (int i = 0; i < names.length; i++) {
+                    String name = names[i];
+                    PropertyDescriptor descriptor = accessor
+                        .getAttributeDescriptor(name);
+                    PropertyEditor editor = new PropertyEditor(descriptor,
+                        getValue(descriptor));
                     editor.createContents(client, toolkit);
                     editors.add(editor);
                 }
@@ -113,10 +122,12 @@ public class ExtensionDetailsPage
         s1.setClient(client);
     }
 
-    private String getValue(PropertyDescriptor descriptor) {
+
+    private String getValue(PropertyDescriptor descriptor)
+    {
         Method method = descriptor.getReadMethod();
         try {
-            return String.valueOf(method.invoke(bean, new Object[]{}));
+            return String.valueOf(method.invoke(bean, new Object[] {}));
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -126,6 +137,7 @@ public class ExtensionDetailsPage
         }
         return "";
     }
+
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.forms.IFormPart#commit(boolean)
@@ -207,7 +219,7 @@ public class ExtensionDetailsPage
      */
     public void selectionChanged(IFormPart part, ISelection selection)
     {
-        
+
     }
 
 }

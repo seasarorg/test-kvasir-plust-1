@@ -7,7 +7,7 @@ import org.seasar.kvasir.plust.launch.console.KvasirConsole;
 public class ConsoleMavenEmbeddedLogger
     implements MavenEmbedderLogger
 {
-    private int                 treshold_ = LEVEL_DEBUG;
+    private int treshold_ = LEVEL_DEBUG;
 
     private final KvasirConsole console_;
 

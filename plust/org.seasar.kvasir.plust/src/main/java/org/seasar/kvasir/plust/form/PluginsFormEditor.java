@@ -6,10 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
@@ -17,7 +14,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.base.plugin.descriptor.impl.PluginDescriptorImpl;
 import org.seasar.kvasir.plust.KvasirPlugin;
-import org.seasar.kvasir.plust.KvasirProject;
+import org.seasar.kvasir.plust.form.command.EditorCommandStack;
+import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
 
 import net.skirnir.xom.IllegalSyntaxException;
 import net.skirnir.xom.ValidationException;
@@ -36,9 +34,7 @@ public class PluginsFormEditor extends FormEditor
 
     private PluginDescriptor descriptor;
 
-    private IEditorCommandStack commandStack;
-
-    private KvasirProject kvasirProject;
+    private IEditorCommandStack commandStack = new EditorCommandStack();
 
 
     protected void setInput(IEditorInput input)
@@ -47,11 +43,6 @@ public class PluginsFormEditor extends FormEditor
         // TODO this cast is not safe. Editor's inputs are not only File.
         FileEditorInput editorInput = (FileEditorInput)input;
         IFile file = editorInput.getFile();
-
-        //setup the java project.
-        IProject project = file.getProject();
-        IJavaProject javaProject = JavaCore.create(project);
-        kvasirProject = new KvasirProject(javaProject);
 
         //load target file.
         try {
@@ -118,7 +109,6 @@ public class PluginsFormEditor extends FormEditor
     }
 
 
-    @Override
     public Object getAdapter(Class adapter)
     {
         if (IEditorCommandStack.class.equals(adapter)) {

@@ -184,7 +184,6 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
-    @Override
     protected void initializeImageRegistry(ImageRegistry reg)
     {
 
@@ -864,9 +863,15 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public KvasirProject getKvasirProject(IEditorInput input)
     {
-        IFileEditorInput editorInput = (IFileEditorInput)input;
-        IProject project = editorInput.getFile().getProject();
+        IProject project = getCurrentProject(input);
         IJavaProject javaProject = JavaCore.create(project);
         return new KvasirProject(javaProject);
+    }
+
+
+    public IProject getCurrentProject(IEditorInput input)
+    {
+        IFileEditorInput editorInput = (IFileEditorInput)input;
+        return editorInput.getFile().getProject();
     }
 }

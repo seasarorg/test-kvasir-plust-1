@@ -38,7 +38,6 @@ public class DependencyPage extends KvasirFormPage
     }
 
 
-    @Override
     protected void createFormContent(IManagedForm managedForm)
     {
         ScrolledForm form = managedForm.getForm();
@@ -50,7 +49,7 @@ public class DependencyPage extends KvasirFormPage
         layout.numColumns = 1;
         form.getBody().setLayout(layout);
         createImportSection(form, toolkit, "依存関係"); //$NON-NLS-1$
-//        createRuntimeSection(form, toolkit, "ランタイムライブラリ"); //$NON-NLS-1$
+        //        createRuntimeSection(form, toolkit, "ランタイムライブラリ"); //$NON-NLS-1$
     }
 
 
@@ -87,7 +86,6 @@ public class DependencyPage extends KvasirFormPage
 
         add.addSelectionListener(new SelectionAdapter() {
 
-            @Override
             public void widgetSelected(SelectionEvent e)
             {
                 ElementListSelectionDialog dialog = new ElementListSelectionDialog(
@@ -96,7 +94,6 @@ public class DependencyPage extends KvasirFormPage
 
                 super.widgetSelected(e);
             }
-
 
         });
         Button del = toolkit.createButton(bp, "(&D)削除", SWT.PUSH); //$NON-NLS-1$

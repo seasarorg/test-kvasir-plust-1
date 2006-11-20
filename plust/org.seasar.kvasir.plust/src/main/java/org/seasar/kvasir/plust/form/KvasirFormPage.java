@@ -6,6 +6,7 @@ package org.seasar.kvasir.plust.form;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
 
 
 /**
@@ -17,7 +18,8 @@ public abstract class KvasirFormPage extends FormPage
     private IEditorCommandStack commandStack;
 
     private PluginDescriptor descriptor;
-    
+
+
     public KvasirFormPage(FormEditor editor, PluginDescriptor descriptor,
         String id, String name)
     {
@@ -27,11 +29,15 @@ public abstract class KvasirFormPage extends FormPage
         this.descriptor = descriptor;
     }
 
-    protected IEditorCommandStack getCommandStack() {
+
+    protected IEditorCommandStack getCommandStack()
+    {
         return this.commandStack;
     }
-    
-    protected PluginDescriptor getDescriptor() {
+
+
+    protected PluginDescriptor getDescriptor()
+    {
         return this.descriptor;
     }
 }

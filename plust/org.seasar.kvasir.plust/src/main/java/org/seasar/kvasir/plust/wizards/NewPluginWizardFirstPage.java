@@ -14,9 +14,9 @@ import org.seasar.kvasir.plust.KvasirPlugin;
 
 public class NewPluginWizardFirstPage extends WizardNewProjectCreationPage
 {
-    private Text   projectNameField_;
+    private Text projectNameField_;
 
-    private Text   locationPathField_;
+    private Text locationPathField_;
 
     private String initialLocationPath_;
 
@@ -24,8 +24,10 @@ public class NewPluginWizardFirstPage extends WizardNewProjectCreationPage
     public NewPluginWizardFirstPage()
     {
         super("NewPluginWizardFirstPage"); //$NON-NLS-1$
-        setTitle(KvasirPlugin.getString("NewPluginWizardFirstPage.TITLE_PLUGIN_PROJECT")); //$NON-NLS-1$
-        setDescription(KvasirPlugin.getString("NewPluginWizardFirstPage.DESCRIPTION_PLUGIN_PROJECT")); //$NON-NLS-1$
+        setTitle(KvasirPlugin
+            .getString("NewPluginWizardFirstPage.TITLE_PLUGIN_PROJECT")); //$NON-NLS-1$
+        setDescription(KvasirPlugin
+            .getString("NewPluginWizardFirstPage.DESCRIPTION_PLUGIN_PROJECT")); //$NON-NLS-1$
     }
 
 

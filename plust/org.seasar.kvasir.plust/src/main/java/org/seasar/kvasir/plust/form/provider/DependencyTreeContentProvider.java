@@ -5,9 +5,8 @@ package org.seasar.kvasir.plust.form.provider;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.seasar.kvasir.base.plugin.descriptor.Import;
 import org.seasar.kvasir.base.plugin.descriptor.Requires;
-import org.seasar.kvasir.util.dependency.Dependency;
+
 
 /**
  * @author shida

@@ -18,7 +18,6 @@ public class DependencyLabelProvider extends LabelProvider
     implements IBaseLabelProvider
 {
 
-    @Override
     public String getText(Object element)
     {
         if (element instanceof Import) {
@@ -29,11 +28,11 @@ public class DependencyLabelProvider extends LabelProvider
     }
 
 
-    @Override
     public Image getImage(Object element)
     {
         if (element instanceof Import) {
-            return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_REQUIRED).createImage();
+            return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_REQUIRED)
+                .createImage();
         }
         return super.getImage(element);
     }

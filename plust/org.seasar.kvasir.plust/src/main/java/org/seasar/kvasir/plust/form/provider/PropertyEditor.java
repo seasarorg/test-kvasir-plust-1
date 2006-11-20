@@ -19,7 +19,6 @@ public class PropertyEditor
     private PropertyDescriptor descriptor;
 
     private String value;
-    
 
 
     public PropertyEditor(PropertyDescriptor descriptor, String value)

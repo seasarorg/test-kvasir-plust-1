@@ -30,25 +30,23 @@ import org.seasar.kvasir.plust.KvasirPlugin;
 public class KvasirConsole extends MessageConsole
     implements IPropertyChangeListener, ITraceable
 {
-    private static final boolean TRACE_ENABLED = Boolean
-                                                   .valueOf(
-                                                       Platform
-                                                           .getDebugOption("org.maven.ide.eclipse/console"))
-                                                   .booleanValue();
+    private static final boolean TRACE_ENABLED = Boolean.valueOf(
+        Platform.getDebugOption("org.maven.ide.eclipse/console"))
+        .booleanValue();
 
-    private boolean              initialized   = false;
+    private boolean initialized = false;
 
     // console is visible in the Console view
-    private boolean              visible       = false;
+    private boolean visible = false;
 
-    private ConsoleDocument      document;
+    private ConsoleDocument document;
 
     // created colors for each line type - must be disposed at shutdown
-    private Color                commandColor;
+    private Color commandColor;
 
-    private Color                messageColor;
+    private Color messageColor;
 
-    private Color                errorColor;
+    private Color errorColor;
 
     // streams for each command type - each stream has its own color
     private MessageConsoleStream commandStream;
@@ -67,7 +65,8 @@ public class KvasirConsole extends MessageConsole
     public KvasirConsole()
     {
         // TODO: extract constants
-        super("Kvasir/Sora", KvasirPlugin.getImageDescriptor("icons/kvasir.gif"));
+        super("Kvasir/Sora", KvasirPlugin
+            .getImageDescriptor("icons/kvasir.gif"));
         this.document = new ConsoleDocument();
         //    CVSProviderPlugin.getPlugin().setConsoleListener(CVSOutputConsole.this);
         //    CVSUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(CVSOutputConsole.this);
@@ -269,11 +268,9 @@ public class KvasirConsole extends MessageConsole
     public class MyLifecycle
         implements org.eclipse.ui.console.IConsoleListener, ITraceable
     {
-        private final boolean TRACE_ENABLED = Boolean
-                                                .valueOf(
-                                                    Platform
-                                                        .getDebugOption("org.maven.ide.eclipse/console"))
-                                                .booleanValue();
+        private final boolean TRACE_ENABLED = Boolean.valueOf(
+            Platform.getDebugOption("org.maven.ide.eclipse/console"))
+            .booleanValue();
 
 
         public boolean isTraceEnabled()

@@ -10,9 +10,9 @@ import org.eclipse.ui.part.IPageBookViewPage;
 public class KvasirConsolePageParticipant
     implements IConsolePageParticipant
 {
-    private KvasirConsole             console_;
+    private KvasirConsole console_;
 
-    private IPageBookViewPage         page_;
+    private IPageBookViewPage page_;
 
     private KvasirConsoleRemoveAction consoleRemoveAction_;
 

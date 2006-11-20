@@ -5,7 +5,6 @@ package org.seasar.kvasir.plust.form;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -94,7 +93,6 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
 
     class MasterLabelProvider extends LabelProvider
     {
-        @Override
         public String getText(Object obj)
         {
             if (obj instanceof Extension) {
@@ -104,11 +102,12 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
             return obj.toString();
         }
 
-        @Override
+
         public Image getImage(Object obj)
         {
             if (obj instanceof Extension) {
-                return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_EXTENSION).createImage();
+                return KvasirPlugin.getImageDescriptor(
+                    KvasirPlugin.IMG_EXTENSION).createImage();
             }
             return null;
         }
@@ -118,7 +117,6 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
     /* (non-Javadoc)
      * @see org.eclipse.ui.forms.MasterDetailsBlock#createMasterPart(org.eclipse.ui.forms.IManagedForm, org.eclipse.swt.widgets.Composite)
      */
-    @Override
     protected void createMasterPart(final IManagedForm managedForm,
         Composite parent)
     {
@@ -127,7 +125,7 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
             | Section.TITLE_BAR);
         section.setText("Kvasirプラグイン拡張ポイント"); //$NON-NLS-1$
         section
-        .setDescription("Kvasirプラグインが拡張する機能を選択します。選択できる拡張は、依存ページで指定したプラグインによって異なります。また、拡張する機能によって、設定できる項目も変わります。"); //$NON-NLS-1$
+            .setDescription("Kvasirプラグインが拡張する機能を選択します。選択できる拡張は、依存ページで指定したプラグインによって異なります。また、拡張する機能によって、設定できる項目も変わります。"); //$NON-NLS-1$
         section.marginWidth = 10;
         section.marginHeight = 5;
         Composite client = toolkit.createComposite(section, SWT.WRAP);
@@ -167,7 +165,6 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
     /* (non-Javadoc)
      * @see org.eclipse.ui.forms.MasterDetailsBlock#createToolBarActions(org.eclipse.ui.forms.IManagedForm)
      */
-    @Override
     protected void createToolBarActions(IManagedForm managedForm)
     {
         final ScrolledForm form = managedForm.getForm();
@@ -179,7 +176,8 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
             }
         };
         haction.setChecked(true);
-        haction.setImageDescriptor(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_HORIZONTAL));
+        haction.setImageDescriptor(KvasirPlugin
+            .getImageDescriptor(KvasirPlugin.IMG_HORIZONTAL));
         Action vaction = new Action("ver", Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
             public void run()
             {
@@ -188,7 +186,8 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
             }
         };
         vaction.setChecked(false);
-        vaction.setImageDescriptor(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_VERTICAL));
+        vaction.setImageDescriptor(KvasirPlugin
+            .getImageDescriptor(KvasirPlugin.IMG_VERTICAL));
         form.getToolBarManager().add(haction);
         form.getToolBarManager().add(vaction);
     }
@@ -197,7 +196,6 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
     /* (non-Javadoc)
      * @see org.eclipse.ui.forms.MasterDetailsBlock#registerPages(org.eclipse.ui.forms.DetailsPart)
      */
-    @Override
     protected void registerPages(DetailsPart detailsPart)
     {
         detailsPart.setPageProvider(new ExtensionDetailsPageProvider());
