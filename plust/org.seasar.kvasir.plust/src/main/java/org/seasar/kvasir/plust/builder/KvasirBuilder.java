@@ -51,14 +51,15 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
+import org.seasar.kvasir.maven.plugin.ArtifactNotFoundException;
+import org.seasar.kvasir.maven.plugin.ArtifactPattern;
+import org.seasar.kvasir.maven.plugin.ArtifactUtils;
+import org.seasar.kvasir.maven.plugin.KvasirPluginUtils;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.PrepareTestEnvironmentTask;
 
 import net.skirnir.freyja.TemplateEvaluator;
-import net.skirnir.kvasir.m2.plugin.kvasir.ArtifactNotFoundException;
-import net.skirnir.kvasir.m2.plugin.kvasir.ArtifactPattern;
-import net.skirnir.kvasir.m2.plugin.kvasir.ArtifactUtils;
 
 
 public class KvasirBuilder extends IncrementalProjectBuilder
@@ -388,8 +389,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 for (int i = 0; i < artifacts.length; i++) {
                     subMonitor.worked(1);
 
-                    if (!"zip".equals(artifacts[i].getType())
-                        || !"runtime".equals(artifacts[i].getScope())) {
+                    if (!KvasirPluginUtils.isPluginArtifact(artifacts[i])) {
                         continue;
                     }
 

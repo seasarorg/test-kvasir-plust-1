@@ -15,6 +15,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.base.plugin.descriptor.impl.PluginDescriptorImpl;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
 
@@ -34,40 +35,48 @@ public class PluginsFormEditor extends FormEditor
     public static final String ID = "org.seasar.kvasir.plust.editors.PluginsFormEditor"; //$NON-NLS-1$
 
     private PluginDescriptor descriptor;
-    
+
     private IEditorCommandStack commandStack;
-    
+
     private KvasirProject kvasirProject;
-    
+
+
     protected void setInput(IEditorInput input)
     {
         super.setInput(input);
         // TODO this cast is not safe. Editor's inputs are not only File.
         FileEditorInput editorInput = (FileEditorInput)input;
         IFile file = editorInput.getFile();
-        
+
         //setup the java project.
         IProject project = file.getProject();
         IJavaProject javaProject = JavaCore.create(project);
         kvasirProject = new KvasirProject(javaProject);
-        
+
         //load target file.
         try {
             descriptor = loadXML(file.getLocation().toFile());
         } catch (Exception e) {
-            KvasirPlugin.getDefault().log(Messages.getString("PluginsFormEditor.warn"), e); //$NON-NLS-1$
-            descriptor = new PluginDescriptor();
+            KvasirPlugin.getDefault().log(
+                Messages.getString("PluginsFormEditor.warn"), e); //$NON-NLS-1$
+            descriptor = new PluginDescriptorImpl();
         }
     }
-    
-    private PluginDescriptor loadXML(File file) throws IllegalSyntaxException, FileNotFoundException, IOException, ValidationException {
+
+
+    private PluginDescriptor loadXML(File file)
+        throws IllegalSyntaxException, FileNotFoundException, IOException,
+        ValidationException
+    {
         XMLParser parser = XMLParserFactory.newInstance();
         XMLDocument document = parser.parse(new FileReader(file));
         XOMapper mapper = XOMapperFactory.newInstance();
         mapper.setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
-        return (PluginDescriptor)mapper.toBean(document.getRootElement(), PluginDescriptor.class);
+        return (PluginDescriptor)mapper.toBean(document.getRootElement(),
+            PluginDescriptor.class);
     }
-    
+
+
     protected void addPages()
     {
         try {
@@ -77,22 +86,23 @@ public class PluginsFormEditor extends FormEditor
             addPage(new ExtensionPointPage(this, descriptor));
             addPage(new SourcePage(this, descriptor));
         } catch (PartInitException e) {
-            KvasirPlugin.getDefault().log(Messages.getString("PluginsFormEditor.error"), e); //$NON-NLS-1$
+            KvasirPlugin.getDefault().log(
+                Messages.getString("PluginsFormEditor.error"), e); //$NON-NLS-1$
         }
-        
+
     }
 
 
     public void doSave(IProgressMonitor monitor)
     {
-//        FileEditorInput editorInput = (FileEditorInput)getEditorInput();
-//        IFile file = editorInput.getFile();
-//        XOMapper mapper = XOMapperFactory.newInstance();
-//        StringWriter writer = new StringWriter();
-//        mapper.toXML(descriptor, writer);
-//        writer.flush();
-//        String xml = writer.toString();
-//        file.setContents(writer., true, true, monitor);
+        //        FileEditorInput editorInput = (FileEditorInput)getEditorInput();
+        //        IFile file = editorInput.getFile();
+        //        XOMapper mapper = XOMapperFactory.newInstance();
+        //        StringWriter writer = new StringWriter();
+        //        mapper.toXML(descriptor, writer);
+        //        writer.flush();
+        //        String xml = writer.toString();
+        //        file.setContents(writer., true, true, monitor);
     }
 
 
@@ -106,6 +116,7 @@ public class PluginsFormEditor extends FormEditor
     {
         return false;
     }
+
 
     @Override
     public Object getAdapter(Class adapter)

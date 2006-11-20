@@ -10,8 +10,8 @@
 	<classpathentry kind="lib" path="lib/freyja-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/xom-0.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/xom-tiger-0.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/kvasir-base-3.0.0-EA3.jar"/>
-	<classpathentry kind="lib" path="lib/kvasir-util-3.0.0-EA3.jar"/>
-	<classpathentry kind="lib" path="lib/maven-kvasir-plugin-3.0.0-EA3.jar"/>
+	<classpathentry kind="lib" path="lib/kvasir-base-3.0.0-EA4-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/kvasir-util-3.0.0-EA4-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/maven-kvasir-plugin-3.0.0-EA4-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
