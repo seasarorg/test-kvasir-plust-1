@@ -192,13 +192,13 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTGROUPID);
                 if (testEnvironmentGroupId == null) {
                     testEnvironmentGroupId = KvasirPlugin
-                        .getString("NewPluginWizardSecondPage.DEFAULT_GROUPID");
+                        .getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_GROUPID");
                 }
                 String testEnvironmentArtifactId = prop
                     .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTARTIFACTID);
                 if (testEnvironmentArtifactId == null) {
                     testEnvironmentArtifactId = KvasirPlugin
-                        .getString("NewPluginWizardSecondPage.DEFAULT_ARTIFACTID");
+                        .getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_ARTIFACTID");
                 }
                 String testEnvironmentVersion = prop
                     .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTVERSION);
@@ -394,11 +394,9 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     }
 
                     IFolder destinationFolder = project
-                        .getFolder(IKvasirProject.TEST_PLUGINS_PATH + "/"
-                            + artifacts[i].getArtifactId() + "-"
-                            + artifacts[i].getVersion());
+                        .getFolder(IKvasirProject.TEST_PLUGINS_PATH);
                     KvasirPlugin.getDefault().unzip(artifacts[i].getFile(),
-                        destinationFolder, false,
+                        destinationFolder, true,
                         new SubProgressMonitor(monitor, 1));
                 }
             } finally {
