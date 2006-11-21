@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
+import org.seasar.kvasir.base.classloader.FilteredClassLoader;
 import org.seasar.kvasir.base.plugin.PluginAlfr;
 import org.seasar.kvasir.base.plugin.descriptor.Import;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
@@ -113,7 +114,10 @@ public class KvasirProject
 
             pluginMap_ = resolvePlugins(pluginMap_, mapper);
 
-            ClassLoader classLoader = new ProjectClassLoader(javaProject_);
+            ClassLoader classLoader = new ProjectClassLoader(javaProject_,
+                new FilteredClassLoader(getClass().getClassLoader(),
+                    new String[] { "net.skirnir.xom.annotation.*" },
+                    new String[] {}));
             Set importedPluginIdSet = getImportedPluginIdSet(mapper);
             List importedExtensionPointList = new ArrayList();
             for (Iterator itr = pluginMap_.values().iterator(); itr.hasNext();) {
