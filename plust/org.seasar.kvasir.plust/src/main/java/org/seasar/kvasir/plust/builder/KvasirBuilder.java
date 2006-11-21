@@ -127,7 +127,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 Artifact[] artifacts = null;
                 if (updateDependingPlugins || updateLib) {
                     artifacts = KvasirPlugin.getDefault().gatherArtifacts(
-                        project.getFile(KvasirPlugin.POM_FILE_NAME),
+                        project.getFile(IKvasirProject.POM_FILE_NAME),
                         new SubProgressMonitor(monitor, 1));
                 }
 
@@ -182,10 +182,6 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     }
                 }
             } else {
-                updatePomXml(project, new SubProgressMonitor(monitor, 1));
-                KvasirPlugin.getDefault().resetSourceCheckedSet();
-                updateClasspath(javaProject, new SubProgressMonitor(monitor, 1));
-
                 Properties prop = KvasirPlugin.getDefault()
                     .loadBuildProperties(project);
                 String testEnvironmentGroupId = prop
@@ -206,10 +202,16 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     prepareTestEnvironment(testEnvironmentGroupId,
                         testEnvironmentArtifactId, testEnvironmentVersion,
                         new SubProgressMonitor(monitor, 1));
+                }
 
+                updatePomXml(project, new SubProgressMonitor(monitor, 1));
+                KvasirPlugin.getDefault().resetSourceCheckedSet();
+                updateClasspath(javaProject, new SubProgressMonitor(monitor, 1));
+
+                if (testEnvironmentVersion != null) {
                     Artifact[] artifacts = KvasirPlugin.getDefault()
                         .gatherArtifacts(
-                            project.getFile(KvasirPlugin.POM_FILE_NAME),
+                            project.getFile(IKvasirProject.POM_FILE_NAME),
                             new SubProgressMonitor(monitor, 1));
 
                     deployRequiredPlugins(project, artifacts,
@@ -265,7 +267,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             IProgressMonitor.UNKNOWN);
         try {
             MavenProject mavenProject = plugin.getMavenProject(getProject()
-                .getFile(KvasirPlugin.POM_FILE_NAME), new SubProgressMonitor(
+                .getFile(IKvasirProject.POM_FILE_NAME), new SubProgressMonitor(
                 monitor, 1));
             Artifact distArchive = (Artifact)plugin.executeInEmbedder(
                 new PrepareTestEnvironmentTask(mavenProject, groupId,
@@ -386,6 +388,9 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             subMonitor
                 .beginTask("Gathering required plugins", artifacts.length);
             try {
+                IFolder destinationFolder = project
+                    .getFolder(IKvasirProject.TEST_PLUGINS_PATH);
+
                 for (int i = 0; i < artifacts.length; i++) {
                     subMonitor.worked(1);
 
@@ -393,8 +398,6 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                         continue;
                     }
 
-                    IFolder destinationFolder = project
-                        .getFolder(IKvasirProject.TEST_PLUGINS_PATH);
                     KvasirPlugin.getDefault().unzip(artifacts[i].getFile(),
                         destinationFolder, true,
                         new SubProgressMonitor(monitor, 1));
@@ -438,7 +441,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             if (artifacts == null) {
                 return;
             }
-            IFile pomFile = project.getFile(KvasirPlugin.POM_FILE_NAME);
+            IFile pomFile = project.getFile(IKvasirProject.POM_FILE_NAME);
             if (!pomFile.exists()) {
                 return;
             }
@@ -739,7 +742,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             if (!pluginFile.exists()) {
                 return;
             }
-            IFile pomFile = project.getFile(KvasirPlugin.POM_FILE_NAME);
+            IFile pomFile = project.getFile(IKvasirProject.POM_FILE_NAME);
             if (!pomFile.exists()) {
                 return;
             }
@@ -758,7 +761,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
 
             KvasirPlugin.getDefault()
                 .executeInEmbedder(
-                    new UpdatePluginDependenciesTask(pomFile, imports,
+                    new UpdatePluginDependenciesTask(project, imports,
                         testEnvironmentVersion),
                     new SubProgressMonitor(monitor, 1));
         } catch (CoreException ex) {
@@ -778,7 +781,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
         Set entries = new HashSet();
         Set moduleArtifacts = new HashSet();
         IFile pomFile = javaProject.getProject().getFile(
-            KvasirPlugin.POM_FILE_NAME);
+            IKvasirProject.POM_FILE_NAME);
         KvasirPlugin.getDefault().resolveClasspathEntries(entries,
             moduleArtifacts, pomFile, true, true, monitor);
 
@@ -818,7 +821,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 System.out.println("processed (kind=" + kind + ")");
             }
 
-            if (KvasirPlugin.POM_FILE_NAME.equals(path)) {
+            if (IKvasirProject.POM_FILE_NAME.equals(path)) {
                 pomXmlUpdated = true;
                 return false;
             } else if (IKvasirProject.PLUGIN_RESOURCES_PATH.startsWith(path)) {

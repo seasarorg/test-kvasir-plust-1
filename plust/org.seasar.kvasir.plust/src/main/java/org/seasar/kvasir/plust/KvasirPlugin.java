@@ -80,8 +80,6 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public static final String POM_MARKER_ID = PLUGIN_ID + ".pomMarker";
 
-    public static final String POM_FILE_NAME = "pom.xml";
-
     public static final String LICENSES_PATH = "licenses";
 
     /** reise embedder instance or create new one on every operation */
@@ -508,7 +506,7 @@ public class KvasirPlugin extends AbstractUIPlugin
 
                     String module = (String)it.next();
                     IResource memberPom = parent.findMember(module + "/"
-                        + POM_FILE_NAME);
+                        + IKvasirProject.POM_FILE_NAME);
                     if (memberPom != null
                         && memberPom.getType() == IResource.FILE) {
                         resolveClasspathEntries(libraryEntries,

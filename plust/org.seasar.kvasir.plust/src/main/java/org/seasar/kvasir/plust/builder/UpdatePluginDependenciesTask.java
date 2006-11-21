@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,17 +20,23 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
+import org.seasar.kvasir.base.Version;
+import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
 
 
 public class UpdatePluginDependenciesTask
     implements MavenEmbedderCallback
 {
+    private IProject project_;
+
     private IFile pomFile_;
 
     private Import[] imports_;
@@ -36,10 +44,11 @@ public class UpdatePluginDependenciesTask
     private String defaultVersion_ = "RELEASE";
 
 
-    public UpdatePluginDependenciesTask(IFile pomFile, Import[] imports,
+    public UpdatePluginDependenciesTask(IProject project, Import[] imports,
         String defaultVersion)
     {
-        pomFile_ = pomFile;
+        project_ = project;
+        pomFile_ = project.getFile(IKvasirProject.POM_FILE_PATH);
         imports_ = imports;
         if (defaultVersion != null) {
             defaultVersion_ = defaultVersion;
@@ -91,7 +100,10 @@ public class UpdatePluginDependenciesTask
                 if (version == null) {
                     version = (String)pluginVersionMap.get(plugin);
                     if (version == null) {
-                        version = defaultVersion_;
+                        version = getVersionFromTestEnvironment(plugin);
+                        if (version == null) {
+                            version = defaultVersion_;
+                        }
                     }
                 }
                 dependency.setGroupId(plugin);
@@ -137,5 +149,37 @@ public class UpdatePluginDependenciesTask
         }
 
         return null;
+    }
+
+
+    String getVersionFromTestEnvironment(String artifactId)
+    {
+        String prefix = artifactId + "-";
+        IFolder plugins = project_.getFolder(IKvasirProject.TEST_PLUGINS_PATH);
+        if (!plugins.exists()) {
+            return null;
+        }
+        IResource[] children;
+        try {
+            children = plugins.members();
+        } catch (CoreException ex) {
+            KvasirPlugin.getDefault().log(ex);
+            return null;
+        }
+        List versionList = new ArrayList();
+        for (int i = 0; i < children.length; i++) {
+            IResource child = children[i];
+            String name = child.getName();
+            if (name.startsWith(prefix)) {
+                versionList.add(new Version(name.substring(prefix.length())));
+            }
+        }
+        Version[] versions = (Version[])versionList.toArray(new Version[0]);
+        if (versions.length == 0) {
+            return null;
+        } else {
+            Arrays.sort(versions);
+            return versions[versions.length - 1].getString();
+        }
     }
 }

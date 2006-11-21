@@ -11,6 +11,10 @@ public interface IKvasirProject
     String PLUGIN_FILE_PATH = PLUGIN_RESOURCES_PATH + "/"
         + PluginAlfr.PLUGIN_XML;
 
+    String POM_FILE_NAME = "pom.xml";
+
+    String POM_FILE_PATH = POM_FILE_NAME;
+
     String BUILD_PATH = "build";
 
     String WEBAPP_PATH = BUILD_PATH + "/webapp";
