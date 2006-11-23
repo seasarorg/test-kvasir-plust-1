@@ -98,4 +98,10 @@ public class EditorCommandStack
             listener.fireCommandStachChanged();
         }
     }
+
+
+    public boolean isDirty()
+    {
+        return !stack.isEmpty();
+    }
 }

@@ -105,6 +105,10 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public static final String IMG_REQUIRED = "icons/required-plugin.gif";
 
+    public static final String IMG_LIBRARY = "icons/runtime-path.gif";
+
+    public static final String IMG_EXTENSION_POINT = "icons/extension-point.gif";
+
     //The shared instance.
     private static KvasirPlugin plugin;
 
@@ -113,8 +117,6 @@ public class KvasirPlugin extends AbstractUIPlugin
     private KvasirConsole console_;
 
     private Set sourceCheckedArtifactIdSet_ = new HashSet();
-
-    private KvasirProject kvasirProject;
 
 
     /**

@@ -3,23 +3,23 @@
  */
 package org.seasar.kvasir.plust.form;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -36,11 +36,14 @@ import org.eclipse.ui.forms.SectionPart;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
-import org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint;
+import org.seasar.kvasir.base.descriptor.ExtensionElement;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.form.command.AddExtensionPointCommand;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
+import org.seasar.kvasir.plust.model.ExtensionPointModel;
+import org.seasar.kvasir.plust.model.PlustLabelProvider;
+import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
 
 
 /**
@@ -51,11 +54,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
     implements IEditorCommandStackListener
 {
 
-    private static final String EXTENSION_ELEMENT = "ExtensionElement";
-
     private KvasirFormPage formPage;
-
-    private IManagedForm managedForm;
 
     private TreeViewer viewer;
 
@@ -66,71 +65,6 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         this.formPage = formPage;
         IEditorCommandStack stack = formPage.getCommandStack();
         stack.addCommandStackListener(this);
-    }
-
-
-    class MasterContentProvider
-        implements ITreeContentProvider
-    {
-        public Object[] getElements(Object inputElement)
-        {
-            return getChildren(inputElement);
-        }
-
-
-        public void dispose()
-        {
-        }
-
-
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
-        {
-        }
-
-
-        public Object[] getChildren(Object parentElement)
-        {
-            if (parentElement.getClass().isArray()) {
-                return (Object[])parentElement;
-            }
-            return null;
-        }
-
-
-        public Object getParent(Object element)
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-
-        public boolean hasChildren(Object element)
-        {
-            // TODO Auto-generated method stub
-            return false;
-        }
-    }
-
-    class MasterLabelProvider extends LabelProvider
-    {
-        public String getText(Object obj)
-        {
-            if (obj instanceof ExtensionPoint) {
-                ExtensionPoint extension = (ExtensionPoint)obj;
-                return extension.getId();
-            }
-            return obj.toString();
-        }
-
-
-        public Image getImage(Object obj)
-        {
-            if (obj instanceof ExtensionPoint) {
-                return KvasirPlugin.getImageDescriptor(
-                    KvasirPlugin.IMG_EXTENSION).createImage();
-            }
-            return null;
-        }
     }
 
 
@@ -175,38 +109,27 @@ public class ExtensionPointBlock extends MasterDetailsBlock
                     .getActiveWorkbenchWindow();
                 IEditorInput editorInput = formPage.getEditorInput();
                 try {
+                    //get ExtensionElement type
+                    IProject project = KvasirPlugin.getDefault()
+                        .getCurrentProject(editorInput);
+                    IJavaProject javaProject = JavaCore.create(project);
+                    IType type = javaProject.findType(ExtensionElement.class.getName());
+                    IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
                     SelectionDialog dialog = JavaUI.createTypeDialog(window
-                        .getShell(), window, KvasirPlugin.getDefault()
-                        .getCurrentProject(editorInput),
-                        IJavaElementSearchConstants.CONSIDER_ALL_TYPES, false);
+                        .getShell(), window, scope,
+                        IJavaElementSearchConstants.CONSIDER_CLASSES, false);
                     dialog.setTitle("拡張ポイントクラスを指定");
                     dialog.setMessage("拡張ポイントクラスを指定:");
                     if (dialog.open() == Dialog.OK) {
                         Object[] result = dialog.getResult();
-                        //Selected class is extension point def.
                         for (int i = 0; i < result.length; i++) {
                             IType object = (IType)result[i];
-                            String[] interfaceNames = object
-                                .getSuperInterfaceNames();
-                            boolean impl = false;
-                            for (int j = 0; j < interfaceNames.length; j++) {
-                                String interfaceName = interfaceNames[j];
-                                if (EXTENSION_ELEMENT.equals(interfaceName)) {
-                                    impl = true;
-                                }
-                            }
-                            if (!impl) {
-                                MessageDialog
-                                    .openError(window.getShell(),
-                                        "拡張ポイントの指定が不正です",
-                                        "拡張ポイントの指定が不正です。拡張ポイントクラスにはExtensionElementインタフェースの実装クラスのみが指定できます。");
-                            } else {
-                                IEditorCommandStack stack = formPage
-                                    .getCommandStack();
-                                stack.execute(new AddExtensionPointCommand(
-                                    formPage.getDescriptor(), object));
-                            }
+                            IEditorCommandStack stack = formPage
+                            .getCommandStack();
+                            stack.execute(new AddExtensionPointCommand(
+                                formPage.getDescriptor(), object));
                         }
+
                     }
                 } catch (JavaModelException e1) {
                     e1.printStackTrace();
@@ -228,8 +151,8 @@ public class ExtensionPointBlock extends MasterDetailsBlock
                 managedForm.fireSelectionChanged(spart, event.getSelection());
             }
         });
-        viewer.setContentProvider(new MasterContentProvider());
-        viewer.setLabelProvider(new MasterLabelProvider());
+        viewer.setContentProvider(new PlustTreeContentProvider());
+        viewer.setLabelProvider(new PlustLabelProvider());
         viewer.setInput(formPage.getDescriptor().getExtensionPoints());
     }
 
@@ -239,7 +162,6 @@ public class ExtensionPointBlock extends MasterDetailsBlock
      */
     protected void createToolBarActions(IManagedForm managedForm)
     {
-        this.managedForm = managedForm;
         final ScrolledForm form = managedForm.getForm();
         Action haction = new Action("hor", Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
             public void run()
@@ -271,7 +193,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
      */
     protected void registerPages(DetailsPart detailsPart)
     {
-        detailsPart.registerPage(ExtensionPoint.class,
+        detailsPart.registerPage(ExtensionPointModel.class,
             new ExtensionPointDetailsPage(formPage));
 
     }

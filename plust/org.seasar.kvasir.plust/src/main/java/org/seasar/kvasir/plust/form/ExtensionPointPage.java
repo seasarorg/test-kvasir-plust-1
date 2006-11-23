@@ -3,7 +3,7 @@ package org.seasar.kvasir.plust.form;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
-import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.plust.model.PluginModel;
 
 
 public class ExtensionPointPage extends KvasirFormPage
@@ -12,9 +12,9 @@ public class ExtensionPointPage extends KvasirFormPage
     private ExtensionPointBlock block;
 
 
-    public ExtensionPointPage(FormEditor editor, PluginDescriptor descriptor)
+    public ExtensionPointPage(FormEditor editor, PluginModel pluginRoot)
     {
-        super(editor, descriptor,
+        super(editor, pluginRoot,
             "extensionPoint", Messages.getString("ExtensionPointPage.name")); //$NON-NLS-1$ //$NON-NLS-2$
         block = new ExtensionPointBlock(this);
     }

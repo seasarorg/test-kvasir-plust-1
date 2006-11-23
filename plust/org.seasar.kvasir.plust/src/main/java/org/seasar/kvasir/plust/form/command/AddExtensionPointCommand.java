@@ -4,8 +4,8 @@
 package org.seasar.kvasir.plust.form.command;
 
 import org.eclipse.jdt.core.IType;
-import org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint;
-import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.plust.model.ExtensionPointModel;
+import org.seasar.kvasir.plust.model.PluginModel;
 
 
 /**
@@ -16,17 +16,17 @@ public class AddExtensionPointCommand
     implements IEditorCommand
 {
 
-    private PluginDescriptor descriptor;
+    private PluginModel root;
 
     private IType extension;
 
-    private ExtensionPoint point;
+    private ExtensionPointModel point;
 
 
-    public AddExtensionPointCommand(PluginDescriptor descriptor, IType extension)
+    public AddExtensionPointCommand(PluginModel root, IType extension)
     {
         super();
-        this.descriptor = descriptor;
+        this.root = root;
         this.extension = extension;
     }
 
@@ -37,10 +37,10 @@ public class AddExtensionPointCommand
     public void execute()
     {
         String id = extension.getPackageFragment().getElementName();
-        point = new ExtensionPoint();
+        point = new ExtensionPointModel();
         point.setId(id);
-        point.setElementClassName(extension.getFullyQualifiedName());
-        descriptor.addExtensionPoint(point);
+        point.setClassName(extension.getFullyQualifiedName());
+        root.addExtensionPoint(point);
     }
 
 
@@ -49,13 +49,13 @@ public class AddExtensionPointCommand
      */
     public void undo()
     {
-        //TODO remove extension.
+        root.removeExtensionPoint(point);
     }
 
 
     public void redo()
     {
-        descriptor.addExtensionPoint(point);
+        root.addExtensionPoint(point);
     }
 
 }

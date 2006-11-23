@@ -56,10 +56,9 @@ public class PluginModel extends PlustModel
 
     private List extensionPoints = new ArrayList();
 
-
     public String getArchetypeId()
     {
-        return archetypeId;
+        return archetypeId != null ? archetypeId : "";
     }
 
 
@@ -126,7 +125,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginClassName()
     {
-        return pluginClassName;
+        return pluginClassName != null ? pluginClassName : "";
     }
 
 
@@ -139,7 +138,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginClassNameXML()
     {
-        return pluginClassNameXML;
+        return pluginClassNameXML != null ? pluginClassNameXML : "";
     }
 
 
@@ -152,7 +151,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginId()
     {
-        return pluginId;
+        return pluginId != null ? pluginId : "";
     }
 
 
@@ -165,7 +164,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginName()
     {
-        return pluginName;
+        return pluginName != null ? pluginName : "";
     }
 
 
@@ -178,7 +177,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginPackagePath()
     {
-        return pluginPackagePath;
+        return pluginPackagePath != null ? pluginPackagePath : "";
     }
 
 
@@ -191,7 +190,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginProviderName()
     {
-        return pluginProviderName;
+        return pluginProviderName != null ? pluginProviderName : "";
     }
 
 
@@ -204,7 +203,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginShortId()
     {
-        return pluginShortId;
+        return pluginShortId != null ? pluginShortId : "";
     }
 
 
@@ -217,7 +216,7 @@ public class PluginModel extends PlustModel
 
     public String getPluginVersion()
     {
-        return pluginVersion;
+        return pluginVersion != null ? pluginVersion : "";
     }
 
 
@@ -281,7 +280,7 @@ public class PluginModel extends PlustModel
 
     public String getTestEnviromentVersion()
     {
-        return testEnviromentVersion;
+        return testEnviromentVersion != null ? testEnviromentVersion : "";
     }
 
 
@@ -294,7 +293,7 @@ public class PluginModel extends PlustModel
 
     public String getTestEnvironmentArtifactId()
     {
-        return testEnvironmentArtifactId;
+        return testEnvironmentArtifactId != null ? testEnvironmentArtifactId : "";
     }
 
 
@@ -307,7 +306,7 @@ public class PluginModel extends PlustModel
 
     public String getTestEnvironmentGroupId()
     {
-        return testEnvironmentGroupId;
+        return testEnvironmentGroupId != null ? testEnvironmentGroupId : "";
     }
 
 

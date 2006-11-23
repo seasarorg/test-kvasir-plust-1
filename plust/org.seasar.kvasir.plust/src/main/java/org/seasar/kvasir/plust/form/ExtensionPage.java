@@ -3,7 +3,7 @@ package org.seasar.kvasir.plust.form;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
-import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.plust.model.PluginModel;
 
 
 public class ExtensionPage extends KvasirFormPage
@@ -12,9 +12,9 @@ public class ExtensionPage extends KvasirFormPage
     private ExtensionPropertyBlock block;
 
 
-    public ExtensionPage(FormEditor editor, PluginDescriptor descriptor)
+    public ExtensionPage(FormEditor editor, PluginModel root)
     {
-        super(editor, descriptor,
+        super(editor, root,
             "extension", Messages.getString("ExtensionPage.name")); //$NON-NLS-2$
         block = new ExtensionPropertyBlock(this);
     }

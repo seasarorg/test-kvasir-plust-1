@@ -19,4 +19,7 @@ public interface IEditorCommandStack
 
 
     void removeCommandStackListener(IEditorCommandStackListener listener);
+
+
+    boolean isDirty();
 }

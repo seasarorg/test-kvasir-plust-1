@@ -5,13 +5,9 @@ package org.seasar.kvasir.plust.form;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -24,8 +20,9 @@ import org.eclipse.ui.forms.SectionPart;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
-import org.seasar.kvasir.base.plugin.descriptor.Extension;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.model.PlustLabelProvider;
+import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
 
 
 /**
@@ -42,75 +39,6 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
     {
         super();
         this.formPage = formPage;
-    }
-
-
-    class MasterContentProvider
-        implements ITreeContentProvider
-    {
-        public Object[] getElements(Object inputElement)
-        {
-            return getChildren(inputElement);
-        }
-
-
-        public void dispose()
-        {
-        }
-
-
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
-        {
-        }
-
-
-        public Object[] getChildren(Object parentElement)
-        {
-            if (parentElement.getClass().isArray()) {
-                return (Object[])parentElement;
-            }
-            if (parentElement instanceof Extension) {
-                Extension extension = (Extension)parentElement;
-                return extension.getElements();
-            }
-            return null;
-        }
-
-
-        public Object getParent(Object element)
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-
-        public boolean hasChildren(Object element)
-        {
-            // TODO Auto-generated method stub
-            return false;
-        }
-    }
-
-    class MasterLabelProvider extends LabelProvider
-    {
-        public String getText(Object obj)
-        {
-            if (obj instanceof Extension) {
-                Extension extension = (Extension)obj;
-                return extension.getPoint();
-            }
-            return obj.toString();
-        }
-
-
-        public Image getImage(Object obj)
-        {
-            if (obj instanceof Extension) {
-                return KvasirPlugin.getImageDescriptor(
-                    KvasirPlugin.IMG_EXTENSION).createImage();
-            }
-            return null;
-        }
     }
 
 
@@ -156,8 +84,8 @@ public class ExtensionPropertyBlock extends MasterDetailsBlock
                 managedForm.fireSelectionChanged(spart, event.getSelection());
             }
         });
-        viewer.setContentProvider(new MasterContentProvider());
-        viewer.setLabelProvider(new MasterLabelProvider());
+        viewer.setContentProvider(new PlustTreeContentProvider());
+        viewer.setLabelProvider(new PlustLabelProvider());
         viewer.setInput(formPage.getDescriptor().getExtensions());
     }
 

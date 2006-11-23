@@ -16,7 +16,7 @@ public class ExtensionPointModel extends PlustModel
 
     public String getClassName()
     {
-        return className;
+        return className != null ? className : "";
     }
 
     public void setClassName(String className)
@@ -27,7 +27,7 @@ public class ExtensionPointModel extends PlustModel
 
     public String getId()
     {
-        return id;
+        return id != null ? id : "";
     }
 
     public void setId(String id)

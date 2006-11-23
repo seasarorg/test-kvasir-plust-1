@@ -1,8 +1,5 @@
 package org.seasar.kvasir.plust.form;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.VerticalRuler;
@@ -10,18 +7,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
-import org.eclipse.ui.forms.editor.FormPage;
-import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
-
-import net.skirnir.xom.XOMapper;
-import net.skirnir.xom.XOMapperFactory;
-import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
+import org.seasar.kvasir.plust.model.PluginModel;
+import org.seasar.kvasir.plust.model.PlustMapper;
 
 
-public class SourcePage extends FormPage
+public class SourcePage extends KvasirFormPage
 {
 
-    private PluginDescriptor descriptor;
 
     private SourceViewer viewer;
 
@@ -30,10 +22,9 @@ public class SourcePage extends FormPage
     private VerticalRuler ruler;
 
 
-    public SourcePage(FormEditor editor, PluginDescriptor descriptor)
+    public SourcePage(FormEditor editor, PluginModel root)
     {
-        super(editor, "source", Messages.getString("SourcePage.name")); //$NON-NLS-1$ //$NON-NLS-2$
-        this.descriptor = descriptor;
+        super(editor, root, "source", Messages.getString("SourcePage.name")); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
 
@@ -52,16 +43,7 @@ public class SourcePage extends FormPage
 
     public void refresh()
     {
-        XOMapper mapper = XOMapperFactory.newInstance();
-        mapper.setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
-        StringWriter writer = new StringWriter();
-
-        try {
-            mapper.toXML(descriptor, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        document.set(writer.toString());
+        document.set(PlustMapper.toPluginXML(getDescriptor()));
         ruler.update();
     }
 }

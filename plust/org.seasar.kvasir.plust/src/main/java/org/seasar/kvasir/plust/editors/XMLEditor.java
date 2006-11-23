@@ -15,6 +15,7 @@ public class XMLEditor extends TextEditor
         colorManager = new ColorManager();
         setSourceViewerConfiguration(new XMLConfiguration(colorManager));
         setDocumentProvider(new XMLDocumentProvider());
+        setPartName("ソース");
     }
 
 

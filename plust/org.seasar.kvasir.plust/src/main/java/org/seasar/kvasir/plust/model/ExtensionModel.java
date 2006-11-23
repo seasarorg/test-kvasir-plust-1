@@ -3,6 +3,8 @@
  */
 package org.seasar.kvasir.plust.model;
 
+import net.skirnir.xom.Element;
+
 /**
  * @author shidat
  *
@@ -14,11 +16,11 @@ public class ExtensionModel extends PlustModel
     private String point;
     
     //ここ難しそう
-    private Object property;
+    private Element[] elements;
 
     public String getPoint()
     {
-        return point;
+        return point != null ? point : "";
     }
 
     public void setPoint(String point)
@@ -27,14 +29,14 @@ public class ExtensionModel extends PlustModel
         firePropertyChange("point", point);
     }
 
-    public Object getProperty()
+    public Element[] getProperty()
     {
-        return property;
+        return elements;
     }
 
-    public void setProperty(Object property)
+    public void setProperty(Element[] property)
     {
-        this.property = property;
+        this.elements = property;
         firePropertyChange("property", property);
     }
     
