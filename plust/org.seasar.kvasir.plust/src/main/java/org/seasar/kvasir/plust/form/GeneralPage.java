@@ -17,6 +17,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
+import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.model.PluginModel;
 
 
@@ -70,8 +71,8 @@ public class GeneralPage extends KvasirFormPage
         section.setDescription(Messages.getString("GeneralPage.description1")); //$NON-NLS-1$
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new GridLayout());
-        toolkit.createHyperlink(sectionClient, Messages
-            .getString("GeneralPage.link"), SWT.NONE); //$NON-NLS-1$
+//        toolkit.createHyperlink(sectionClient, Messages
+//            .getString("GeneralPage.link"), SWT.NONE); //$NON-NLS-1$
         section.setClient(sectionClient);
         section.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
     }
@@ -145,6 +146,14 @@ public class GeneralPage extends KvasirFormPage
             public void linkActivated(HyperlinkEvent e)
             {
                 getEditor().setActivePage("extensionPoint");
+            }
+        });
+        
+        Hyperlink update = toolkit.createHyperlink(sectionClient, "クラスパスを最新の状態に更新", SWT.NONE);
+        update.addHyperlinkListener(new HyperlinkAdapter() {
+            public void linkActivated(HyperlinkEvent e)
+            {
+                KvasirPlugin.getDefault().flushKvasirProject(getEditorInput());
             }
         });
         section.setClient(sectionClient);

@@ -55,4 +55,14 @@ public class Plugin
         properties_ = new DelegatingI18NPropertyHandler(properties_, parentInfo
             .getProperties());
     }
+
+
+    public String getVersion()
+    {
+        if (descriptor_ != null) {
+            return descriptor_.getVersionString();
+        } else {
+            return null;
+        }
+    }
 }

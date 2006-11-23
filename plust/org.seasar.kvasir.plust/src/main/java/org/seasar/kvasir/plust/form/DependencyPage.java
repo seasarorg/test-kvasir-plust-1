@@ -1,10 +1,18 @@
 package org.seasar.kvasir.plust.form;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -19,18 +27,29 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
+import org.seasar.kvasir.plust.IPlugin;
+import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.KvasirProject;
+import org.seasar.kvasir.plust.form.command.AddImportCommand;
+import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
+import org.seasar.kvasir.plust.form.command.RemoveImportCommand;
+import org.seasar.kvasir.plust.model.ImportModel;
 import org.seasar.kvasir.plust.model.PluginModel;
 import org.seasar.kvasir.plust.model.PlustLabelProvider;
 import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
 
 
-public class DependencyPage extends KvasirFormPage
+public class DependencyPage extends KvasirFormPage implements IEditorCommandStackListener
 {
+
+    private TableViewer viewer;
+
 
     public DependencyPage(FormEditor editor, PluginModel root)
     {
         super(editor, root,
             "dependency", Messages.getString("DependencyPage.name")); //$NON-NLS-1$ //$NON-NLS-2$
+        getCommandStack().addCommandStackListener(this);
     }
 
 
@@ -64,10 +83,10 @@ public class DependencyPage extends KvasirFormPage
 
         client.setLayout(layout);
         Table t = toolkit.createTable(client, SWT.NULL);
-        TableViewer importViewer = new TableViewer(t);
-        importViewer.setContentProvider(new PlustTreeContentProvider());
-        importViewer.setLabelProvider(new PlustLabelProvider());
-        importViewer.setInput(getDescriptor().getRequires());
+        viewer = new TableViewer(t);
+        viewer.setContentProvider(new PlustTreeContentProvider());
+        viewer.setLabelProvider(new PlustLabelProvider());
+        viewer.setInput(getDescriptor().getRequires());
 
         GridData gd = new GridData(GridData.FILL_BOTH);
         gd.heightHint = 200;
@@ -84,15 +103,77 @@ public class DependencyPage extends KvasirFormPage
 
             public void widgetSelected(SelectionEvent e)
             {
-                ElementListSelectionDialog dialog = new ElementListSelectionDialog(
-                    form.getShell(), new LabelProvider());
-                dialog.open();
+                KvasirProject kvasirProject = KvasirPlugin.getDefault()
+                    .getKvasirProject(getEditorInput());
+                try {
+                    IPlugin[] plugins = kvasirProject.getPlugins();
+                    List inculdablePlugins = new ArrayList();
 
-                super.widgetSelected(e);
+                    for (int i = 0; i < plugins.length; i++) {
+                        IPlugin plugin = plugins[i];
+                        ImportModel[] requires = getDescriptor().getRequires();
+                        boolean duplicate = false;
+                        for (int j = 0; j < requires.length; j++) {
+                            ImportModel model = requires[j];
+                            if (model.getPluginId().equals(plugin.getId())) {
+                                duplicate = true;
+                            }
+                        }
+                        if (!duplicate) {
+                            ImportModel model = new ImportModel();
+                            model.setPluginId(plugin.getId());
+                            model.setVersion(plugin.getVersion());
+                            inculdablePlugins.add(model);
+                        }
+                    }
+
+                    ElementListSelectionDialog dialog = new ElementListSelectionDialog(
+                        form.getShell(), new LabelProvider() {
+
+                            public String getText(Object element)
+                            {
+                                ImportModel model = (ImportModel)element;
+                                return model.getPluginId();
+                            }
+                            
+                            public Image getImage(Object element)
+                            {
+                                return KvasirPlugin.getDefault().getImage(KvasirPlugin.IMG_REQUIRED);
+                            }
+                        });
+                    dialog.setElements(inculdablePlugins.toArray());
+                    dialog.setTitle("依存プラグインの選択");
+                    dialog.setMessage("依存するプラグインを選択してください");
+                    if (dialog.open() == Dialog.OK) {
+                        Object result = dialog.getFirstResult();
+                        if (result instanceof ImportModel) {
+                            getCommandStack().execute(
+                                new AddImportCommand((ImportModel)result,
+                                    getDescriptor()));
+                        }
+                    }
+
+                } catch (CoreException e1) {
+                    e1.printStackTrace();
+                }
             }
 
         });
         Button del = toolkit.createButton(bp, "(&D)削除", SWT.PUSH); //$NON-NLS-1$
+        del.addSelectionListener(new SelectionAdapter() {
+           
+            public void widgetSelected(SelectionEvent e)
+            {
+                if (viewer.getSelection() != null)
+                {
+                    IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
+                    for (Iterator iter = selection.iterator(); iter.hasNext();) {
+                        ImportModel element = (ImportModel)iter.next();
+                        getCommandStack().execute(new RemoveImportCommand(element, getDescriptor()));
+                    }
+                }
+            }
+        });
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         del.setLayoutData(gd);
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
@@ -109,6 +190,14 @@ public class DependencyPage extends KvasirFormPage
         });
         gd = new GridData(GridData.FILL_BOTH);
         section.setLayoutData(gd);
+    }
+
+
+    public void fireCommandStachChanged()
+    {
+        if (viewer != null) {
+            viewer.setInput(getDescriptor().getRequires());
+        }
     }
 
     /*

@@ -3,15 +3,16 @@
  */
 package org.seasar.kvasir.plust.form;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IFormPart;
@@ -20,13 +21,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
-import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
-import org.seasar.kvasir.plust.form.provider.PropertyEditor;
-
-import net.skirnir.xom.BeanAccessor;
-import net.skirnir.xom.PropertyDescriptor;
+import org.seasar.kvasir.plust.model.ExtensionModel;
 
 
 /**
@@ -37,7 +34,7 @@ public class ExtensionDetailsPage
     implements IDetailsPage
 {
 
-    private Object bean;
+    private ExtensionModel bean;
 
     private String point;
 
@@ -48,7 +45,7 @@ public class ExtensionDetailsPage
     private List editors = new ArrayList();
 
 
-    public ExtensionDetailsPage(Object bean, String point)
+    public ExtensionDetailsPage(ExtensionModel bean, String point)
     {
         super();
         this.bean = bean;
@@ -81,62 +78,63 @@ public class ExtensionDetailsPage
         td.grabHorizontal = true;
         s1.setLayoutData(td);
         Composite client = toolkit.createComposite(s1);
-        client.setLayout(new GridLayout(3, false));
-        //TODO this is the only test code.
+        client.setLayout(new GridLayout());
 
-        try {
-            IExtensionPoint extensionPoint = kvasirProject
-                .getExtensionPoint(point);
-            BeanAccessor accessor = extensionPoint.getElementClassAccessor();
-            if (accessor != null) {
-                String[] names = accessor.getAttributeNames();
-                for (int i = 0; i < names.length; i++) {
-                    String name = names[i];
-                    PropertyDescriptor descriptor = accessor
-                        .getAttributeDescriptor(name);
-                    PropertyEditor editor = new PropertyEditor(descriptor,
-                        getValue(descriptor));
-                    editor.createContents(client, toolkit);
-                    editors.add(editor);
-                }
-            }
-            if (accessor != null) {
-                String[] names = accessor.getAttributeNames();
-
-                System.out.println(names.length);
-                for (int i = 0; i < names.length; i++) {
-                    String name = names[i];
-                    PropertyDescriptor descriptor = accessor
-                        .getAttributeDescriptor(name);
-                    PropertyEditor editor = new PropertyEditor(descriptor,
-                        getValue(descriptor));
-                    editor.createContents(client, toolkit);
-                    editors.add(editor);
-                }
-            }
-        } catch (CoreException e) {
-            // TODO 自動生成された catch ブロック
-            e.printStackTrace();
-        }
+        toolkit.createLabel(client, "拡張の説明:");
+        Label label = toolkit.createLabel(client, bean.getDescription(), SWT.WRAP);
+        label.setLayoutData(new GridData(GridData.FILL_BOTH));
+//        try {
+//            IExtensionPoint extensionPoint = kvasirProject
+//                .getExtensionPoint(point);
+//            BeanAccessor accessor = extensionPoint.getElementClassAccessor();
+//            if (accessor != null) {
+//                String[] names = accessor.getAttributeNames();
+//                for (int i = 0; i < names.length; i++) {
+//                    String name = names[i];
+//                    PropertyDescriptor descriptor = accessor
+//                        .getAttributeDescriptor(name);
+//                    PropertyEditor editor = new PropertyEditor(descriptor,
+//                        getValue(descriptor));
+//                    editor.createContents(client, toolkit);
+//                    editors.add(editor);
+//                }
+//            }
+//            if (accessor != null) {
+//                String[] names = accessor.getAttributeNames();
+//
+//                System.out.println(names.length);
+//                for (int i = 0; i < names.length; i++) {
+//                    String name = names[i];
+//                    PropertyDescriptor descriptor = accessor
+//                        .getAttributeDescriptor(name);
+//                    PropertyEditor editor = new PropertyEditor(descriptor,
+//                        getValue(descriptor));
+//                    editor.createContents(client, toolkit);
+//                    editors.add(editor);
+//                }
+//            }
+//        } catch (CoreException e) {
+//            e.printStackTrace();
+//        }
         toolkit.paintBordersFor(s1);
         s1.setClient(client);
     }
 
 
-    private String getValue(PropertyDescriptor descriptor)
-    {
-        Method method = descriptor.getReadMethod();
-        try {
-            return String.valueOf(method.invoke(bean, new Object[] {}));
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
+//    private String getValue(PropertyDescriptor descriptor)
+//    {
+//        Method method = descriptor.getReadMethod();
+//        try {
+//            return String.valueOf(method.invoke(bean, new Object[] {}));
+//        } catch (IllegalArgumentException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        } catch (InvocationTargetException e) {
+//            e.printStackTrace();
+//        }
+//        return "";
+//    }
 
 
     /* (non-Javadoc)
@@ -209,7 +207,6 @@ public class ExtensionDetailsPage
      */
     public boolean setFormInput(Object input)
     {
-        // TODO Auto-generated method stub
         return false;
     }
 

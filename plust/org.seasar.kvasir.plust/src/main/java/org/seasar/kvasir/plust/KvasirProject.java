@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,8 +20,11 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.PlatformUI;
 import org.seasar.kvasir.base.classloader.FilteredClassLoader;
 import org.seasar.kvasir.base.plugin.PluginAlfr;
 import org.seasar.kvasir.base.plugin.descriptor.Import;
@@ -85,65 +89,94 @@ public class KvasirProject
         if (initialized_) {
             return;
         }
+        
+        //TODO 進捗を表示するようにする
+        IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
-        IProject project = javaProject_.getProject();
-        IFolder pluginsFolder = project.getFolder(TEST_PLUGINS_PATH);
-        if (pluginsFolder.exists()) {
-            XOMapper mapper = newMapper();
-            IResource[] children = pluginsFolder.members();
-            pluginMap_ = new HashMap();
-            for (int i = 0; i < children.length; i++) {
-                if (children[i].getType() != IResource.FOLDER) {
-                    continue;
-                }
-                IFolder folder = (IFolder)children[i];
-                IFile pluginFile = folder.getFile(PluginAlfr.PLUGIN_XML);
-                if (!pluginFile.exists()) {
-                    continue;
-                }
-                PluginDescriptor plugin = getPluginDescriptor(pluginFile,
-                    mapper);
-                I18NProperties properties = new I18NProperties(
-                    new FileResource(
-                        new File(folder.getLocation().toOSString())),
-                    PluginDescriptor.PROPERTIES_BASENAME,
-                    PluginDescriptor.PROPERTIES_SUFFIX);
-                pluginMap_.put(plugin.getId(), new Plugin(mapper, plugin,
-                    properties));
-            }
-
-            pluginMap_ = resolvePlugins(pluginMap_, mapper);
-
-            ClassLoader classLoader = new ProjectClassLoader(javaProject_,
-                new FilteredClassLoader(getClass().getClassLoader(),
-                    new String[] { "net.skirnir.xom.annotation.*" },
-                    new String[] {}));
-            Set importedPluginIdSet = getImportedPluginIdSet(mapper);
-            List importedExtensionPointList = new ArrayList();
-            for (Iterator itr = pluginMap_.values().iterator(); itr.hasNext();) {
-                Plugin info = (Plugin)itr.next();
-                org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint[] points = info
-                    .getDescriptor().getExtensionPoints();
-                for (int i = 0; i < points.length; i++) {
-                    IExtensionPoint extensionPoint = newExtensionPoint(
-                        points[i], info, classLoader, mapper);
-                    extensionPointMap_.put(points[i].getFullId(),
-                        extensionPoint);
-                    // kvasir-baseやkvasir-webappなどで定義されているelementClassを
-                    // 使用するような拡張ポイントを持っているプラグインは、requiresされていなくても
-                    // ElementClassAccessorが非nullになってしまうため、
-                    // 単に「ElementClassAccessorがnullでなければ」という風にはできない。
-                    if (importedPluginIdSet.contains(points[i].getParent()
-                        .getId())) {
-                        importedExtensionPointList.add(extensionPoint);
+            public void run(IProgressMonitor monitor)
+                throws InvocationTargetException, InterruptedException
+            {
+                try {
+                    monitor.beginTask("拡張ポイントの収集", 100);
+                    IProject project = javaProject_.getProject();
+                    IFolder pluginsFolder = project.getFolder(TEST_PLUGINS_PATH);
+                    if (pluginsFolder.exists()) {
+                        XOMapper mapper = newMapper();
+                        IResource[] children = pluginsFolder.members();
+                        pluginMap_ = new HashMap();
+                        for (int i = 0; i < children.length; i++) {
+                            if (children[i].getType() != IResource.FOLDER) {
+                                continue;
+                            }
+                            IFolder folder = (IFolder)children[i];
+                            IFile pluginFile = folder.getFile(PluginAlfr.PLUGIN_XML);
+                            if (!pluginFile.exists()) {
+                                continue;
+                            }
+                            PluginDescriptor plugin = getPluginDescriptor(pluginFile,
+                                mapper);
+                            I18NProperties properties = new I18NProperties(
+                                new FileResource(
+                                    new File(folder.getLocation().toOSString())),
+                                PluginDescriptor.PROPERTIES_BASENAME,
+                                PluginDescriptor.PROPERTIES_SUFFIX);
+                            pluginMap_.put(plugin.getId(), new Plugin(mapper, plugin,
+                                properties));
+                        }
+                        
+                        monitor.worked(50);
+                        monitor.subTask("プラグインの解決...");
+                        pluginMap_ = resolvePlugins(pluginMap_, mapper);
+                        monitor.subTask("クラスロード中...");
+                        ClassLoader classLoader = new ProjectClassLoader(javaProject_,
+                            new FilteredClassLoader(getClass().getClassLoader(),
+                                new String[] { "net.skirnir.xom.annotation.*" },
+                                new String[] {}));
+                        monitor.worked(5);
+                        Set importedPluginIdSet = getImportedPluginIdSet(mapper);
+                        List importedExtensionPointList = new ArrayList();
+                        for (Iterator itr = pluginMap_.values().iterator(); itr.hasNext();) {
+                            Plugin info = (Plugin)itr.next();
+                            org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint[] points = info
+                                .getDescriptor().getExtensionPoints();
+                            for (int i = 0; i < points.length; i++) {
+                                IExtensionPoint extensionPoint = newExtensionPoint(
+                                    points[i], info, classLoader, mapper);
+                                monitor.subTask(points[i].getFullId());
+                                extensionPointMap_.put(points[i].getFullId(),
+                                    extensionPoint);
+                                // kvasir-baseやkvasir-webappなどで定義されているelementClassを
+                                // 使用するような拡張ポイントを持っているプラグインは、requiresされていなくても
+                                // ElementClassAccessorが非nullになってしまうため、
+                                // 単に「ElementClassAccessorがnullでなければ」という風にはできない。
+                                if (importedPluginIdSet.contains(points[i].getParent()
+                                    .getId())) {
+                                    importedExtensionPointList.add(extensionPoint);
+                                }
+                                monitor.worked(1);
+                            }
+                        }
+                        importedExtensionPoints_ = (IExtensionPoint[])importedExtensionPointList
+                            .toArray(new IExtensionPoint[0]);
                     }
-                }
-            }
-            importedExtensionPoints_ = (IExtensionPoint[])importedExtensionPointList
-                .toArray(new IExtensionPoint[0]);
-        }
 
-        initialized_ = true;
+                    initialized_ = true;
+                } catch (CoreException e) {
+                    // TODO 自動生成された catch ブロック
+                    e.printStackTrace();
+                }
+                
+            }
+            
+        };
+
+        try {
+            PlatformUI.getWorkbench().getProgressService().run(false, false, runnable);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -324,6 +357,7 @@ public class KvasirProject
     public IPlugin[] getPlugins()
         throws CoreException
     {
+        prepareForExtensionPoints();
         return (IPlugin[])pluginMap_.values().toArray(new IPlugin[0]);
     }
 }

@@ -9,14 +9,14 @@ import org.seasar.kvasir.plust.model.PluginModel;
 public class ExtensionPage extends KvasirFormPage
 {
 
-    private ExtensionPropertyBlock block;
+    private ExtensionBlock block;
 
 
     public ExtensionPage(FormEditor editor, PluginModel root)
     {
         super(editor, root,
             "extension", Messages.getString("ExtensionPage.name")); //$NON-NLS-2$
-        block = new ExtensionPropertyBlock(this);
+        block = new ExtensionBlock(this);
     }
 
 

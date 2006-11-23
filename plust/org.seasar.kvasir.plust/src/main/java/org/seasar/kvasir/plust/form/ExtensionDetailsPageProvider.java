@@ -8,7 +8,9 @@ import java.util.Map;
 
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IDetailsPageProvider;
-import org.seasar.kvasir.base.plugin.descriptor.Extension;
+import org.seasar.kvasir.plust.model.ExtensionModel;
+
+import net.skirnir.xom.Element;
 
 
 /**
@@ -30,10 +32,15 @@ public class ExtensionDetailsPageProvider
         if (pageCache.containsKey(key)) {
             return (IDetailsPage)pageCache.get(key);
         }
-        if (key instanceof Extension) {
-            Extension extension = (Extension)key;
-            ExtensionDetailsPage page = new ExtensionDetailsPage(key, extension
-                .getPoint());
+        if (key instanceof ExtensionModel) {
+            ExtensionModel extension = (ExtensionModel)key;
+            ExtensionDetailsPage page = new ExtensionDetailsPage(extension, extension.getPoint());
+            pageCache.put(key, page);
+            return page;
+        }
+        if (key instanceof Element) {
+            Element element = (Element)key;
+            ExtensionElementDetailsPage page = new ExtensionElementDetailsPage(element);
             pageCache.put(key, page);
             return page;
         }

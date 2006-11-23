@@ -137,7 +137,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
             }
         });
 
-        Button remove = toolkit.createButton(buttons, "(&d)削除", SWT.PUSH); //$NON-NLS-1$
+        Button remove = toolkit.createButton(buttons, "(&d)削除", SWT.PUSH);
         remove.addSelectionListener(new SelectionAdapter() {
 
         });
@@ -163,7 +163,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
     protected void createToolBarActions(IManagedForm managedForm)
     {
         final ScrolledForm form = managedForm.getForm();
-        Action haction = new Action("hor", Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
+        Action haction = new Action("hor", Action.AS_RADIO_BUTTON) {
             public void run()
             {
                 sashForm.setOrientation(SWT.HORIZONTAL);
@@ -173,7 +173,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         haction.setChecked(true);
         haction.setImageDescriptor(KvasirPlugin
             .getImageDescriptor(KvasirPlugin.IMG_HORIZONTAL));
-        Action vaction = new Action("ver", Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
+        Action vaction = new Action("ver", Action.AS_RADIO_BUTTON) {
             public void run()
             {
                 sashForm.setOrientation(SWT.VERTICAL);
@@ -201,7 +201,9 @@ public class ExtensionPointBlock extends MasterDetailsBlock
 
     public void fireCommandStachChanged()
     {
-        viewer.setInput(formPage.getDescriptor().getExtensionPoints());
+        if (viewer != null) {
+            viewer.setInput(formPage.getDescriptor().getExtensionPoints());
+        }
     }
 
 }

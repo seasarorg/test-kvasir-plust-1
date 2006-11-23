@@ -12,10 +12,12 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -50,6 +52,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -109,6 +112,8 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public static final String IMG_EXTENSION_POINT = "icons/extension-point.gif";
 
+    public static final String IMG_ELEMENT = "icons/xom-element.gif";
+
     //The shared instance.
     private static KvasirPlugin plugin;
 
@@ -118,6 +123,10 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     private Set sourceCheckedArtifactIdSet_ = new HashSet();
 
+    private ImageRegistry imageRegistry;
+
+    private Map projectCache = new HashMap();
+
 
     /**
      * The constructor.
@@ -125,6 +134,14 @@ public class KvasirPlugin extends AbstractUIPlugin
     public KvasirPlugin()
     {
         plugin = this;
+
+        imageRegistry = new ImageRegistry();
+        imageRegistry.put(IMG_REQUIRED, getImageDescriptor(IMG_REQUIRED));
+        imageRegistry.put(IMG_LIBRARY, getImageDescriptor(IMG_LIBRARY));
+        imageRegistry.put(IMG_EXTENSION_POINT,
+            getImageDescriptor(IMG_EXTENSION_POINT));
+        imageRegistry.put(IMG_EXTENSION, getImageDescriptor(IMG_EXTENSION));
+        imageRegistry.put(IMG_ELEMENT, getImageDescriptor(IMG_ELEMENT));
     }
 
 
@@ -863,15 +880,30 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public KvasirProject getKvasirProject(IEditorInput input)
     {
-        IProject project = getCurrentProject(input);
-        IJavaProject javaProject = JavaCore.create(project);
-        return new KvasirProject(javaProject);
+        if (!projectCache.containsKey(input)) {
+            IProject project = getCurrentProject(input);
+            IJavaProject javaProject = JavaCore.create(project);
+
+            KvasirProject kvasirProject = new KvasirProject(javaProject);
+            projectCache.put(input, kvasirProject);
+        }
+        return (KvasirProject)projectCache.get(input);
     }
 
+    public void flushKvasirProject(IEditorInput input)
+    {
+        projectCache.remove(input);
+    }
 
     public IProject getCurrentProject(IEditorInput input)
     {
         IFileEditorInput editorInput = (IFileEditorInput)input;
         return editorInput.getFile().getProject();
+    }
+
+
+    public Image getImage(String key)
+    {
+        return imageRegistry.get(key);
     }
 }

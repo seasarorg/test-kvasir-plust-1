@@ -9,6 +9,8 @@ import org.eclipse.swt.graphics.Image;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.model.ImportModel;
 
+import net.skirnir.xom.Element;
+
 
 /**
  * @author shida
@@ -33,6 +35,9 @@ public class PlustLabelProvider extends LabelProvider
         } else if (element instanceof ExtensionPointModel) {
             ExtensionPointModel model = (ExtensionPointModel)element;
             return model.getId();
+        } else if (element instanceof Element) {
+            Element e = (Element)element;
+            return e.getName();
         }
         return super.getText(element);
     }
@@ -41,14 +46,19 @@ public class PlustLabelProvider extends LabelProvider
     public Image getImage(Object element)
     {
         if (element instanceof ImportModel) {
-            return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_REQUIRED)
-                .createImage();
+            return KvasirPlugin.getDefault()
+                .getImage(KvasirPlugin.IMG_REQUIRED);
         } else if (element instanceof LibraryModel) {
-            return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LIBRARY).createImage();
+            return KvasirPlugin.getDefault()
+                .getImage(KvasirPlugin.IMG_REQUIRED);
         } else if (element instanceof ExtensionModel) {
-            return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_EXTENSION).createImage();
+            return KvasirPlugin.getDefault()
+            .getImage(KvasirPlugin.IMG_EXTENSION);
         } else if (element instanceof ExtensionPointModel) {
-            return KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_EXTENSION_POINT).createImage();
+            return KvasirPlugin.getDefault()
+            .getImage(KvasirPlugin.IMG_EXTENSION_POINT);
+        } else if (element instanceof Element) {
+            return KvasirPlugin.getDefault().getImage(KvasirPlugin.IMG_ELEMENT);
         }
         return super.getImage(element);
     }

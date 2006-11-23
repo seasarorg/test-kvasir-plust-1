@@ -1,5 +1,6 @@
 package org.seasar.kvasir.plust.form;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -8,6 +9,7 @@ import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -18,6 +20,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.KvasirProject;
 import org.seasar.kvasir.plust.editors.XMLEditor;
 import org.seasar.kvasir.plust.form.command.EditorCommandStack;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
@@ -104,7 +107,9 @@ public class PluginsFormEditor extends FormEditor
         mapper.setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
         PluginDescriptor descriptor = (PluginDescriptor)mapper.toBean(document
             .getRootElement(), PluginDescriptor.class);
-        return PlustMapper.toPlustModel(descriptor, project, properties);
+        
+        KvasirProject kvasirProject = KvasirPlugin.getDefault().getKvasirProject(getEditorInput());
+        return PlustMapper.toPlustModel(descriptor, project, properties, kvasirProject);
     }
 
 
@@ -135,14 +140,14 @@ public class PluginsFormEditor extends FormEditor
     {
         //store to plugin.xml
 
-//        FileEditorInput editorInput = (FileEditorInput)getEditorInput();
-//        IFile file = editorInput.getFile();
-//        String string = PlustMapper.toPluginXML(descriptor);
-//        try {
-//            file.setContents(new ByteArrayInputStream(string.getBytes()),IFile.KEEP_HISTORY, monitor);
-//        } catch (CoreException e) {
-//            e.printStackTrace();
-//        }
+        FileEditorInput editorInput = (FileEditorInput)getEditorInput();
+        IFile file = editorInput.getFile();
+        String string = PlustMapper.toPluginXML(descriptor);
+        try {
+            file.setContents(new ByteArrayInputStream(string.getBytes()),IFile.KEEP_HISTORY, monitor);
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
         
         this.commandStack.clear();
         
