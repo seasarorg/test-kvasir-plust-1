@@ -27,7 +27,7 @@
   </requires>
 
   <extension point="org.seasar.kvasir.page.pageGards">
-    <page-gard id="${pluginShortId}" version="${pluginVersion}" singleton="true" />
+    <page-gard id="${pluginShortId}" version="${pluginVersion}" />
   </extension>
 
   <extension point="org.seasar.kvasir.page.pageGardInstalls">
