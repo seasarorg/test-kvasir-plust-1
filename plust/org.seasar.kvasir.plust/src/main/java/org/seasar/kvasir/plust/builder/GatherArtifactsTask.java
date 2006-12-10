@@ -8,8 +8,8 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
-import org.maven.ide.eclipse.TransferListenerAdapter;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.TransferListenerAdapter;
 
 
 public class GatherArtifactsTask

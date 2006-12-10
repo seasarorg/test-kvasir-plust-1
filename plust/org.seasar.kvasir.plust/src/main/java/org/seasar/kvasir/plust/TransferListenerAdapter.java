@@ -6,12 +6,14 @@ import java.io.IOException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.maven.wagon.WagonConstants;
 import org.apache.maven.wagon.events.TransferEvent;
+import org.apache.maven.wagon.events.TransferListener;
 import org.apache.maven.wagon.resource.Resource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.maven.ide.eclipse.index.Indexer;
 
 
 public class TransferListenerAdapter
+    implements TransferListener
 {
     private final IProgressMonitor monitor;
 

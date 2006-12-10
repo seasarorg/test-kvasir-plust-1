@@ -9,7 +9,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.maven.ide.eclipse.Messages;
-import org.maven.ide.eclipse.TransferListenerAdapter;
 
 
 public class ReadProjectTask
