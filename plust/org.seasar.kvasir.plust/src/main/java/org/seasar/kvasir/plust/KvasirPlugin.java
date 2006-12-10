@@ -890,10 +890,12 @@ public class KvasirPlugin extends AbstractUIPlugin
         return (KvasirProject)projectCache.get(input);
     }
 
+
     public void flushKvasirProject(IEditorInput input)
     {
         projectCache.remove(input);
     }
+
 
     public IProject getCurrentProject(IEditorInput input)
     {
@@ -905,5 +907,11 @@ public class KvasirPlugin extends AbstractUIPlugin
     public Image getImage(String key)
     {
         return imageRegistry.get(key);
+    }
+
+
+    public String getIndexDir()
+    {
+        return new File(getStateLocation().toFile(), "index").getAbsolutePath();
     }
 }

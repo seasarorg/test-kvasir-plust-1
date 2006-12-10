@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.seasar.kvasir.plust.model;
 
 import java.io.IOException;
@@ -26,6 +23,7 @@ import net.skirnir.xom.XOMapper;
 import net.skirnir.xom.XOMapperFactory;
 import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
 
+
 /**
  * @author shidat
  *
@@ -33,23 +31,29 @@ import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
 public class PlustMapper
 {
 
-    public static PluginModel toPlustModel(PluginDescriptor descriptor, MavenProject project, Properties properties, KvasirProject kvasirProject)
+    public static PluginModel toPlustModel(PluginDescriptor descriptor,
+        MavenProject project, Properties properties, KvasirProject kvasirProject)
     {
         //TODO べたっと書いておく.
         PluginModel root = new PluginModel();
         root.setArchetypeId(properties.getProperty("archetypeId"));
         root.setPluginClassName(properties.getProperty("pluginClassName"));
-        root.setPluginClassNameXML(properties.getProperty("pluginClassName_XML"));
+        root.setPluginClassNameXML(properties
+            .getProperty("pluginClassName_XML"));
         root.setPluginId(properties.getProperty("pluginId"));
         root.setPluginName(properties.getProperty("pluginName"));
         root.setPluginPackagePath(properties.getProperty("pluginPackagePath"));
-        root.setPluginProviderName(properties.getProperty("pluginProviderName"));
+        root
+            .setPluginProviderName(properties.getProperty("pluginProviderName"));
         root.setPluginShortId(properties.getProperty("pluginShortId"));
         root.setPluginVersion(properties.getProperty("pluginVersion"));
-        root.setTestEnviromentVersion(properties.getProperty("testEnvironmentVersion"));
-        root.setTestEnvironmentArtifactId(properties.getProperty("testEnvironmentArtifactId"));
-        root.setTestEnvironmentGroupId(properties.getProperty("testEnvironmentGroupId"));
-        
+        root.setTestEnviromentVersion(properties
+            .getProperty("testEnvironmentVersion"));
+        root.setTestEnvironmentArtifactId(properties
+            .getProperty("testEnvironmentArtifactId"));
+        root.setTestEnvironmentGroupId(properties
+            .getProperty("testEnvironmentGroupId"));
+
         Import[] imports = descriptor.getRequires().getImports();
         for (int i = 0; i < imports.length; i++) {
             Import imp = imports[i];
@@ -58,7 +62,7 @@ public class PlustMapper
             model.setVersion(imp.getVersionString());
             root.addRequire(model);
         }
-        
+
         Library[] libraries = descriptor.getRuntime().getLibraries();
         for (int i = 0; i < libraries.length; i++) {
             Library library = libraries[i];
@@ -66,24 +70,25 @@ public class PlustMapper
             LibraryModel model = new LibraryModel();
             root.addRuntime(model);
         }
-        
+
         Extension[] extensions = descriptor.getExtensions();
         for (int i = 0; i < extensions.length; i++) {
             Extension extension = extensions[i];
             ExtensionModel model = new ExtensionModel();
             model.setPoint(extension.getPoint());
             model.setProperty(extension.getElements());
-            
+
             try {
-                IExtensionPoint point = kvasirProject.getExtensionPoint(extension.getPoint());
+                IExtensionPoint point = kvasirProject
+                    .getExtensionPoint(extension.getPoint());
                 model.setAccessor(point.getElementClassAccessor());
             } catch (CoreException e) {
                 e.printStackTrace();
             }
-            
+
             root.addExtension(model);
         }
-        
+
         ExtensionPoint[] extensionPoints = descriptor.getExtensionPoints();
         for (int i = 0; i < extensionPoints.length; i++) {
             ExtensionPoint point = extensionPoints[i];
@@ -93,10 +98,11 @@ public class PlustMapper
             model.setDescription(point.getDescription());
             root.addExtensionPoint(model);
         }
-        
+
         return root;
     }
-    
+
+
     public static String toPluginXML(PluginModel model)
     {
         PluginDescriptorImpl rootImpl = new PluginDescriptorImpl();
@@ -106,8 +112,9 @@ public class PlustMapper
         rootImpl.setProviderName(model.getPluginProviderName());
         rootImpl.setXmlns("http://kvasir.sandbox.seasar.org/plugin/3.0.0");
         rootImpl.setXmlns_xsi("http://www.w3.org/2001/XMLSchema-instance");
-        rootImpl.setXsi_schemaLocation("http://kvasir.sandbox.seasar.org/plugin/3.0.0 http://kvasir.sandbox.seasar.org/support/plugin-3_0_0.xsd");
-        
+        rootImpl
+            .setXsi_schemaLocation("http://kvasir.sandbox.seasar.org/plugin/3.0.0 http://kvasir.sandbox.seasar.org/support/plugin-3_0_0.xsd");
+
         Runtime runtime = new Runtime();
         LibraryModel[] libraryModels = model.getRuntime();
         for (int i = 0; i < libraryModels.length; i++) {
@@ -117,7 +124,7 @@ public class PlustMapper
             runtime.addLibrary(library);
         }
         rootImpl.setRuntime(runtime);
-        
+
         Requires requires = new Requires();
         ImportModel[] importModels = model.getRequires();
         for (int i = 0; i < importModels.length; i++) {
@@ -128,7 +135,7 @@ public class PlustMapper
             requires.addImport(imp);
         }
         rootImpl.setRequires(requires);
-        
+
         ExtensionModel[] extensions = model.getExtensions();
         for (int i = 0; i < extensions.length; i++) {
             ExtensionModel ext = extensions[i];
@@ -141,7 +148,7 @@ public class PlustMapper
             }
             rootImpl.addExtension(extension);
         }
-        
+
         ExtensionPointModel[] extensionPoints = model.getExtensionPoints();
         for (int i = 0; i < extensionPoints.length; i++) {
             ExtensionPointModel pointModel = extensionPoints[i];
@@ -149,14 +156,14 @@ public class PlustMapper
             point.setId(pointModel.getId());
             point.setElementClassName(pointModel.getClassName());
             point.setDescription(pointModel.getDescription());
-            
+
             rootImpl.addExtensionPoint(point);
         }
-        
+
         XOMapper mapper = XOMapperFactory.newInstance();
         mapper.setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
         StringWriter writer = new StringWriter();
-        
+
         try {
             mapper.toXML(rootImpl, writer);
             writer.flush();
@@ -170,34 +177,41 @@ public class PlustMapper
                 e.printStackTrace();
             }
         }
-        
+
         return "";
     }
-    
+
+
     public static Properties toBuildProperty(PluginModel model)
     {
         Properties properties = new Properties();
         properties.setProperty("archetypeId", model.getArchetypeId());
         properties.setProperty("pluginClassName", model.getPluginClassName());
-        properties.setProperty("pluginClassName_XML", model.getPluginClassNameXML());
+        properties.setProperty("pluginClassName_XML", model
+            .getPluginClassNameXML());
         properties.setProperty("pluginId", model.getPluginId());
         properties.setProperty("pluginName", model.getPluginName());
-        properties.setProperty("pluginPackagePath", model.getPluginPackagePath());
-        properties.setProperty("pluginProviderName", model.getPluginProviderName());
+        properties.setProperty("pluginPackagePath", model
+            .getPluginPackagePath());
+        properties.setProperty("pluginProviderName", model
+            .getPluginProviderName());
         properties.setProperty("pluginShortId", model.getPluginShortId());
         properties.setProperty("pluginVersion", model.getPluginVersion());
-        properties.setProperty("testEnvironmentVersion", model.getTestEnviromentVersion());
-        properties.setProperty("testEnvironmentArtifactId", model.getTestEnvironmentArtifactId());
-        properties.setProperty("testEnvironmentGroupId", model.getTestEnvironmentGroupId());
-        
+        properties.setProperty("testEnvironmentVersion", model
+            .getTestEnviromentVersion());
+        properties.setProperty("testEnvironmentArtifactId", model
+            .getTestEnvironmentArtifactId());
+        properties.setProperty("testEnvironmentGroupId", model
+            .getTestEnvironmentGroupId());
+
         return properties;
     }
-    
+
+
     public static String toPomXML(PluginModel model, MavenProject project)
     {
-        
+
         return "";
     }
-    
-    
+
 }
