@@ -5,9 +5,11 @@ package org.seasar.kvasir.plust.model;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.core.runtime.CoreException;
 import org.seasar.kvasir.base.plugin.descriptor.Extension;
 import org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint;
 import org.seasar.kvasir.base.plugin.descriptor.Import;
@@ -16,6 +18,7 @@ import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.base.plugin.descriptor.Runtime;
 import org.seasar.kvasir.base.plugin.descriptor.impl.PluginDescriptorImpl;
+import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.Element;
@@ -70,14 +73,13 @@ public class PlustMapper
             ExtensionModel model = new ExtensionModel();
             model.setPoint(extension.getPoint());
             model.setProperty(extension.getElements());
-            //TODO 拡張の説明がほしいので、無理やり
-            //TODO かなり処理が遅いのがたまにきず
-//            try {
-//                IExtensionPoint point = kvasirProject.getExtensionPoint(extension.getPoint());
-//                model.setDescription(point.getDescription(Locale.getDefault()));
-//            } catch (CoreException e) {
-//                e.printStackTrace();
-//            }
+            
+            try {
+                IExtensionPoint point = kvasirProject.getExtensionPoint(extension.getPoint());
+                model.setAccessor(point.getElementClassAccessor());
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
             
             root.addExtension(model);
         }

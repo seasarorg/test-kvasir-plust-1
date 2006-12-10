@@ -2,17 +2,17 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/freemarker-2.3.4.jar"/>
-	<classpathentry sourcepath="/org.maven.ide.eclipse/src" kind="lib" path="lib/m2plugin-0.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/m2plugin-0.0.5.jar" sourcepath="/org.maven.ide.eclipse/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/maven-embedder-2.0.4-dep.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/plexus-archiver-1.0-alpha-4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-archiver-1.0-alpha-4.jar"/>
 	<classpathentry kind="lib" path="lib/freyja-1.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/xom-0.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/xom-tiger-0.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/kvasir-base-3.0.0-EA4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/kvasir-util-3.0.0-EA4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/maven-kvasir-plugin-3.0.0-EA4-SNAPSHOT.jar"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="lib/xom-0.0.5-SNAPSHOT.jar" sourcepath="C:/work/kvasir/xom/target/xom-0.0.5-SNAPSHOT-src.zip"/>
+	<classpathentry kind="lib" path="lib/xom-tiger-0.0.5-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
