@@ -1,3 +1,5 @@
+plugin.name=${pluginName}
+plugin.provider-name=${pluginProviderName}
 pop.${pluginShortId}Pop.name=${pluginName} POP
 pop.${pluginShortId}Pop.description=${pluginName} POP
 pop.${pluginShortId}Pop.title=${pluginName} POP
