@@ -3,6 +3,8 @@
  */
 package org.seasar.kvasir.plust.model;
 
+import org.seasar.kvasir.base.plugin.descriptor.Library;
+
 /**
  * @author shidat
  *
@@ -11,4 +13,17 @@ package org.seasar.kvasir.plust.model;
 public class LibraryModel extends PlustModel
 {
 
+    private Library library;
+
+    public Library getLibrary()
+    {
+        return library;
+    }
+
+    public void setLibrary(Library library)
+    {
+        this.library = library;
+    }
+    
+    
 }

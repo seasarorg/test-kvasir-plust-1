@@ -52,7 +52,7 @@ public class KvasirProject
     implements IKvasirProject
 {
     public static final String METAINF_KVASIR_EXTENSIONPOINTS = METAINF_KVASIR
-        + "extension-points/";
+        + "extension-points/"; //$NON-NLS-1$
 
     private XMLParser parser_ = XMLParserFactory.newInstance();
 
@@ -97,7 +97,7 @@ public class KvasirProject
                 throws InvocationTargetException, InterruptedException
             {
                 try {
-                    monitor.beginTask("拡張ポイントの収集", 100);
+                    monitor.beginTask(Messages.getString("KvasirProject.1"), 100); //$NON-NLS-1$
                     IProject project = javaProject_.getProject();
                     IFolder pluginsFolder = project.getFolder(TEST_PLUGINS_PATH);
                     if (pluginsFolder.exists()) {
@@ -125,12 +125,12 @@ public class KvasirProject
                         }
                         
                         monitor.worked(50);
-                        monitor.subTask("プラグインの解決...");
+                        monitor.subTask(Messages.getString("KvasirProject.2")); //$NON-NLS-1$
                         pluginMap_ = resolvePlugins(pluginMap_, mapper);
-                        monitor.subTask("クラスロード中...");
+                        monitor.subTask(Messages.getString("KvasirProject.3")); //$NON-NLS-1$
                         ClassLoader classLoader = new ProjectClassLoader(javaProject_,
                             new FilteredClassLoader(getClass().getClassLoader(),
-                                new String[] { "net.skirnir.xom.annotation.*" },
+                                new String[] { "net.skirnir.xom.annotation.*" }, //$NON-NLS-1$
                                 new String[] {}));
                         monitor.worked(5);
                         Set importedPluginIdSet = getImportedPluginIdSet(mapper);
@@ -236,13 +236,13 @@ public class KvasirProject
         if (parentInfo == null) {
             // 親プラグインが見つからない場合は無視する。
             KvasirPlugin.getDefault().log(
-                constructStatus("Parent plugin does not exist: parent="
-                    + plugin.getBase().getPlugin() + ", target plugin="
+                constructStatus("Parent plugin does not exist: parent=" //$NON-NLS-1$
+                    + plugin.getBase().getPlugin() + ", target plugin=" //$NON-NLS-1$
                     + plugin.getId()));
             return;
         } else if (parentInfo.getDescriptor().getId().equals(startPluginId)) {
             // ループを検出した。
-            throw new CoreException(constructStatus("Loop detected: plugin="
+            throw new CoreException(constructStatus("Loop detected: plugin=" //$NON-NLS-1$
                 + startPluginId));
         }
 
@@ -259,13 +259,13 @@ public class KvasirProject
         try {
             return getPluginDescriptor(pluginFile.getContents(), mapper);
         } catch (IllegalSyntaxException ex) {
-            throw new CoreException(constructStatus("Illegal syntax: "
+            throw new CoreException(constructStatus("Illegal syntax: " //$NON-NLS-1$
                 + pluginFile, ex));
         } catch (IOException ex) {
             throw new CoreException(constructStatus(
-                "Can't read: " + pluginFile, ex));
+                "Can't read: " + pluginFile, ex)); //$NON-NLS-1$
         } catch (ValidationException ex) {
-            throw new CoreException(constructStatus("Validation error: "
+            throw new CoreException(constructStatus("Validation error: " //$NON-NLS-1$
                 + pluginFile, ex));
         }
     }
@@ -277,7 +277,7 @@ public class KvasirProject
     {
         try {
             return (PluginDescriptor)mapper.toBean(parser_.parse(
-                new InputStreamReader(in, "UTF-8")).getRootElement(),
+                new InputStreamReader(in, "UTF-8")).getRootElement(), //$NON-NLS-1$
                 PluginDescriptor.class);
         } finally {
             try {

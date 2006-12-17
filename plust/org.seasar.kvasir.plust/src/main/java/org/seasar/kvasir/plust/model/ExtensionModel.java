@@ -6,9 +6,12 @@ package org.seasar.kvasir.plust.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.skirnir.xom.Attribute;
+import org.seasar.kvasir.plust.IExtensionPoint;
+import org.seasar.kvasir.plust.KvasirProject;
+
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
+
 
 /**
  * @author shidat
@@ -17,7 +20,6 @@ import net.skirnir.xom.Element;
 public class ExtensionModel extends PlustModel
 {
 
-    
     private String point;
 
     /*
@@ -32,14 +34,28 @@ public class ExtensionModel extends PlustModel
      */
     private Element[] elements;
 
-    private BeanAccessor accessor;
+    private KvasirProject kvasirProject;
 
-    private Element rootElement;
-    
+    private ExtensionElementModel model;
+
+
+    public KvasirProject getKvasirProject()
+    {
+        return kvasirProject;
+    }
+
+
+    public void setKvasirProject(KvasirProject kvasirProject)
+    {
+        this.kvasirProject = kvasirProject;
+    }
+
+
     public String getPoint()
     {
         return point != null ? point : "";
     }
+
 
     public void setPoint(String point)
     {
@@ -47,40 +63,49 @@ public class ExtensionModel extends PlustModel
         firePropertyChange("point", point);
     }
 
+
     public Element[] getProperty()
     {
         return elements;
     }
 
+
     public void setProperty(Element[] property)
     {
         this.elements = property;
-        this.rootElement = property[0];
         firePropertyChange("property", property);
     }
 
-    public BeanAccessor getAccessor()
-    {
-        return accessor;
-    }
 
-    public void setAccessor(BeanAccessor accessor)
+    public ExtensionElementModel[] getRootElements()
     {
-        this.accessor = accessor;
-    }
-    
-    void initialize() {
-        String[] names = accessor.getAttributeNames();
-        List attrs = new ArrayList();
-        for (int i = 0; i < names.length; i++) {
-            String name = names[i];
-            Attribute attribute = rootElement.getAttribute(name);
-            if (attribute == null) {
-                attribute = new Attribute(name, "", "");
+        List rv = new ArrayList();
+        try {
+            IExtensionPoint extensionPoint = kvasirProject
+                .getExtensionPoint(point);
+            if (extensionPoint != null) {
+                for (int i = 0; i < elements.length; i++) {
+                    Element element = elements[i];
+                    BeanAccessor accessor = extensionPoint
+                        .getElementClassAccessor();
+                    Object object = accessor.getMapper().toBean(element,
+                        accessor.getBeanClass());
+                    model = new ExtensionElementModel(element
+                                            .getName(), object, accessor, this);
+                    rv.add(model);
+                }
             }
-            attrs.add(attribute);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-//        rootElement.setAttributes(attributes)
+        return (ExtensionElementModel[])rv.toArray(new ExtensionElementModel[rv
+            .size()]);
     }
     
+    public void refresh() {
+        if (model != null) {
+            Element element = model.getAccessor().getMapper().toElement(model.getBean());
+            this.elements[0] = element;
+        }
+    }
 }

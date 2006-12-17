@@ -7,9 +7,6 @@ import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.seasar.kvasir.plust.KvasirPlugin;
-import org.seasar.kvasir.plust.model.ImportModel;
-
-import net.skirnir.xom.Element;
 
 
 /**
@@ -35,8 +32,8 @@ public class PlustLabelProvider extends LabelProvider
         } else if (element instanceof ExtensionPointModel) {
             ExtensionPointModel model = (ExtensionPointModel)element;
             return model.getId();
-        } else if (element instanceof Element) {
-            Element e = (Element)element;
+        } else if (element instanceof ExtensionElementModel) {
+            ExtensionElementModel e = (ExtensionElementModel)element;
             return e.getName();
         }
         return super.getText(element);
@@ -57,7 +54,7 @@ public class PlustLabelProvider extends LabelProvider
         } else if (element instanceof ExtensionPointModel) {
             return KvasirPlugin.getDefault()
             .getImage(KvasirPlugin.IMG_EXTENSION_POINT);
-        } else if (element instanceof Element) {
+        } else if (element instanceof ExtensionElementModel) {
             return KvasirPlugin.getDefault().getImage(KvasirPlugin.IMG_ELEMENT);
         }
         return super.getImage(element);

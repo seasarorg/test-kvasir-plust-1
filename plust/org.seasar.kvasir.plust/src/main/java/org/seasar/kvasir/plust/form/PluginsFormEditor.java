@@ -21,6 +21,7 @@ import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.editors.XMLEditor;
 import org.seasar.kvasir.plust.form.command.EditorCommandStack;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
@@ -77,7 +78,7 @@ public class PluginsFormEditor extends FormEditor
             MavenProject project = null;
 
             IFile buildProperties = file.getProject().getFile(
-                "build.properties");
+                "build.properties"); //$NON-NLS-1$
             buildPropInput = new FileEditorInput(buildProperties);
 
             //build properties
@@ -92,7 +93,7 @@ public class PluginsFormEditor extends FormEditor
             descriptor = new PluginModel();
         }
 
-        setPartName(file.getProject().getName() + " : +PLUSTプラグインエディタ");
+        setPartName(file.getProject().getName() + Messages.getString("PluginsFormEditor.1")); //$NON-NLS-1$
     }
 
 
@@ -121,12 +122,12 @@ public class PluginsFormEditor extends FormEditor
             addPage(new ExtensionPage(this, descriptor));
             addPage(new ExtensionPointPage(this, descriptor));
             int index = addPage(new XMLEditor(), getEditorInput());
-            setPageText(index, "plugin.xml");
+            setPageText(index, "plugin.xml"); //$NON-NLS-1$
 
             index = addPage(new TextEditor(), buildPropInput);
-            setPageText(index, "build.properties");
+            setPageText(index, "build.properties"); //$NON-NLS-1$
             index = addPage(new XMLEditor(), pomFileInput);
-            setPageText(index, "pom.xml");
+            setPageText(index, "pom.xml"); //$NON-NLS-1$
 
         } catch (PartInitException e) {
             KvasirPlugin.getDefault().log(

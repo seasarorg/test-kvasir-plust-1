@@ -57,13 +57,13 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
     {
         ScrolledForm form = managedForm.getForm();
         FormToolkit toolkit = managedForm.getToolkit();
-        form.setText("依存関係とランタイムライブラリ"); //$NON-NLS-1$
+        form.setText(Messages.getString("DependencyPage.2")); //$NON-NLS-1$
         // TODO Eclipse3.1では存在しないAPI呼び出し。
         //        form.setImage(KvasirPlugin.getImageDescriptor(KvasirPlugin.IMG_LOGO).createImage());
         GridLayout layout = new GridLayout();
         layout.numColumns = 1;
         form.getBody().setLayout(layout);
-        createImportSection(form, toolkit, "依存関係"); //$NON-NLS-1$
+        createImportSection(form, toolkit, Messages.getString("DependencyPage.3")); //$NON-NLS-1$
         //        createRuntimeSection(form, toolkit, "ランタイムライブラリ"); //$NON-NLS-1$
     }
 
@@ -95,7 +95,7 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
         toolkit.paintBordersFor(client);
         Composite bp = toolkit.createComposite(client);
         bp.setLayout(new GridLayout());
-        Button add = toolkit.createButton(bp, "(&A)追加", SWT.PUSH); //$NON-NLS-1$
+        Button add = toolkit.createButton(bp, Messages.getString("DependencyPage.4"), SWT.PUSH); //$NON-NLS-1$
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         add.setLayoutData(gd);
 
@@ -142,8 +142,8 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
                             }
                         });
                     dialog.setElements(inculdablePlugins.toArray());
-                    dialog.setTitle("依存プラグインの選択");
-                    dialog.setMessage("依存するプラグインを選択してください");
+                    dialog.setTitle(Messages.getString("DependencyPage.0")); //$NON-NLS-1$
+                    dialog.setMessage(Messages.getString("DependencyPage.1")); //$NON-NLS-1$
                     if (dialog.open() == Dialog.OK) {
                         Object result = dialog.getFirstResult();
                         if (result instanceof ImportModel) {
@@ -159,7 +159,7 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
             }
 
         });
-        Button del = toolkit.createButton(bp, "(&D)削除", SWT.PUSH); //$NON-NLS-1$
+        Button del = toolkit.createButton(bp, Messages.getString("DependencyPage.5"), SWT.PUSH); //$NON-NLS-1$
         del.addSelectionListener(new SelectionAdapter() {
            
             public void widgetSelected(SelectionEvent e)
@@ -180,7 +180,7 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
         bp.setLayoutData(gd);
         section.setText(title);
         section
-            .setDescription("プラグインをビルドするために必要なプラグインを追加、または削除します。追加可能なプラグインはクラスパス、またはPOMから自動的に計算されます。"); //$NON-NLS-1$
+            .setDescription(Messages.getString("DependencyPage.6")); //$NON-NLS-1$
         section.setClient(client);
         section.addExpansionListener(new ExpansionAdapter() {
             public void expansionStateChanged(ExpansionEvent e)

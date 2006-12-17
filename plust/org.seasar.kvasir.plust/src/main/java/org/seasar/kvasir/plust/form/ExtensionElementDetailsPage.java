@@ -15,9 +15,11 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
+import org.seasar.kvasir.plust.Messages;
+import org.seasar.kvasir.plust.model.ExtensionElementModel;
 
-import net.skirnir.xom.Attribute;
-import net.skirnir.xom.Element;
+import net.skirnir.xom.PropertyDescriptor;
+import net.skirnir.xom.TargetNotFoundException;
 
 /**
  * @author shidat
@@ -26,10 +28,10 @@ import net.skirnir.xom.Element;
 public class ExtensionElementDetailsPage implements IDetailsPage
 {
 
-    private Element element;
+    private ExtensionElementModel element;
     private IManagedForm form;
 
-    public ExtensionElementDetailsPage(Element element)
+    public ExtensionElementDetailsPage(ExtensionElementModel element)
     {
         this.element = element;
     }
@@ -55,20 +57,53 @@ public class ExtensionElementDetailsPage implements IDetailsPage
         td.grabHorizontal = true;
         s1.setLayoutData(td);
         Composite client = toolkit.createComposite(s1);
-        client.setLayout(new GridLayout(3, false));
-        
-        Attribute[] attributes = element.getAttributes();
-        for (int i = 0; i < attributes.length; i++) {
-            Attribute attribute = attributes[i];
-            toolkit.createLabel(client, attribute.getName());
-            toolkit.createLabel(client, ":");
-            Text attrText = toolkit.createText(client, attribute.getValue());
-            attrText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        }
-        
+        client.setLayout(new GridLayout());
         s1.setClient(client);
+        
+        if (element.getAccessor() != null) {
+            createAttributeFields(parent, toolkit);
+        }
     }
 
+    private void createAttributeFields(Composite parent, FormToolkit toolkit)
+    {
+        Section attrSection = toolkit.createSection(parent, Section.DESCRIPTION
+            | Section.TITLE_BAR | Section.EXPANDED);
+        attrSection.marginWidth = 10;
+        attrSection.setText(Messages.getString("ExtensionElementDetailsPage.0")); //$NON-NLS-1$
+        attrSection.setDescription(Messages.getString("ExtensionElementDetailsPage.1")); //$NON-NLS-1$
+
+        Composite attributes = toolkit.createComposite(attrSection);
+        attributes.setLayout(new GridLayout(3, false));
+        String[] names = element.getAccessor().getAttributeNames();
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i];
+            PropertyDescriptor descriptor = element.getAccessor()
+                .getAttributeDescriptor(name);
+            String labelStr = ""; //$NON-NLS-1$
+            if (descriptor.isRequired()) {
+                labelStr = "*"; //$NON-NLS-1$
+            }
+            labelStr += descriptor.getName();
+
+            Object attribute = ""; //$NON-NLS-1$
+            try {
+                attribute = element.getAccessor().getAttribute(element.getBean(), name);
+            } catch (TargetNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            toolkit.createLabel(attributes, labelStr);
+            toolkit.createLabel(attributes, ":"); //$NON-NLS-1$
+            Text text = toolkit.createText(attributes, ""); //$NON-NLS-1$
+            text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+            if (attribute != null) {
+                text.setText(attribute.toString());
+            }
+        }
+        attrSection.setClient(attributes);
+    }
+    
     public void commit(boolean onSave)
     {
         // TODO 自動生成されたメソッド・スタブ

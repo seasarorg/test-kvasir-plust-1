@@ -10,7 +10,11 @@ import java.util.Locale;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -24,6 +28,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -39,9 +44,11 @@ import org.eclipse.ui.forms.widgets.Section;
 import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.form.command.AddExtensionCommand;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
 import org.seasar.kvasir.plust.form.command.RemoveExtensionCommand;
+import org.seasar.kvasir.plust.model.ExtensionElementModel;
 import org.seasar.kvasir.plust.model.ExtensionModel;
 import org.seasar.kvasir.plust.model.PlustLabelProvider;
 import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
@@ -51,7 +58,6 @@ import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
 import net.skirnir.xom.Node;
 import net.skirnir.xom.PropertyDescriptor;
-import net.skirnir.xom.TargetNotFoundException;
 
 
 /**
@@ -84,9 +90,9 @@ public class ExtensionBlock extends MasterDetailsBlock
         FormToolkit toolkit = managedForm.getToolkit();
         Section section = toolkit.createSection(parent, Section.DESCRIPTION
             | Section.TITLE_BAR);
-        section.setText("Kvasirプラグイン拡張ポイント"); //$NON-NLS-1$
+        section.setText(Messages.getString("ExtensionBlock.5")); //$NON-NLS-1$
         section
-            .setDescription("Kvasirプラグインが拡張する機能を選択します。選択できる拡張は、依存ページで指定したプラグインによって異なります。また、拡張する機能によって、設定できる項目も変わります。"); //$NON-NLS-1$
+            .setDescription(Messages.getString("ExtensionBlock.6")); //$NON-NLS-1$
         section.marginWidth = 10;
         section.marginHeight = 5;
         Composite client = toolkit.createComposite(section, SWT.WRAP);
@@ -106,7 +112,7 @@ public class ExtensionBlock extends MasterDetailsBlock
         buttons.setLayout(new GridLayout());
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         buttons.setLayoutData(gd);
-        Button add = toolkit.createButton(buttons, "(&a)追加", SWT.PUSH);
+        Button add = toolkit.createButton(buttons, Messages.getString("ExtensionBlock.0"), SWT.PUSH); //$NON-NLS-1$
         add.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e)
@@ -137,8 +143,8 @@ public class ExtensionBlock extends MasterDetailsBlock
                             }
                         });
                     dialog.setElements(extensionPoints);
-                    dialog.setTitle("拡張ポイントの選択");
-                    dialog.setMessage("コントリビュートする拡張ポイントを選んでください");
+                    dialog.setTitle(Messages.getString("ExtensionBlock.1")); //$NON-NLS-1$
+                    dialog.setMessage(Messages.getString("ExtensionBlock.2")); //$NON-NLS-1$
 
                     if (dialog.open() == Dialog.OK) {
                         IExtensionPoint point = (IExtensionPoint)dialog
@@ -152,19 +158,8 @@ public class ExtensionBlock extends MasterDetailsBlock
                             BeanAccessor accessor = point
                                 .getElementClassAccessor();
                             Object object = accessor.newInstance();
-                            String[] names = accessor.getAttributeNames();
-                            List attrs = new ArrayList();
-                            for (int i = 0; i < names.length; i++) {
-                                String name = names[i];
-                                PropertyDescriptor descriptor = accessor.getAttributeDescriptor(name);
-                                Attribute attribute = new Attribute(name, "\"",descriptor.getDefault());
-                                attrs.add(attribute);
-                            }
-                            //TODO 子供のエレメントも作るか...
-                            model.setProperty(new Element[] { new Element(
-                                accessor.getBeanName(), (Attribute[])attrs
-                                    .toArray(new Attribute[0]), new Node[0]) });
-
+                            model.setKvasirProject(kvasirProject);
+                            model.setProperty(new Element[]{ accessor.getMapper().toElement(object)});
                             formPage.getCommandStack().execute(
                                 new AddExtensionCommand(formPage
                                     .getDescriptor(), model));
@@ -176,7 +171,7 @@ public class ExtensionBlock extends MasterDetailsBlock
                 }
             }
         });
-        Button remove = toolkit.createButton(buttons, "(&d)削除", SWT.PUSH);
+        Button remove = toolkit.createButton(buttons, Messages.getString("ExtensionBlock.3"), SWT.PUSH); //$NON-NLS-1$
         remove.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e)
@@ -190,10 +185,6 @@ public class ExtensionBlock extends MasterDetailsBlock
                             formPage.getCommandStack().execute(
                                 new RemoveExtensionCommand(formPage
                                     .getDescriptor(), (ExtensionModel)element));
-                        }
-                        if (element instanceof Element) {
-                            Element elem = (Element)element;
-                            //TODO 親が取れないと消せない...
                         }
                     }
 
@@ -213,6 +204,39 @@ public class ExtensionBlock extends MasterDetailsBlock
         viewer.setContentProvider(new PlustTreeContentProvider());
         viewer.setLabelProvider(new PlustLabelProvider());
         viewer.setInput(formPage.getDescriptor().getExtensions());
+        hookContextMenu();
+    }
+
+    private void hookContextMenu() {
+        MenuManager menuMgr = new MenuManager(Messages.getString("ExtensionBlock.4")); //$NON-NLS-1$
+        menuMgr.setRemoveAllWhenShown(true);
+        menuMgr.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager manager) {
+                ExtensionBlock.this.fillContextMenu(manager);
+            }
+        });
+        Menu menu = menuMgr.createContextMenu(viewer.getControl());
+        viewer.getControl().setMenu(menu);
+    }
+    
+    
+    protected void fillContextMenu(IMenuManager manager)
+    {
+        ISelection selection = viewer.getSelection();
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection structuredSelection = (IStructuredSelection)selection;
+            Object element = structuredSelection.getFirstElement();
+            if (element instanceof ExtensionElementModel) {
+                ExtensionElementModel model = (ExtensionElementModel)element;
+                String[] names = model.getChildNames();
+                for (int i = 0; i < names.length; i++) {
+                    String name = names[i];
+                    AddElementAction action = new AddElementAction(name, formPage.getCommandStack(), model);
+                    manager.add(action);
+                }
+                manager.add(new RemoveElementAction(formPage.getCommandStack(), model));
+            }
+        }
     }
 
 
@@ -260,6 +284,15 @@ public class ExtensionBlock extends MasterDetailsBlock
     public void fireCommandStachChanged()
     {
         if (viewer != null) {
+            ExtensionModel[] extensions = formPage.getDescriptor().getExtensions();
+            for (int i = 0; i < extensions.length; i++) {
+                ExtensionModel model = extensions[i];
+                try {
+                    model.refresh();
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
+            }
             viewer.setInput(formPage.getDescriptor().getExtensions());
         }
     }

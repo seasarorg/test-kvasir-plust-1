@@ -18,6 +18,7 @@ import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.model.PluginModel;
 
 
@@ -128,7 +129,7 @@ public class GeneralPage extends KvasirFormPage
 
             public void linkActivated(HyperlinkEvent e)
             {
-                getEditor().setActivePage("dependency");
+                getEditor().setActivePage(Messages.getString("GeneralPage.0")); //$NON-NLS-1$
             }
         });
 
@@ -137,7 +138,7 @@ public class GeneralPage extends KvasirFormPage
         extension.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e)
             {
-                getEditor().setActivePage("extension");
+                getEditor().setActivePage(Messages.getString("GeneralPage.1")); //$NON-NLS-1$
             }
         });
         Hyperlink point = toolkit.createHyperlink(sectionClient, Messages
@@ -145,11 +146,11 @@ public class GeneralPage extends KvasirFormPage
         point.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e)
             {
-                getEditor().setActivePage("extensionPoint");
+                getEditor().setActivePage(Messages.getString("GeneralPage.2")); //$NON-NLS-1$
             }
         });
         
-        Hyperlink update = toolkit.createHyperlink(sectionClient, "クラスパスを最新の状態に更新", SWT.NONE);
+        Hyperlink update = toolkit.createHyperlink(sectionClient, Messages.getString("GeneralPage.3"), SWT.NONE); //$NON-NLS-1$
         update.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e)
             {
@@ -166,29 +167,29 @@ public class GeneralPage extends KvasirFormPage
     {
         Section section = toolkit.createSection(composite, Section.DESCRIPTION
             | Section.TITLE_BAR);
-        section.setText("テスト環境");
+        section.setText(Messages.getString("GeneralPage.4")); //$NON-NLS-1$
         section
-            .setDescription("作成したプラグインはテスト環境に配備、実行することが出来ます。プラグインの配備はMavenによるビルドで実施します。テスト環境は+PLUSTによって自動的に構築されます。テスト環境を再構築する場合はテスト環境のリビルドをクリックしてください。");
+            .setDescription(Messages.getString("GeneralPage.5")); //$NON-NLS-1$
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new GridLayout());
 
         Composite settings = toolkit.createComposite(sectionClient);
         settings.setLayoutData(new GridData(GridData.FILL_BOTH));
         settings.setLayout(new GridLayout(3,false));
-        toolkit.createLabel(settings, "グループID");
-        toolkit.createLabel(settings, ":");
+        toolkit.createLabel(settings, Messages.getString("GeneralPage.6")); //$NON-NLS-1$
+        toolkit.createLabel(settings, Messages.getString("GeneralPage.7")); //$NON-NLS-1$
         Text groupIdText = toolkit.createText(settings, getDescriptor()
             .getTestEnvironmentGroupId());
         groupIdText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-        toolkit.createLabel(settings, "アーティファクトID");
-        toolkit.createLabel(settings, ":");
+        toolkit.createLabel(settings, Messages.getString("GeneralPage.8")); //$NON-NLS-1$
+        toolkit.createLabel(settings, Messages.getString("GeneralPage.9")); //$NON-NLS-1$
         Text artifactText = toolkit.createText(settings, getDescriptor()
             .getTestEnvironmentArtifactId());
         artifactText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-        toolkit.createLabel(settings, "バージョン");
-        toolkit.createLabel(settings, ":");
+        toolkit.createLabel(settings, Messages.getString("GeneralPage.10")); //$NON-NLS-1$
+        toolkit.createLabel(settings, Messages.getString("GeneralPage.11")); //$NON-NLS-1$
         Text versionText = toolkit.createText(settings, getDescriptor()
             .getTestEnviromentVersion());
         versionText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -196,7 +197,7 @@ public class GeneralPage extends KvasirFormPage
         Composite execute = toolkit.createComposite(sectionClient);
         execute.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         execute.setLayout(new GridLayout());
-        toolkit.createHyperlink(execute, "テスト環境のリビルド", SWT.NONE);
+        toolkit.createHyperlink(execute, Messages.getString("GeneralPage.12"), SWT.NONE); //$NON-NLS-1$
         section.setClient(sectionClient);
     }
 }

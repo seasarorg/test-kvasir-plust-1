@@ -3,14 +3,8 @@
  */
 package org.seasar.kvasir.plust.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-
-import net.skirnir.xom.Element;
-import net.skirnir.xom.Node;
 
 
 /**
@@ -31,19 +25,11 @@ public class PlustTreeContentProvider
         }
         if (parentElement instanceof ExtensionModel) {
             ExtensionModel extension = (ExtensionModel)parentElement;
-            return extension.getProperty();
+            return extension.getRootElements();
         }
-        if (parentElement instanceof Element) {
-            Element element = (Element)parentElement;
-            Node[] children = element.getChildren();
-            List rv = new ArrayList();
-            for (int i = 0; i < children.length; i++) {
-                Node node = children[i];
-                if (node.getType() == Node.ELEMENT) {
-                    rv.add(node);
-                }
-            }
-            return rv.toArray();
+        if (parentElement instanceof ExtensionElementModel) {
+            ExtensionElementModel model = (ExtensionElementModel)parentElement;
+            return model.getChildren();
         }
         return null;
     }
@@ -67,15 +53,9 @@ public class PlustTreeContentProvider
         {
             return true;
         }
-        if (element instanceof ExtensionModel)
+        if (element instanceof ExtensionModel || element instanceof ExtensionElementModel)
         {
-            ExtensionModel model = (ExtensionModel)element;
-            return model.getProperty().length != 0;
-        }
-        if (element instanceof Element)
-        {
-            Element e = (Element)element;
-            return e.getChildren() != null;
+            return true;
         }
         return false;
     }

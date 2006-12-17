@@ -38,6 +38,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.seasar.kvasir.base.descriptor.ExtensionElement;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.form.command.AddExtensionPointCommand;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
@@ -118,8 +119,8 @@ public class ExtensionPointBlock extends MasterDetailsBlock
                     SelectionDialog dialog = JavaUI.createTypeDialog(window
                         .getShell(), window, scope,
                         IJavaElementSearchConstants.CONSIDER_CLASSES, false);
-                    dialog.setTitle("拡張ポイントクラスを指定");
-                    dialog.setMessage("拡張ポイントクラスを指定:");
+                    dialog.setTitle(Messages.getString("ExtensionPointBlock.0")); //$NON-NLS-1$
+                    dialog.setMessage(Messages.getString("ExtensionPointBlock.1")); //$NON-NLS-1$
                     if (dialog.open() == Dialog.OK) {
                         Object[] result = dialog.getResult();
                         for (int i = 0; i < result.length; i++) {
@@ -137,7 +138,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
             }
         });
 
-        Button remove = toolkit.createButton(buttons, "(&d)削除", SWT.PUSH);
+        Button remove = toolkit.createButton(buttons, Messages.getString("ExtensionPointBlock.2"), SWT.PUSH); //$NON-NLS-1$
         remove.addSelectionListener(new SelectionAdapter() {
 
         });
@@ -163,7 +164,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
     protected void createToolBarActions(IManagedForm managedForm)
     {
         final ScrolledForm form = managedForm.getForm();
-        Action haction = new Action("hor", Action.AS_RADIO_BUTTON) {
+        Action haction = new Action(Messages.getString("ExtensionPointBlock.3"), Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
             public void run()
             {
                 sashForm.setOrientation(SWT.HORIZONTAL);
@@ -173,7 +174,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         haction.setChecked(true);
         haction.setImageDescriptor(KvasirPlugin
             .getImageDescriptor(KvasirPlugin.IMG_HORIZONTAL));
-        Action vaction = new Action("ver", Action.AS_RADIO_BUTTON) {
+        Action vaction = new Action(Messages.getString("ExtensionPointBlock.4"), Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
             public void run()
             {
                 sashForm.setOrientation(SWT.VERTICAL);

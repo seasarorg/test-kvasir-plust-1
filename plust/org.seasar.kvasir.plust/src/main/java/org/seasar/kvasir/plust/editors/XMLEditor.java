@@ -1,6 +1,7 @@
 package org.seasar.kvasir.plust.editors;
 
 import org.eclipse.ui.editors.text.TextEditor;
+import org.seasar.kvasir.plust.Messages;
 
 
 public class XMLEditor extends TextEditor
@@ -15,7 +16,7 @@ public class XMLEditor extends TextEditor
         colorManager = new ColorManager();
         setSourceViewerConfiguration(new XMLConfiguration(colorManager));
         setDocumentProvider(new XMLDocumentProvider());
-        setPartName("ソース");
+        setPartName(Messages.getString("XMLEditor.0")); //$NON-NLS-1$
     }
 
 

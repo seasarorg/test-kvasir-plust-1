@@ -2,11 +2,9 @@ package org.seasar.kvasir.plust.model;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
-import org.eclipse.core.runtime.CoreException;
 import org.seasar.kvasir.base.plugin.descriptor.Extension;
 import org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint;
 import org.seasar.kvasir.base.plugin.descriptor.Import;
@@ -15,7 +13,6 @@ import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.base.plugin.descriptor.Runtime;
 import org.seasar.kvasir.base.plugin.descriptor.impl.PluginDescriptorImpl;
-import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.Element;
@@ -68,6 +65,7 @@ public class PlustMapper
             Library library = libraries[i];
             //TODO ライブラリをどうすっか..
             LibraryModel model = new LibraryModel();
+            model.setLibrary(library);
             root.addRuntime(model);
         }
 
@@ -77,15 +75,7 @@ public class PlustMapper
             ExtensionModel model = new ExtensionModel();
             model.setPoint(extension.getPoint());
             model.setProperty(extension.getElements());
-
-            try {
-                IExtensionPoint point = kvasirProject
-                    .getExtensionPoint(extension.getPoint());
-                model.setAccessor(point.getElementClassAccessor());
-            } catch (CoreException e) {
-                e.printStackTrace();
-            }
-
+            model.setKvasirProject(kvasirProject);
             root.addExtension(model);
         }
 
@@ -119,9 +109,7 @@ public class PlustMapper
         LibraryModel[] libraryModels = model.getRuntime();
         for (int i = 0; i < libraryModels.length; i++) {
             LibraryModel lib = libraryModels[i];
-            Library library = new Library();
-            library.setName("test");
-            runtime.addLibrary(library);
+            runtime.addLibrary(lib.getLibrary());
         }
         rootImpl.setRuntime(runtime);
 

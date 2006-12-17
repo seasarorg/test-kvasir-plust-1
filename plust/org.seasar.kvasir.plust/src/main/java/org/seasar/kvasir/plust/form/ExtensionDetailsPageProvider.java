@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IDetailsPageProvider;
+import org.seasar.kvasir.plust.model.ExtensionElementModel;
 import org.seasar.kvasir.plust.model.ExtensionModel;
 
 import net.skirnir.xom.Element;
@@ -38,8 +39,8 @@ public class ExtensionDetailsPageProvider
             pageCache.put(key, page);
             return page;
         }
-        if (key instanceof Element) {
-            Element element = (Element)key;
+        if (key instanceof ExtensionElementModel) {
+            ExtensionElementModel element = (ExtensionElementModel)key;
             ExtensionElementDetailsPage page = new ExtensionElementDetailsPage(element);
             pageCache.put(key, page);
             return page;
