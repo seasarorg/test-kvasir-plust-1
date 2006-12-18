@@ -1,6 +1,5 @@
 package ${pluginId}.impl;
 
-import org.seasar.kvasir.base.cache.setting.CachePluginSettings;
 import org.seasar.kvasir.base.plugin.AbstractPlugin;
 
 import ${pluginId}.${pluginClassName};
