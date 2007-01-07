@@ -880,20 +880,38 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public KvasirProject getKvasirProject(IEditorInput input)
     {
-        if (!projectCache.containsKey(input)) {
-            IProject project = getCurrentProject(input);
-            IJavaProject javaProject = JavaCore.create(project);
-
-            KvasirProject kvasirProject = new KvasirProject(javaProject);
-            projectCache.put(input, kvasirProject);
+        IProject project = getCurrentProject(input);
+        if (!projectCache.containsKey(project)) {
+            createKvasirProject(project);
         }
-        return (KvasirProject)projectCache.get(input);
+        return (KvasirProject)projectCache.get(project);
+    }
+
+
+    public KvasirProject getKvasirProject(IProject project)
+    {
+        Object object = projectCache.get(project);
+        if (object instanceof KvasirProject) {
+            return (KvasirProject)object;
+        }
+        return createKvasirProject(project);
+    }
+
+
+    private KvasirProject createKvasirProject(IProject project)
+    {
+        IJavaProject javaProject = JavaCore.create(project);
+
+        KvasirProject kvasirProject = new KvasirProject(javaProject);
+        projectCache.put(project, kvasirProject);
+        return kvasirProject;
     }
 
 
     public void flushKvasirProject(IEditorInput input)
     {
-        projectCache.remove(input);
+        IProject project = getCurrentProject(input);
+        projectCache.remove(project);
     }
 
 

@@ -21,6 +21,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -35,7 +36,8 @@ public class ProjectClassLoader extends URLClassLoader
 
     private String[] errorURL;
 
-
+    private IProgressMonitor monitor;
+    
     public ProjectClassLoader(IJavaProject project)
     {
         super(new URL[0]);
@@ -43,9 +45,10 @@ public class ProjectClassLoader extends URLClassLoader
     }
 
 
-    public ProjectClassLoader(IJavaProject project, ClassLoader parent)
+    public ProjectClassLoader(IJavaProject project, ClassLoader parent, IProgressMonitor monitor)
     {
         super(new URL[0], parent);
+        this.monitor = monitor;
         getClassPaths(project);
     }
 
@@ -72,6 +75,7 @@ public class ProjectClassLoader extends URLClassLoader
                     url = "jar:file:///" + entries[i].getPath().toString()
                         + "!/";
                 }
+                this.monitor.subTask(Messages.getString("KvasirProject.3") + ":" + url);
                 try {
                     addURL(new URL(url));
                 } catch (MalformedURLException e) {

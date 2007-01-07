@@ -9,10 +9,15 @@ import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.forms.editor.FormEditor;
@@ -40,7 +45,7 @@ import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
 
 
 public class PluginsFormEditor extends FormEditor
-    implements IEditorCommandStackListener
+    implements IEditorCommandStackListener, IResourceChangeListener
 {
 
     public static final String ID = "org.seasar.kvasir.plust.editors.PluginsFormEditor"; //$NON-NLS-1$
@@ -53,6 +58,8 @@ public class PluginsFormEditor extends FormEditor
 
     private FileEditorInput buildPropInput;
 
+    private FileEditorInput editorInput;
+
 
     protected void setInput(IEditorInput input)
     {
@@ -60,8 +67,7 @@ public class PluginsFormEditor extends FormEditor
 
         commandStack.addCommandStackListener(this);
 
-        // TODO this cast is not safe. Editor's inputs are not only File.
-        FileEditorInput editorInput = (FileEditorInput)input;
+        editorInput = (FileEditorInput)input;
         IFile file = editorInput.getFile();
 
         //load target file.
@@ -92,11 +98,17 @@ public class PluginsFormEditor extends FormEditor
                 Messages.getString("PluginsFormEditor.warn"), e); //$NON-NLS-1$
             descriptor = new PluginModel();
         }
-
         setPartName(file.getProject().getName() + Messages.getString("PluginsFormEditor.1")); //$NON-NLS-1$
     }
 
 
+    public void init(IEditorSite site, IEditorInput input)
+        throws PartInitException
+    {
+        super.init(site, input);
+        ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+    }
+    
     private PluginModel loadXML(File file, MavenProject project,
         Properties properties)
         throws IllegalSyntaxException, FileNotFoundException, IOException,
@@ -109,7 +121,7 @@ public class PluginsFormEditor extends FormEditor
         PluginDescriptor descriptor = (PluginDescriptor)mapper.toBean(document
             .getRootElement(), PluginDescriptor.class);
         
-        KvasirProject kvasirProject = KvasirPlugin.getDefault().getKvasirProject(getEditorInput());
+        KvasirProject kvasirProject = KvasirPlugin.getDefault().getKvasirProject(editorInput);
         return PlustMapper.toPlustModel(descriptor, project, properties, kvasirProject);
     }
 
@@ -145,6 +157,7 @@ public class PluginsFormEditor extends FormEditor
         IFile file = editorInput.getFile();
         String string = PlustMapper.toPluginXML(descriptor);
         try {
+            KvasirPlugin.getDefault().storeBuildProperties(file.getProject(), PlustMapper.toBuildProperty(descriptor));
             file.setContents(new ByteArrayInputStream(string.getBytes()),IFile.KEEP_HISTORY, monitor);
         } catch (CoreException e) {
             e.printStackTrace();
@@ -191,5 +204,19 @@ public class PluginsFormEditor extends FormEditor
     public boolean isDirty()
     {
         return this.commandStack.isDirty();
+    }
+
+
+    public void resourceChanged(IResourceChangeEvent event)
+    {
+       IProject project = event.getResource().getProject();
+       if (project.equals(this.editorInput.getFile().getProject())) {
+           if (event.getType() == IResourceChangeEvent.PRE_CLOSE) {
+               this.close(false);
+           } else if (event.getType() == IResourceChangeEvent.PRE_DELETE) {
+               this.close(false);
+           }
+           
+       }
     }
 }

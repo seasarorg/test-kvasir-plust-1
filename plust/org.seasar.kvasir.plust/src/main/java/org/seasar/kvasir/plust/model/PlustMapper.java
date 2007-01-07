@@ -119,7 +119,7 @@ public class PlustMapper
             ImportModel impModel = importModels[i];
             Import imp = new Import();
             imp.setPlugin(impModel.getPluginId());
-            imp.setVersionString(impModel.getVersion());
+//            imp.setVersionString(impModel.getVersion());
             requires.addImport(imp);
         }
         rootImpl.setRequires(requires);

@@ -83,7 +83,7 @@ public class KvasirProject
     }
 
 
-    void prepareForExtensionPoints()
+    public void prepareForExtensionPoints()
         throws CoreException
     {
         if (initialized_) {
@@ -131,9 +131,9 @@ public class KvasirProject
                         ClassLoader classLoader = new ProjectClassLoader(javaProject_,
                             new FilteredClassLoader(getClass().getClassLoader(),
                                 new String[] { "net.skirnir.xom.annotation.*" }, //$NON-NLS-1$
-                                new String[] {}));
+                                new String[] {}), monitor);
                         monitor.worked(5);
-                        Set importedPluginIdSet = getImportedPluginIdSet(mapper);
+                        Set importedPluginIdSet = getImportedPluginIdSet(mapper, monitor);
                         List importedExtensionPointList = new ArrayList();
                         for (Iterator itr = pluginMap_.values().iterator(); itr.hasNext();) {
                             Plugin info = (Plugin)itr.next();
@@ -171,7 +171,7 @@ public class KvasirProject
         };
 
         try {
-            PlatformUI.getWorkbench().getProgressService().run(false, false, runnable);
+            PlatformUI.getWorkbench().getProgressService().run(false, true, runnable);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -180,7 +180,7 @@ public class KvasirProject
     }
 
 
-    Set getImportedPluginIdSet(XOMapper mapper)
+    Set getImportedPluginIdSet(XOMapper mapper, IProgressMonitor monitor)
         throws CoreException
     {
         Set importedPluginIdSet = new TreeSet();
@@ -193,6 +193,7 @@ public class KvasirProject
             if (requires != null) {
                 Import[] imports = requires.getImports();
                 for (int i = 0; i < imports.length; i++) {
+                    monitor.subTask("プラグインインポート中... : " + imports[i].getPlugin());
                     importedPluginIdSet.add(imports[i].getPlugin());
                 }
             }

@@ -57,6 +57,7 @@ import org.seasar.kvasir.maven.plugin.ArtifactUtils;
 import org.seasar.kvasir.maven.plugin.KvasirPluginUtils;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.KvasirProject;
 import org.seasar.kvasir.plust.PrepareTestEnvironmentTask;
 
 import net.skirnir.freyja.TemplateEvaluator;

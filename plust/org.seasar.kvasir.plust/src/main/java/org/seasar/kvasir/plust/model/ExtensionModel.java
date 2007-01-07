@@ -11,6 +11,8 @@ import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
+import net.skirnir.xom.XOMapper;
+import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
 
 
 /**
@@ -88,6 +90,7 @@ public class ExtensionModel extends PlustModel
                     Element element = elements[i];
                     BeanAccessor accessor = extensionPoint
                         .getElementClassAccessor();
+                    accessor.getMapper().setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
                     Object object = accessor.getMapper().toBean(element,
                         accessor.getBeanClass());
                     model = new ExtensionElementModel(element
@@ -104,7 +107,9 @@ public class ExtensionModel extends PlustModel
     
     public void refresh() {
         if (model != null) {
-            Element element = model.getAccessor().getMapper().toElement(model.getBean());
+            BeanAccessor accessor = model.getAccessor();
+            XOMapper mapper = accessor.getMapper();
+            Element element = mapper.toElement(model.getBean());
             this.elements[0] = element;
         }
     }
