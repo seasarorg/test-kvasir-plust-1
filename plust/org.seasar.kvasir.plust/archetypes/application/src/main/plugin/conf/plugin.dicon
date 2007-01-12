@@ -11,5 +11,4 @@
       </arg>
     </initMethod>
   </component>
-  <component name="${pluginShortId}Pop" class="org.seasar.kvasir.cms.pop.pop.GenericPop" instance="prototype" />
 </components>
