@@ -5,7 +5,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.seasar.kvasir.cms.pop.RenderedPop;
+import org.seasar.kvasir.cms.pop.extension.PopElement;
 import org.seasar.kvasir.cms.pop.test.PopTestCase;
+import org.seasar.kvasir.page.Page;
+import org.seasar.kvasir.page.mock.MockPage;
+
 import ${pluginId}.${pluginClassName};
 
 
@@ -35,14 +39,16 @@ public class ${pluginShortId?cap_first}PopTest extends PopTestCase<${pluginShort
     public void testRender()
         throws Exception
     {
-        setProperty(PROP_TITLE, "title");
-        setProperty(PROP_BODY, "body");
+        setProperty(PopElement.PROP_TITLE, "title");
+        setProperty(PopElement.PROP_BODY, "body");
+
+        Page page = registerPage(new MockPage(1000, "/path/to/page"));
 
         ${pluginShortId?cap_first}Pop target = newPopInstance();
         RenderedPop actual = target.render(newContext(null, page),
             new String[0]);
 
         assertEquals("title", actual.getTitle());
-        assertEquals("body" actual.getBody()));
+        assertEquals("body", actual.getBody());
     }
 }
