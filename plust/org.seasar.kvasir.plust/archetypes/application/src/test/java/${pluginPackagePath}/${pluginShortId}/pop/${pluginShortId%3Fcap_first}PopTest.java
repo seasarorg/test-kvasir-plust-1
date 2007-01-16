@@ -1,9 +1,5 @@
 package ${pluginId}.${pluginShortId}.pop;
 
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import org.seasar.kvasir.cms.pop.RenderedPop;
 import org.seasar.kvasir.cms.pop.extension.PopElement;
 import org.seasar.kvasir.cms.pop.test.PopTestCase;
