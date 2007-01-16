@@ -37,11 +37,12 @@
   </extension>
 
   <extension point="org.seasar.kvasir.cms.pop.pops">
-    <pop id="${pluginShortId}Pop" body-type="text/x-zpt"
+    <pop id="${pluginShortId}Pop"
       body-resource-path="pops/${pluginShortId}Pop/body.html"
       image-resource-path="pops/${pluginShortId}Pop/image.html">
-      <property-def id="title" />
-      <property-def id="body" />
+      <form-unit kind="property" id="title" />
+      <form-unit kind="property" id="body-type" human-readable="false" />
+      <form-unit kind="property" id="body" />
     </pop>
   </extension>
 
