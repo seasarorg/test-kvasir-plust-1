@@ -54,6 +54,6 @@
 
   <extension point="org.seasar.kvasir.cms.ymir.externalTemplates">
     <external-template application-id="${pluginId}.${pluginShortId}Application"
-      resource-path="gards/${pluginShortId}/pop" />
+      resource-path="pops" />
   </extension>
 </plugin>
