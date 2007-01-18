@@ -53,7 +53,10 @@
   </extension>
 
   <extension point="org.seasar.kvasir.cms.ymir.externalTemplates">
-    <external-template application-id="${pluginId}.${pluginShortId}Application"
-      resource-path="pops" />
+    <external-template application-id="${pluginId}.${pluginShortId}Application">
+      <resourceset dir="pops">
+        <include name="*/*.html" />
+      </resourceset>
+    </external-template>
   </extension>
 </plugin>
