@@ -3,12 +3,7 @@
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
   <component name="plugin" class="${pluginId}.impl.${pluginClassName}Impl" />
+  <component class="org.seasar.cms.ymir.convention.YmirNamingConvention" />
   <component name="${pluginShortId}Application" class="org.seasar.kvasir.cms.ymir.impl.ApplicationImpl" />
-  <component class="org.seasar.cms.pluggable.hotdeploy.LocalOndemandS2Container">
-    <initMethod name="addProject">
-      <arg>
-        <component class="org.seasar.framework.container.hotdeploy.impl.OndemandProjectImpl" />
-      </arg>
-    </initMethod>
-  </component>
+  <component class="org.seasar.cms.pluggable.hotdeploy.LocalOndemandS2Container" />
 </components>
