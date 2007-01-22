@@ -2,8 +2,9 @@
 <!DOCTYPE components PUBLIC "-//SEASAR//DTD S2Container 2.4//EN"
   "http://www.seasar.org/dtd/components24.dtd">
 <components>
+  <meta name="expand">"ymir-application.dicon"</meta>
   <component name="plugin" class="${pluginId}.impl.${pluginClassName}Impl" />
-  <component class="org.seasar.cms.ymir.convention.YmirNamingConvention" />
   <component name="${pluginShortId}Application" class="org.seasar.kvasir.cms.ymir.impl.ApplicationImpl" />
-  <component class="org.seasar.cms.pluggable.hotdeploy.LocalOndemandS2Container" />
+  <!-- COMPONENT CREATORS -->
+  <component class="org.seasar.kvasir.cms.pop.creator.PopCreator" />
 </components>
