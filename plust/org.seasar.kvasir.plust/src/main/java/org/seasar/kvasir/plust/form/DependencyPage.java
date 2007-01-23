@@ -30,6 +30,7 @@ import org.eclipse.ui.forms.widgets.Section;
 import org.seasar.kvasir.plust.IPlugin;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.form.command.AddImportCommand;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
 import org.seasar.kvasir.plust.form.command.RemoveImportCommand;
@@ -39,7 +40,8 @@ import org.seasar.kvasir.plust.model.PlustLabelProvider;
 import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
 
 
-public class DependencyPage extends KvasirFormPage implements IEditorCommandStackListener
+public class DependencyPage extends KvasirFormPage
+    implements IEditorCommandStackListener
 {
 
     private TableViewer viewer;
@@ -63,7 +65,8 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
         GridLayout layout = new GridLayout();
         layout.numColumns = 1;
         form.getBody().setLayout(layout);
-        createImportSection(form, toolkit, Messages.getString("DependencyPage.3")); //$NON-NLS-1$
+        createImportSection(form, toolkit, Messages
+            .getString("DependencyPage.3")); //$NON-NLS-1$
         //        createRuntimeSection(form, toolkit, "ランタイムライブラリ"); //$NON-NLS-1$
     }
 
@@ -95,7 +98,8 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
         toolkit.paintBordersFor(client);
         Composite bp = toolkit.createComposite(client);
         bp.setLayout(new GridLayout());
-        Button add = toolkit.createButton(bp, Messages.getString("DependencyPage.4"), SWT.PUSH); //$NON-NLS-1$
+        Button add = toolkit.createButton(bp, Messages
+            .getString("DependencyPage.4"), SWT.PUSH); //$NON-NLS-1$
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         add.setLayoutData(gd);
 
@@ -135,10 +139,12 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
                                 ImportModel model = (ImportModel)element;
                                 return model.getPluginId();
                             }
-                            
+
+
                             public Image getImage(Object element)
                             {
-                                return KvasirPlugin.getDefault().getImage(KvasirPlugin.IMG_REQUIRED);
+                                return KvasirPlugin.getDefault().getImage(
+                                    KvasirPlugin.IMG_REQUIRED);
                             }
                         });
                     dialog.setElements(inculdablePlugins.toArray());
@@ -159,17 +165,19 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
             }
 
         });
-        Button del = toolkit.createButton(bp, Messages.getString("DependencyPage.5"), SWT.PUSH); //$NON-NLS-1$
+        Button del = toolkit.createButton(bp, Messages
+            .getString("DependencyPage.5"), SWT.PUSH); //$NON-NLS-1$
         del.addSelectionListener(new SelectionAdapter() {
-           
+
             public void widgetSelected(SelectionEvent e)
             {
-                if (viewer.getSelection() != null)
-                {
-                    IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
+                if (viewer.getSelection() != null) {
+                    IStructuredSelection selection = (IStructuredSelection)viewer
+                        .getSelection();
                     for (Iterator iter = selection.iterator(); iter.hasNext();) {
                         ImportModel element = (ImportModel)iter.next();
-                        getCommandStack().execute(new RemoveImportCommand(element, getDescriptor()));
+                        getCommandStack().execute(
+                            new RemoveImportCommand(element, getDescriptor()));
                     }
                 }
             }
@@ -179,8 +187,7 @@ public class DependencyPage extends KvasirFormPage implements IEditorCommandStac
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         bp.setLayoutData(gd);
         section.setText(title);
-        section
-            .setDescription(Messages.getString("DependencyPage.6")); //$NON-NLS-1$
+        section.setDescription(Messages.getString("DependencyPage.6")); //$NON-NLS-1$
         section.setClient(client);
         section.addExpansionListener(new ExpansionAdapter() {
             public void expansionStateChanged(ExpansionEvent e)

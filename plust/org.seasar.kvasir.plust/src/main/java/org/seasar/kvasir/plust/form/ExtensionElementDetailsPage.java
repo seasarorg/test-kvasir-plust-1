@@ -49,9 +49,9 @@ public class ExtensionElementDetailsPage implements IDetailsPage
         Section s1 = toolkit.createSection(parent, Section.DESCRIPTION
             | Section.TITLE_BAR);
         s1.marginWidth = 10;
-        s1.setText("拡張プロパティの設定"); //$NON-NLS-1$
+        s1.setText(Messages.getString("ExtensionElementDetailsPage.2")); //$NON-NLS-1$
 
-        s1.setDescription("拡張に設定するプロパティを定義します。"); //$NON-NLS-1$
+        s1.setDescription(Messages.getString("ExtensionElementDetailsPage.3")); //$NON-NLS-1$
         TableWrapData td = new TableWrapData(TableWrapData.FILL,
             TableWrapData.TOP);
         td.grabHorizontal = true;

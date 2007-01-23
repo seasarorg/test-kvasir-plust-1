@@ -3,6 +3,7 @@ package org.seasar.kvasir.plust.form;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.model.PluginModel;
 
 

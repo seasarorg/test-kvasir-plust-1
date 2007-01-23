@@ -193,7 +193,7 @@ public class KvasirProject
             if (requires != null) {
                 Import[] imports = requires.getImports();
                 for (int i = 0; i < imports.length; i++) {
-                    monitor.subTask("プラグインインポート中... : " + imports[i].getPlugin());
+                    monitor.subTask(Messages.getString("KvasirProject.0") + imports[i].getPlugin()); //$NON-NLS-1$
                     importedPluginIdSet.add(imports[i].getPlugin());
                 }
             }

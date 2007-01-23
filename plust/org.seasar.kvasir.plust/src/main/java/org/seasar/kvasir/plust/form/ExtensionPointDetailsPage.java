@@ -23,6 +23,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStack;
 import org.seasar.kvasir.plust.form.command.UpdateExtensionPointCommand;
 import org.seasar.kvasir.plust.model.ExtensionPointModel;
@@ -93,7 +94,7 @@ public class ExtensionPointDetailsPage
         idText = toolkit.createText(client, ""); //$NON-NLS-1$
         addModifyListener(idText);
         idText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        
+
         toolkit.createLabel(client, ""); //$NON-NLS-1$
         toolkit.createLabel(client, Messages
             .getString("ExtensionPointDetailsPage.clazz")); //$NON-NLS-1$
@@ -101,7 +102,7 @@ public class ExtensionPointDetailsPage
         className = toolkit.createText(client, ""); //$NON-NLS-1$
         className.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         addModifyListener(className);
-        
+
         toolkit.createButton(client, "...", SWT.NONE); //$NON-NLS-1$
         toolkit.createLabel(client, "説明"); //$NON-NLS-1$
         toolkit.createLabel(client, ":"); //$NON-NLS-1$

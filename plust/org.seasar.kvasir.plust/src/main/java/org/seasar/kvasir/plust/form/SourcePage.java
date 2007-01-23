@@ -7,13 +7,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.model.PluginModel;
 import org.seasar.kvasir.plust.model.PlustMapper;
 
 
 public class SourcePage extends KvasirFormPage
 {
-
 
     private SourceViewer viewer;
 

@@ -78,9 +78,9 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         FormToolkit toolkit = managedForm.getToolkit();
         Section section = toolkit.createSection(parent, Section.DESCRIPTION
             | Section.TITLE_BAR);
-        section.setText("Kvasirプラグインの拡張"); //$NON-NLS-1$
+        section.setText(Messages.getString("ExtensionPointBlock.5")); //$NON-NLS-1$
         section
-            .setDescription("Kvasirプラグインが提供する拡張ポイントを選択します。選択できる拡張ポイントはクラスパス内のJavaBeansになります。"); //$NON-NLS-1$
+            .setDescription(Messages.getString("ExtensionPointBlock.6")); //$NON-NLS-1$
         section.marginWidth = 10;
         section.marginHeight = 5;
         Composite client = toolkit.createComposite(section, SWT.WRAP);
@@ -99,7 +99,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         buttons.setLayout(new GridLayout());
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         buttons.setLayoutData(gd);
-        Button add = toolkit.createButton(buttons, "(&a)追加", SWT.PUSH); //$NON-NLS-1$
+        Button add = toolkit.createButton(buttons, Messages.getString("ExtensionPointBlock.7"), SWT.PUSH); //$NON-NLS-1$
         add.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e)

@@ -15,6 +15,7 @@ import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.model.ExtensionModel;
 
 
@@ -29,6 +30,7 @@ public class ExtensionDetailsPage
     private String point;
 
     private IManagedForm form;
+
 
     public ExtensionDetailsPage(ExtensionModel bean, String point)
     {
@@ -67,6 +69,7 @@ public class ExtensionDetailsPage
         s1.setClient(client);
 
     }
+
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.forms.IFormPart#commit(boolean)
