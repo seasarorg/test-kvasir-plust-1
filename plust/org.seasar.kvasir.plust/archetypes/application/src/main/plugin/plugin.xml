@@ -33,7 +33,7 @@
   <extension point="org.seasar.kvasir.page.pageGardInstalls">
     <page-gard-install
       gard-id="${pluginId}.${pluginShortId}"
-      path-account="/plugins/${pluginShortId}" />
+      pathnamet="/plugins/${pluginShortId}" />
   </extension>
 
   <extension point="org.seasar.kvasir.cms.pop.pops">
