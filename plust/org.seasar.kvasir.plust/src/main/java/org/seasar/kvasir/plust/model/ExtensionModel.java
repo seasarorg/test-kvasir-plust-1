@@ -11,6 +11,7 @@ import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
+import net.skirnir.xom.ValidationException;
 import net.skirnir.xom.XOMapper;
 import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
 
@@ -90,11 +91,12 @@ public class ExtensionModel extends PlustModel
                     Element element = elements[i];
                     BeanAccessor accessor = extensionPoint
                         .getElementClassAccessor();
-                    accessor.getMapper().setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
+                    accessor.getMapper().setBeanAccessorFactory(
+                        new AnnotationBeanAccessorFactory());
                     Object object = accessor.getMapper().toBean(element,
                         accessor.getBeanClass());
-                    model = new ExtensionElementModel(element
-                                            .getName(), object, accessor, this);
+                    model = new ExtensionElementModel(element.getName(),
+                        object, accessor, this);
                     rv.add(model);
                 }
             }
@@ -104,12 +106,22 @@ public class ExtensionModel extends PlustModel
         return (ExtensionElementModel[])rv.toArray(new ExtensionElementModel[rv
             .size()]);
     }
-    
-    public void refresh() {
+
+
+    public void refresh()
+    {
         if (model != null) {
             BeanAccessor accessor = model.getAccessor();
             XOMapper mapper = accessor.getMapper();
-            Element element = mapper.toElement(model.getBean());
+            Element element;
+            try {
+                element = mapper.toElement(model.getBean());
+            } catch (ValidationException ex) {
+                // object中の、requiredな値が埋まっていない。
+                // FIXME 多分発生しないと思うが、もしも発生しうるなら適切な
+                // エラー処理を行なうこと。
+                throw new RuntimeException("Can't happen!", ex);
+            }
             this.elements[0] = element;
         }
     }

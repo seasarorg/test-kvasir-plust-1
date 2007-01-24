@@ -16,6 +16,7 @@ import org.seasar.kvasir.base.plugin.descriptor.impl.PluginDescriptorImpl;
 import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.Element;
+import net.skirnir.xom.ValidationException;
 import net.skirnir.xom.XOMapper;
 import net.skirnir.xom.XOMapperFactory;
 import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
@@ -119,7 +120,7 @@ public class PlustMapper
             ImportModel impModel = importModels[i];
             Import imp = new Import();
             imp.setPlugin(impModel.getPluginId());
-//            imp.setVersionString(impModel.getVersion());
+            //            imp.setVersionString(impModel.getVersion());
             requires.addImport(imp);
         }
         rootImpl.setRequires(requires);
@@ -158,6 +159,10 @@ public class PlustMapper
             return writer.toString();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ValidationException ex) {
+            // object中の、requiredな値が埋まっていない。
+            // FIXME 適切なエラー処理を行なうこと。
+            throw new RuntimeException("Can't happen!", ex);
         } finally {
             try {
                 writer.close();

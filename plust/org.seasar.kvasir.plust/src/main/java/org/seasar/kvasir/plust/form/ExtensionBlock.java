@@ -41,6 +41,7 @@ import org.eclipse.ui.forms.SectionPart;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.texteditor.ValidateStateException;
 import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
@@ -58,6 +59,7 @@ import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
 import net.skirnir.xom.Node;
 import net.skirnir.xom.PropertyDescriptor;
+import net.skirnir.xom.ValidationException;
 
 
 /**
@@ -91,8 +93,7 @@ public class ExtensionBlock extends MasterDetailsBlock
         Section section = toolkit.createSection(parent, Section.DESCRIPTION
             | Section.TITLE_BAR);
         section.setText(Messages.getString("ExtensionBlock.5")); //$NON-NLS-1$
-        section
-            .setDescription(Messages.getString("ExtensionBlock.6")); //$NON-NLS-1$
+        section.setDescription(Messages.getString("ExtensionBlock.6")); //$NON-NLS-1$
         section.marginWidth = 10;
         section.marginHeight = 5;
         Composite client = toolkit.createComposite(section, SWT.WRAP);
@@ -112,7 +113,8 @@ public class ExtensionBlock extends MasterDetailsBlock
         buttons.setLayout(new GridLayout());
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         buttons.setLayoutData(gd);
-        Button add = toolkit.createButton(buttons, Messages.getString("ExtensionBlock.0"), SWT.PUSH); //$NON-NLS-1$
+        Button add = toolkit.createButton(buttons, Messages
+            .getString("ExtensionBlock.0"), SWT.PUSH); //$NON-NLS-1$
         add.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e)
@@ -159,7 +161,16 @@ public class ExtensionBlock extends MasterDetailsBlock
                                 .getElementClassAccessor();
                             Object object = accessor.newInstance();
                             model.setKvasirProject(kvasirProject);
-                            model.setProperty(new Element[]{ accessor.getMapper().toElement(object)});
+                            try {
+                                model.setProperty(new Element[] { accessor
+                                    .getMapper().toElement(object) });
+                            } catch (ValidationException ex) {
+                                // object中の、requiredな値が埋まっていない。
+                                // FIXME OKボタンの処理を中断して、required
+                                // な値を埋めるようにエラーメッセージを出す。
+                                throw new RuntimeException("Validation Error",
+                                    ex);
+                            }
                             formPage.getCommandStack().execute(
                                 new AddExtensionCommand(formPage
                                     .getDescriptor(), model));
@@ -171,7 +182,8 @@ public class ExtensionBlock extends MasterDetailsBlock
                 }
             }
         });
-        Button remove = toolkit.createButton(buttons, Messages.getString("ExtensionBlock.3"), SWT.PUSH); //$NON-NLS-1$
+        Button remove = toolkit.createButton(buttons, Messages
+            .getString("ExtensionBlock.3"), SWT.PUSH); //$NON-NLS-1$
         remove.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e)
@@ -207,19 +219,23 @@ public class ExtensionBlock extends MasterDetailsBlock
         hookContextMenu();
     }
 
-    private void hookContextMenu() {
-        MenuManager menuMgr = new MenuManager(Messages.getString("ExtensionBlock.4")); //$NON-NLS-1$
+
+    private void hookContextMenu()
+    {
+        MenuManager menuMgr = new MenuManager(Messages
+            .getString("ExtensionBlock.4")); //$NON-NLS-1$
         menuMgr.setRemoveAllWhenShown(true);
         menuMgr.addMenuListener(new IMenuListener() {
-            public void menuAboutToShow(IMenuManager manager) {
+            public void menuAboutToShow(IMenuManager manager)
+            {
                 ExtensionBlock.this.fillContextMenu(manager);
             }
         });
         Menu menu = menuMgr.createContextMenu(viewer.getControl());
         viewer.getControl().setMenu(menu);
     }
-    
-    
+
+
     protected void fillContextMenu(IMenuManager manager)
     {
         ISelection selection = viewer.getSelection();
@@ -231,10 +247,12 @@ public class ExtensionBlock extends MasterDetailsBlock
                 String[] names = model.getChildNames();
                 for (int i = 0; i < names.length; i++) {
                     String name = names[i];
-                    AddElementAction action = new AddElementAction(name, formPage.getCommandStack(), model);
+                    AddElementAction action = new AddElementAction(name,
+                        formPage.getCommandStack(), model);
                     manager.add(action);
                 }
-                manager.add(new RemoveElementAction(formPage.getCommandStack(), model));
+                manager.add(new RemoveElementAction(formPage.getCommandStack(),
+                    model));
             }
         }
     }
@@ -284,7 +302,8 @@ public class ExtensionBlock extends MasterDetailsBlock
     public void fireCommandStachChanged()
     {
         if (viewer != null) {
-            ExtensionModel[] extensions = formPage.getDescriptor().getExtensions();
+            ExtensionModel[] extensions = formPage.getDescriptor()
+                .getExtensions();
             for (int i = 0; i < extensions.length; i++) {
                 ExtensionModel model = extensions[i];
                 try {
