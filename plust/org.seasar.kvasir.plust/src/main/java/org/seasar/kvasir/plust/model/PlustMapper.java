@@ -13,6 +13,7 @@ import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.base.plugin.descriptor.Runtime;
 import org.seasar.kvasir.base.plugin.descriptor.impl.PluginDescriptorImpl;
+import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.Element;
@@ -162,7 +163,8 @@ public class PlustMapper
         } catch (ValidationException ex) {
             // object中の、requiredな値が埋まっていない。
             // FIXME 適切なエラー処理を行なうこと。
-            throw new RuntimeException("Can't happen!", ex);
+            KvasirPlugin.getDefault().log("Required attribute is not set", ex);
+//            throw new RuntimeException("Can't happen!", ex);
         } finally {
             try {
                 writer.close();

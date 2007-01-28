@@ -3,7 +3,12 @@
  */
 package org.seasar.kvasir.plust.form;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -19,6 +24,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.Messages;
+import org.seasar.kvasir.plust.form.command.UpdatePluginPropertyCommand;
 import org.seasar.kvasir.plust.model.PluginModel;
 
 
@@ -92,24 +98,28 @@ public class GeneralPage extends KvasirFormPage
         toolkit.createLabel(sectionClient, ":"); //$NON-NLS-1$
         Text idText = toolkit.createText(sectionClient, getDescriptor()
             .getPluginId());
+        hookTextEventHandler(idText, PluginModel.PLUGIN_ID);
         idText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         toolkit.createLabel(sectionClient, Messages
             .getString("GeneralPage.version")); //$NON-NLS-1$
         toolkit.createLabel(sectionClient, ":"); //$NON-NLS-1$
         Text versionText = toolkit.createText(sectionClient, getDescriptor()
             .getPluginVersion());
+        hookTextEventHandler(versionText, PluginModel.PLUGIN_VERSION);
         versionText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         toolkit.createLabel(sectionClient, Messages
             .getString("GeneralPage.plugin.name")); //$NON-NLS-1$
         toolkit.createLabel(sectionClient, ":"); //$NON-NLS-1$
         Text nameText = toolkit.createText(sectionClient, getDescriptor()
             .getPluginName());
+        hookTextEventHandler(nameText, PluginModel.PLUGIN_NAME);
         nameText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         toolkit.createLabel(sectionClient, Messages
             .getString("GeneralPage.provider")); //$NON-NLS-1$
         toolkit.createLabel(sectionClient, ":"); //$NON-NLS-1$
         Text providerText = toolkit.createText(sectionClient, getDescriptor()
             .getPluginProviderName());
+        hookTextEventHandler(providerText, PluginModel.PLUGIN_PROVIDER_NAME);
         providerText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         section.setClient(sectionClient);
     }
@@ -154,6 +164,7 @@ public class GeneralPage extends KvasirFormPage
         update.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e)
             {
+                MessageDialog.openInformation(null, "Refresh the plugin class path", "clean the plugin class path.");
                 KvasirPlugin.getDefault().flushKvasirProject(getEditorInput());
             }
         });
@@ -180,6 +191,8 @@ public class GeneralPage extends KvasirFormPage
         toolkit.createLabel(settings, Messages.getString("GeneralPage.7")); //$NON-NLS-1$
         Text groupIdText = toolkit.createText(settings, getDescriptor()
             .getTestEnvironmentGroupId());
+        hookTextEventHandler(groupIdText, PluginModel.TEST_ENVIROMENT_GROUP_ID);
+
         groupIdText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         toolkit.createLabel(settings, Messages.getString("GeneralPage.8")); //$NON-NLS-1$
@@ -187,17 +200,49 @@ public class GeneralPage extends KvasirFormPage
         Text artifactText = toolkit.createText(settings, getDescriptor()
             .getTestEnvironmentArtifactId());
         artifactText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        hookTextEventHandler(artifactText, PluginModel.TEST_ENVIRONMENT_ARTIFACT_ID);
 
         toolkit.createLabel(settings, Messages.getString("GeneralPage.10")); //$NON-NLS-1$
         toolkit.createLabel(settings, Messages.getString("GeneralPage.11")); //$NON-NLS-1$
         Text versionText = toolkit.createText(settings, getDescriptor()
             .getTestEnviromentVersion());
         versionText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        hookTextEventHandler(versionText, PluginModel.TEST_ENVIROMENT_VERSION);
 
         Composite execute = toolkit.createComposite(sectionClient);
         execute.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         execute.setLayout(new GridLayout());
         toolkit.createHyperlink(execute, Messages.getString("GeneralPage.12"), SWT.NONE); //$NON-NLS-1$
         section.setClient(sectionClient);
+    }
+    
+    private void hookTextEventHandler(final Text text, final String name) {
+        text.addSelectionListener(new SelectionAdapter() {
+           
+            public void widgetDefaultSelected(SelectionEvent e)
+            {
+                UpdatePluginPropertyCommand cmd = new UpdatePluginPropertyCommand(name, getDescriptor(), text.getText());
+                getCommandStack().execute(cmd);
+            }
+        });
+        
+        text.addFocusListener(new FocusListener() {
+            
+            private String value;
+            
+            public void focusLost(FocusEvent e)
+            {
+                if (value != null && !value.equals(text.getText())) {
+                    UpdatePluginPropertyCommand cmd = new UpdatePluginPropertyCommand(name, getDescriptor(), text.getText());
+                    getCommandStack().execute(cmd);
+                }
+            }
+
+            public void focusGained(FocusEvent e)
+            {
+                this.value = text.getText();
+            }
+            
+        });
     }
 }

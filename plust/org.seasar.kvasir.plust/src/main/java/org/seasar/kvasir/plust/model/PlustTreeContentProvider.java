@@ -3,8 +3,12 @@
  */
 package org.seasar.kvasir.plust.model;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.seasar.kvasir.plust.KvasirPlugin;
+
+import net.skirnir.xom.ValidationException;
 
 
 /**
@@ -25,7 +29,12 @@ public class PlustTreeContentProvider
         }
         if (parentElement instanceof ExtensionModel) {
             ExtensionModel extension = (ExtensionModel)parentElement;
-            return extension.getRootElements();
+            try {
+                return extension.getRootElements();
+            } catch (ValidationException e) {
+                MessageDialog.openWarning(null, "拡張プロパティの取得に失敗", "指定された拡張定義をJavaBeanに変換することができませんでした。依存するKvasirのバージョンを確認してください。\n" + e.getMessage());
+                KvasirPlugin.getDefault().log("拡張の取得に失敗", e);
+            }
         }
         if (parentElement instanceof ExtensionElementModel) {
             ExtensionElementModel model = (ExtensionElementModel)parentElement;

@@ -209,14 +209,16 @@ public class PluginsFormEditor extends FormEditor
 
     public void resourceChanged(IResourceChangeEvent event)
     {
-       IProject project = event.getResource().getProject();
-       if (project.equals(this.editorInput.getFile().getProject())) {
-           if (event.getType() == IResourceChangeEvent.PRE_CLOSE) {
-               this.close(false);
-           } else if (event.getType() == IResourceChangeEvent.PRE_DELETE) {
-               this.close(false);
-           }
-           
-       }
+        if (event.getResource() != null) {
+            IProject project = event.getResource().getProject();
+            if (project.equals(this.editorInput.getFile().getProject())) {
+                if (event.getType() == IResourceChangeEvent.PRE_CLOSE) {
+                    this.close(false);
+                } else if (event.getType() == IResourceChangeEvent.PRE_DELETE) {
+                    this.close(false);
+                }
+                
+            }
+        }
     }
 }

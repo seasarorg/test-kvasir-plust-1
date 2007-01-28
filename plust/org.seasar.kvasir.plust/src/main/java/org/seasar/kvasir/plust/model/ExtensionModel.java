@@ -6,6 +6,7 @@ package org.seasar.kvasir.plust.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirProject;
 
@@ -80,7 +81,7 @@ public class ExtensionModel extends PlustModel
     }
 
 
-    public ExtensionElementModel[] getRootElements()
+    public ExtensionElementModel[] getRootElements() throws ValidationException
     {
         List rv = new ArrayList();
         try {
@@ -100,6 +101,8 @@ public class ExtensionModel extends PlustModel
                     rv.add(model);
                 }
             }
+        } catch (ValidationException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,13 +119,12 @@ public class ExtensionModel extends PlustModel
             Element element;
             try {
                 element = mapper.toElement(model.getBean());
+                this.elements[0] = element;
             } catch (ValidationException ex) {
                 // object中の、requiredな値が埋まっていない。
-                // FIXME 多分発生しないと思うが、もしも発生しうるなら適切な
-                // エラー処理を行なうこと。
-                throw new RuntimeException("Can't happen!", ex);
+                MessageDialog.openError(null, "Required attribute is not set", ex.getMessage());
+            //    throw new RuntimeException("Can't happen!", ex);
             }
-            this.elements[0] = element;
         }
     }
 }

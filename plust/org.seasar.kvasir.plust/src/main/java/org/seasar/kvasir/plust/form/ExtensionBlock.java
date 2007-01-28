@@ -57,8 +57,10 @@ import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
 import net.skirnir.xom.Attribute;
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
+import net.skirnir.xom.MalformedValueException;
 import net.skirnir.xom.Node;
 import net.skirnir.xom.PropertyDescriptor;
+import net.skirnir.xom.TargetNotFoundException;
 import net.skirnir.xom.ValidationException;
 
 
@@ -161,6 +163,8 @@ public class ExtensionBlock extends MasterDetailsBlock
                                 .getElementClassAccessor();
                             Object object = accessor.newInstance();
                             model.setKvasirProject(kvasirProject);
+                            //requiredな値を埋める
+                            fillAttribute(accessor, object);
                             try {
                                 model.setProperty(new Element[] { accessor
                                     .getMapper().toElement(object) });
@@ -168,6 +172,9 @@ public class ExtensionBlock extends MasterDetailsBlock
                                 // object中の、requiredな値が埋まっていない。
                                 // FIXME OKボタンの処理を中断して、required
                                 // な値を埋めるようにエラーメッセージを出す。
+                                // FIXME まだ表示されていないので、そもそも
+                                // requiredな値を入れることができない。
+                                // object生成時に同時にrequiredな値で埋めてやる必要あり。
                                 throw new RuntimeException("Validation Error",
                                     ex);
                             }
@@ -219,7 +226,32 @@ public class ExtensionBlock extends MasterDetailsBlock
         hookContextMenu();
     }
 
-
+    /**
+     * 必須属性を設定する。
+     * FIXME とりあえず空文字を突っ込んでいるが、これでよいかは微妙。
+     * Popプラグインだとなぜか怒られる。
+     * @param descriptor
+     * @param object
+     */
+    private void fillAttribute(BeanAccessor beanAccessor, Object object) 
+    {
+        String[] requiredAttributeNames = beanAccessor.getRequiredAttributeNames();
+        for (int i = 0; i < requiredAttributeNames.length; i++) {
+            String name = requiredAttributeNames[i];
+            try {
+                String value = beanAccessor.getAttributeDescriptor(name).getDefault();
+                if (value == null) {
+                    value = "";
+                }
+                beanAccessor.setAttribute(object, name, value);
+            } catch (TargetNotFoundException e) {
+                e.printStackTrace();
+            } catch (MalformedValueException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     private void hookContextMenu()
     {
         MenuManager menuMgr = new MenuManager(Messages
@@ -312,7 +344,8 @@ public class ExtensionBlock extends MasterDetailsBlock
                     e.printStackTrace();
                 }
             }
-            viewer.setInput(formPage.getDescriptor().getExtensions());
+        //    viewer.setInput(formPage.getDescriptor().getExtensions());
+            viewer.refresh();
         }
     }
 

@@ -16,6 +16,30 @@ public class PluginModel extends PlustModel
 
     //retrieved from build.properties
 
+    public static final String PLUGIN_NAME = "pluginName";
+
+    public static final String PLUGIN_CLASS_NAME_XML = "pluginClassNameXML";
+
+    public static final String PLUGIN_ID = "pluginId";
+
+    public static final String ARCHETYPE_ID = "archetypeId";
+
+    public static final String PLUGIN_PACKAGE_PATH = "pluginPackagePath";
+
+    public static final String PLUGIN_CLASS_NAME = "pluginClassName";
+
+    public static final String PLUGIN_PROVIDER_NAME = "pluginProviderName";
+
+    public static final String PLUGIN_SHORT_ID = "pluginShortId";
+
+    public static final String PLUGIN_VERSION = "pluginVersion";
+
+    public static final String TEST_ENVIROMENT_VERSION = "testEnviromentVersion";
+
+    public static final String TEST_ENVIRONMENT_ARTIFACT_ID = "testEnvironmentArtifactId";
+
+    public static final String TEST_ENVIROMENT_GROUP_ID = "testEnviromentGroupId";
+
     //plugin.xml/plugin@id, pom.xml/project/artifactId
     private String pluginId;
 
@@ -65,7 +89,7 @@ public class PluginModel extends PlustModel
     public void setArchetypeId(String archetypeId)
     {
         this.archetypeId = archetypeId;
-        firePropertyChange("archetypeId", archetypeId);
+        firePropertyChange(ARCHETYPE_ID, archetypeId);
     }
 
 
@@ -132,7 +156,7 @@ public class PluginModel extends PlustModel
     public void setPluginClassName(String pluginClassName)
     {
         this.pluginClassName = pluginClassName;
-        firePropertyChange("pluginClassName", pluginClassName);
+        firePropertyChange(PLUGIN_CLASS_NAME, pluginClassName);
     }
 
 
@@ -145,7 +169,7 @@ public class PluginModel extends PlustModel
     public void setPluginClassNameXML(String pluginClassNameXML)
     {
         this.pluginClassNameXML = pluginClassNameXML;
-        firePropertyChange("pluginClassNameXML", pluginClassNameXML);
+        firePropertyChange(PLUGIN_CLASS_NAME_XML, pluginClassNameXML);
     }
 
 
@@ -158,7 +182,7 @@ public class PluginModel extends PlustModel
     public void setPluginId(String pluginId)
     {
         this.pluginId = pluginId;
-        firePropertyChange("pluginId", pluginId);
+        firePropertyChange(PLUGIN_ID, pluginId);
     }
 
 
@@ -171,7 +195,7 @@ public class PluginModel extends PlustModel
     public void setPluginName(String pluginName)
     {
         this.pluginName = pluginName;
-        firePropertyChange("pluginName", pluginName);
+        firePropertyChange(PLUGIN_NAME, pluginName);
     }
 
 
@@ -184,7 +208,7 @@ public class PluginModel extends PlustModel
     public void setPluginPackagePath(String pluginPackagePath)
     {
         this.pluginPackagePath = pluginPackagePath;
-        firePropertyChange("pluginPackagePath", pluginPackagePath);
+        firePropertyChange(PLUGIN_PACKAGE_PATH, pluginPackagePath);
     }
 
 
@@ -197,7 +221,7 @@ public class PluginModel extends PlustModel
     public void setPluginProviderName(String pluginProviderName)
     {
         this.pluginProviderName = pluginProviderName;
-        firePropertyChange("pluginProviderName", pluginProviderName);
+        firePropertyChange(PLUGIN_PROVIDER_NAME, pluginProviderName);
     }
 
 
@@ -223,7 +247,7 @@ public class PluginModel extends PlustModel
     public void setPluginVersion(String pluginVersion)
     {
         this.pluginVersion = pluginVersion;
-        firePropertyChange("pluginVersion", pluginVersion);
+        firePropertyChange(PLUGIN_VERSION, pluginVersion);
     }
 
 
@@ -316,4 +340,62 @@ public class PluginModel extends PlustModel
         firePropertyChange("textEnvironmentGroupId", testEnvironmentGroupId);
     }
 
+    public void updateValue(String name, String value)
+    {
+        if (TEST_ENVIROMENT_GROUP_ID.equals(name)) {
+            setTestEnvironmentGroupId(value);
+        } else if (TEST_ENVIRONMENT_ARTIFACT_ID.equals(name)) {
+            setTestEnvironmentArtifactId(value);
+        } else if (TEST_ENVIROMENT_VERSION.equals(name)) {
+            setTestEnviromentVersion(value);
+        } else if (PLUGIN_VERSION.equals(name)) {
+            setPluginVersion(value);
+        } else if (PLUGIN_SHORT_ID.equals(name)) {
+            setPluginShortId(value);
+        } else if (PLUGIN_PROVIDER_NAME.equals(name)) {
+            setPluginProviderName(value);
+        } else if (PLUGIN_CLASS_NAME.equals(name)) {
+            setPluginClassName(value);
+        } else if (PLUGIN_PACKAGE_PATH.equals(name)) {
+            setPluginPackagePath(value);
+        } else if (ARCHETYPE_ID.equals(name)) {
+            setArchetypeId(value);
+        } else if (PLUGIN_ID.equals(name)) {
+            setPluginId(value);
+        } else if (PLUGIN_CLASS_NAME_XML.equals(name)) {
+            setPluginClassNameXML(value);
+        } else if (PLUGIN_NAME.equals(name)) {
+            setPluginName(value);
+        }
+    }
+    
+    public String getValue(String name)
+    {
+        if (TEST_ENVIROMENT_GROUP_ID.equals(name)) {
+            return getTestEnviromentVersion();
+        } else if (TEST_ENVIRONMENT_ARTIFACT_ID.equals(name)) {
+            return getTestEnvironmentArtifactId();
+        } else if (TEST_ENVIROMENT_VERSION.equals(name)) {
+            return getTestEnviromentVersion();
+        } else if (PLUGIN_VERSION.equals(name)) {
+            return getPluginVersion();
+        } else if (PLUGIN_SHORT_ID.equals(name)) {
+            return getPluginShortId();
+        } else if (PLUGIN_PROVIDER_NAME.equals(name)) {
+            return getPluginProviderName();
+        } else if (PLUGIN_CLASS_NAME.equals(name)) {
+            return getPluginClassName();
+        } else if (PLUGIN_PACKAGE_PATH.equals(name)) {
+            return getPluginPackagePath();
+        } else if (ARCHETYPE_ID.equals(name)) {
+            return getArchetypeId();
+        } else if (PLUGIN_ID.equals(name)) {
+            return getPluginId();
+        } else if (PLUGIN_CLASS_NAME_XML.equals(name)) {
+            return getPluginClassNameXML();
+        } else if (PLUGIN_NAME.equals(name)) {
+            return getPluginName();
+        }
+        return "";
+    }
 }
