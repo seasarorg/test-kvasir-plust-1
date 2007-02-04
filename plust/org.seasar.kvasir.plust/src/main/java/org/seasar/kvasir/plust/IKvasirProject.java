@@ -23,6 +23,10 @@ public interface IKvasirProject
 
     String TEST_PLUGINS_PATH = WEBAPP_PATH + "/kvasir/plugins";
 
+    String TEST_CONFIGURATION_PATH = WEBAPP_PATH + "/kvasir/configuration";
+
+    String TEST_RTWORK_PATH = WEBAPP_PATH + "/kvasir/rtwork";
+
     String TEST_PLUGIN_TARGET_PATH = TEST_PLUGINS_PATH + "/TARGET";
 
     String TEST_PLUGIN_LIB_PATH = TEST_PLUGIN_TARGET_PATH + "/lib";

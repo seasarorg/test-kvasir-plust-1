@@ -1,16 +1,20 @@
 package org.seasar.kvasir.plust;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +34,10 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.embedder.MavenEmbedder;
 import org.apache.maven.embedder.MavenEmbedderException;
 import org.apache.maven.embedder.MavenEmbedderLogger;
+import org.apache.maven.model.Build;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -48,6 +55,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -56,9 +64,14 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.seasar.kvasir.maven.plugin.ArtifactNotFoundException;
+import org.seasar.kvasir.maven.plugin.ArtifactPattern;
+import org.seasar.kvasir.maven.plugin.ArtifactUtils;
+import org.seasar.kvasir.maven.plugin.KvasirPluginUtils;
 import org.seasar.kvasir.plust.builder.GatherArtifactsTask;
 import org.seasar.kvasir.plust.launch.console.KvasirConsole;
 import org.seasar.kvasir.plust.maven.ConsoleMavenEmbeddedLogger;
@@ -113,6 +126,8 @@ public class KvasirPlugin extends AbstractUIPlugin
     public static final String IMG_EXTENSION_POINT = "icons/extension-point.gif";
 
     public static final String IMG_ELEMENT = "icons/xom-element.gif";
+
+    public static final String PLUGIN_OUTER_LIBRARIES_TAG = "<pluginOuterLibraries>";
 
     //The shared instance.
     private static KvasirPlugin plugin;
@@ -931,5 +946,569 @@ public class KvasirPlugin extends AbstractUIPlugin
     public String getIndexDir()
     {
         return new File(getStateLocation().toFile(), "index").getAbsolutePath();
+    }
+
+
+    public void cleanTestEnvironment(IProject project,
+        boolean cleanConfiguration, IProgressMonitor monitor)
+    {
+        monitor.beginTask("Cleaning test environment", 3);
+        try {
+            IFolder target = project.getFolder(IKvasirProject.BUILD_PATH);
+            if (!target.exists()) {
+                target.create(false, true, new SubProgressMonitor(monitor, 1));
+            } else {
+                target.refreshLocal(IResource.DEPTH_INFINITE,
+                    new SubProgressMonitor(monitor, 1));
+                cleanTestFolder(project, cleanConfiguration, target,
+                    new SubProgressMonitor(monitor, 1));
+            }
+        } catch (CoreException ex) {
+            log("Failure to cleanTestEnvironment", ex);
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    void cleanTestFolder(IProject project, boolean cleanConfiguration,
+        IFolder folder, IProgressMonitor monitor)
+        throws CoreException
+    {
+        monitor.beginTask("Cleaning folder", IProgressMonitor.UNKNOWN);
+        try {
+            Set<IPath> exclusiveSet = new HashSet<IPath>();
+            if (!cleanConfiguration) {
+                IFolder configuration = project
+                    .getFolder(IKvasirProject.TEST_CONFIGURATION_PATH);
+                if (configuration != null) {
+                    exclusiveSet.add(configuration.getFullPath());
+                }
+                IFolder rtwork = project
+                    .getFolder(IKvasirProject.TEST_RTWORK_PATH);
+                if (rtwork != null) {
+                    exclusiveSet.add(rtwork.getFullPath());
+                }
+            }
+            IJavaProject javaProject = JavaCore.create(project);
+            exclusiveSet.add(javaProject.getOutputLocation());
+            IClasspathEntry[] entries = javaProject.getRawClasspath();
+            for (int i = 0; i < entries.length; i++) {
+                IPath outputLocation = entries[i].getOutputLocation();
+                if (outputLocation != null) {
+                    exclusiveSet.add(outputLocation);
+                }
+            }
+
+            cleanFolder(folder, exclusiveSet, monitor);
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    boolean cleanFolder(IFolder folder, Set exclusiveSet,
+        IProgressMonitor monitor)
+        throws CoreException
+    {
+        boolean cleared = true;
+        IResource[] members = folder.members();
+        for (int i = 0; i < members.length; i++) {
+            boolean clearEntry = true;
+            if (exclusiveSet.contains(members[i].getFullPath())) {
+                cleared = false;
+                continue;
+            }
+            if (members[i].getType() == IResource.FOLDER) {
+                clearEntry = cleanFolder((IFolder)members[i], exclusiveSet,
+                    monitor);
+            }
+            if (clearEntry) {
+                members[i].delete(false, new SubProgressMonitor(monitor, 1));
+            } else {
+                cleared = false;
+            }
+        }
+        return cleared;
+    }
+
+
+    public void buildTestEnvironment(IProject project, IProgressMonitor monitor)
+    {
+        monitor.beginTask("Building test environment", 150);
+        try {
+            Properties prop = loadBuildProperties(project);
+            String testEnvironmentGroupId = prop
+                .getProperty(PROP_TESTENVIRONMENTGROUPID);
+            if (testEnvironmentGroupId == null) {
+                testEnvironmentGroupId = getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_GROUPID");
+            }
+            String testEnvironmentArtifactId = prop
+                .getProperty(PROP_TESTENVIRONMENTARTIFACTID);
+            if (testEnvironmentArtifactId == null) {
+                testEnvironmentArtifactId = getString("NewPluginWizardSecondPage.DEFAULT_TEST_ENVIRONMENT_ARTIFACTID");
+            }
+            String testEnvironmentVersion = prop
+                .getProperty(PROP_TESTENVIRONMENTVERSION);
+            if (testEnvironmentVersion == null) {
+                // バージョンが不明な場合は補完のしようもないので、何もせず終了する。
+                return;
+            }
+
+            buildTestEnvironment(project, testEnvironmentGroupId,
+                testEnvironmentArtifactId, testEnvironmentVersion, monitor);
+            monitor.worked(100);
+
+            Artifact[] artifacts = gatherArtifacts(project
+                .getFile(IKvasirProject.POM_FILE_NAME), monitor);
+            monitor.worked(10);
+
+            deployRequiredPluginsToTestEnvironment(project, artifacts, monitor);
+            monitor.worked(10);
+
+            deployStaticResources(project, prop.getProperty("archetypeId"),
+                monitor);
+            monitor.worked(10);
+            deployPluginResourcesToTestEnvironment(project, monitor);
+            monitor.worked(10);
+            deployLibToTestEnvironment(project, artifacts, monitor);
+            monitor.worked(10);
+        } catch (CoreException ex) {
+            log("Can' execute prepareTestEnvironment", ex);
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    void buildTestEnvironment(IProject project, String groupId,
+        String artifactId, String version, IProgressMonitor monitor)
+        throws CoreException
+    {
+        monitor.beginTask("Preparing test environment", 80);
+        try {
+            MavenProject mavenProject = plugin.getMavenProject(project
+                .getFile(IKvasirProject.POM_FILE_NAME), monitor);
+            monitor.worked(10);
+            Artifact distArchive = (Artifact)plugin.executeInEmbedder(
+                new PrepareTestEnvironmentTask(mavenProject, groupId,
+                    artifactId, version), monitor);
+            monitor.worked(10);
+            if (distArchive == null) {
+                plugin.getConsole().logError(
+                    "Can't resolve archive: " + distArchive);
+                throw new CoreException(KvasirPlugin
+                    .constructStatus("Can't resolve archive: " + distArchive));
+            }
+
+            ZipFile zipFile = null;
+            File file = null;
+            try {
+                zipFile = new ZipFile(distArchive.getFile());
+                ZipEntry entry = zipFile.getEntry(distArchive.getArtifactId()
+                    + "-" + distArchive.getVersion() + "/kvasir.war");
+                if (entry == null) {
+                    throw new CoreException(KvasirPlugin
+                        .constructStatus("Can't find kvasir.war in "
+                            + distArchive.getFile().getAbsolutePath()));
+                }
+
+                file = File.createTempFile("kvasir", ".tmp");
+                file.deleteOnExit();
+                copyZipEntryAsFile(zipFile, entry, file);
+
+                IFolder webapp = project.getFolder(IKvasirProject.WEBAPP_PATH);
+                unzip(file, webapp, true, monitor);
+                monitor.worked(50);
+                webapp.setDerived(true);
+                monitor.worked(10);
+            } catch (ZipException ex) {
+                throw new CoreException(KvasirPlugin.constructStatus(ex));
+            } catch (IOException ex) {
+                throw new CoreException(KvasirPlugin.constructStatus(ex));
+            } finally {
+                if (zipFile != null) {
+                    try {
+                        zipFile.close();
+                    } catch (IOException ex) {
+                        plugin.log(ex);
+                    }
+                    zipFile = null;
+                }
+                if (file != null) {
+                    file.delete();
+                }
+            }
+
+            // 開発対象のプラグインがdistributionに同梱されている場合は、
+            // 同梱されている方のプラグインを削除しておく。
+            String targetPluginDirectoryName = mavenProject.getArtifactId()
+                + "-" + mavenProject.getArtifact().getVersion();
+            IFolder targetPluginDirectory = project
+                .getFolder(IKvasirProject.TEST_PLUGINS_PATH + "/"
+                    + targetPluginDirectoryName);
+            if (targetPluginDirectory.exists()) {
+                targetPluginDirectory.delete(false, new SubProgressMonitor(
+                    monitor, 1));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    void copyZipEntryAsFile(ZipFile zipFile, ZipEntry entry, File file)
+    {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = zipFile.getInputStream(entry);
+            os = new FileOutputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(is);
+            BufferedOutputStream bos = new BufferedOutputStream(os);
+            byte[] buf = new byte[4096];
+            int len;
+            while ((len = bis.read(buf)) >= 0) {
+                bos.write(buf, 0, len);
+            }
+            bis.close();
+            is = null;
+            bos.close();
+            os = null;
+        } catch (IOException ex) {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ex2) {
+                    KvasirPlugin.getDefault().log(ex2);
+                }
+            }
+            if (os != null) {
+
+                try {
+                    os.close();
+                } catch (IOException ex2) {
+                    KvasirPlugin.getDefault().log(ex2);
+                }
+            }
+        }
+    }
+
+
+    void deployStaticResources(IProject project, String archetypeId,
+        IProgressMonitor monitor)
+        throws CoreException
+    {
+        monitor.beginTask("Deploying static resources",
+            IProgressMonitor.UNKNOWN);
+        try {
+            if (archetypeId == null) {
+                return;
+            }
+
+            KvasirPlugin plugin = KvasirPlugin.getDefault();
+            plugin.createInstanceFromArchetype(project, true,
+                new SubProgressMonitor(monitor, 1));
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    public void deployRequiredPluginsToTestEnvironment(IProject project,
+        Artifact[] artifacts, IProgressMonitor monitor)
+        throws CoreException
+    {
+        monitor.beginTask("Deploying required plugins", 1);
+        try {
+            if (artifacts == null) {
+                return;
+            }
+
+            IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1);
+            subMonitor
+                .beginTask("Gathering required plugins", artifacts.length);
+            try {
+                IFolder destinationFolder = project
+                    .getFolder(IKvasirProject.TEST_PLUGINS_PATH);
+
+                for (int i = 0; i < artifacts.length; i++) {
+                    subMonitor.worked(1);
+
+                    if (!KvasirPluginUtils.isPluginArtifact(artifacts[i])) {
+                        continue;
+                    }
+
+                    KvasirPlugin.getDefault().unzip(artifacts[i].getFile(),
+                        destinationFolder, true,
+                        new SubProgressMonitor(monitor, 1));
+                }
+            } finally {
+                subMonitor.done();
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    void deployPluginResourcesToTestEnvironment(IProject project,
+        IProgressMonitor monitor)
+        throws CoreException
+    {
+        monitor.beginTask("Deploying plugin resources",
+            IProgressMonitor.UNKNOWN);
+        try {
+            IFolder pluginResources = project
+                .getFolder(IKvasirProject.PLUGIN_RESOURCES_PATH);
+            if (!pluginResources.exists()) {
+                return;
+            }
+
+            KvasirPlugin.copy(pluginResources, project.getFullPath().append(
+                IKvasirProject.TEST_PLUGIN_TARGET_PATH), false,
+                new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    public void deployLibToTestEnvironment(IProject project,
+        Artifact[] artifacts, IProgressMonitor monitor)
+        throws CoreException
+    {
+        monitor.beginTask("Updating lib", IProgressMonitor.UNKNOWN);
+        try {
+            if (artifacts == null) {
+                return;
+            }
+            IFile pomFile = project.getFile(IKvasirProject.POM_FILE_NAME);
+            if (!pomFile.exists()) {
+                return;
+            }
+            KvasirPlugin.getDefault().deleteMarkers(pomFile);
+            MavenProject pom = KvasirPlugin.getDefault().getMavenProject(
+                pomFile, monitor);
+            if (pom == null) {
+                return;
+            }
+            Build build = pom.getBuild();
+            if (build == null) {
+                return;
+            }
+            Plugin plugin = (Plugin)build.getPluginsAsMap().get(
+                "org.seasar.kvasir.maven.plugin:maven-kvasir-plugin");
+            if (plugin == null) {
+                return;
+            }
+            Xpp3Dom configuration = (Xpp3Dom)plugin.getConfiguration();
+            Xpp3Dom[] children = configuration.getChildren();
+            String outerLibraries = null;
+            for (int i = 0; i < children.length; i++) {
+                if ("pluginOuterLibraries".equals(children[i].getName())) {
+                    outerLibraries = children[i].getValue();
+                    break;
+                }
+            }
+            if (outerLibraries == null) {
+                return;
+            }
+
+            IFolder target = project
+                .getFolder(IKvasirProject.TEST_PLUGIN_TARGET_PATH);
+            if (!target.exists()) {
+                return;
+            }
+            IFolder lib = project
+                .getFolder(IKvasirProject.TEST_PLUGIN_LIB_PATH);
+            if (lib.exists()) {
+                IResource[] members = lib.members();
+                for (int i = 0; i < members.length; i++) {
+                    members[i]
+                        .delete(false, new SubProgressMonitor(monitor, 1));
+                }
+            }
+
+            try {
+                ArtifactUtils.copyPluginOuterLibraries(null, target
+                    .getLocation().toFile(), "lib", ArtifactUtils
+                    .parseLibraries(outerLibraries), new HashSet(Arrays
+                    .asList(artifacts)));
+            } catch (IOException ex) {
+                KvasirPlugin.getDefault().log(
+                    "Can't copy plugin outer libraries to "
+                        + target.getLocation().toPortableString() + "/lib", ex);
+                return;
+            } catch (ArtifactNotFoundException ex) {
+                ArtifactPattern[] patterns = ex.getArtifactPatterns();
+                if (patterns != null) {
+                    for (int i = 0; i < patterns.length; i++) {
+                        createMarker(pomFile, patterns[i].toString());
+                    }
+                } else {
+                    createMarker(pomFile, null);
+                }
+            }
+
+            target.refreshLocal(IResource.DEPTH_INFINITE,
+                new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
+        }
+    }
+
+
+    private void createMarker(IFile file, String pattern)
+        throws CoreException
+    {
+        Map attributes = new HashMap();
+        attributes.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+        String message;
+        if (pattern == null) {
+            message = "Outer library cannot be resolved";
+        } else {
+            message = "Outer library '" + pattern + "' cannot be resolved";
+        }
+        MarkerUtilities.setMessage(attributes, message);
+
+        int lineNumber = getLineNumber(file, PLUGIN_OUTER_LIBRARIES_TAG);
+        if (lineNumber != -1) {
+            MarkerUtilities.setLineNumber(attributes, lineNumber);
+        }
+
+        if (pattern != null) {
+            String pomContent = null;
+            InputStream in = null;
+            try {
+                in = file.getContents();
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                    in, file.getCharset()));
+                StringWriter sw = new StringWriter();
+                char[] buf = new char[4096];
+                int len;
+                while ((len = br.read(buf)) != -1) {
+                    sw.write(buf, 0, len);
+                }
+                pomContent = sw.toString();
+            } catch (IOException ex) {
+                ;
+            } catch (CoreException ex) {
+                ;
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ex) {
+                        ;
+                    }
+                }
+            }
+            if (pomContent != null) {
+                // TODO This implementation may be a bit incorrect.
+                int idx = pomContent.indexOf(PLUGIN_OUTER_LIBRARIES_TAG);
+                if (idx != -1) {
+                    int pre = idx + PLUGIN_OUTER_LIBRARIES_TAG.length();
+                    int i;
+                    for (i = pre; i < pomContent.length(); i++) {
+                        char ch = pomContent.charAt(i);
+                        if (ch == ',' || ch == '<') {
+                            if (setPositionIfMatched(pomContent, pre, i,
+                                pattern, attributes)) {
+                                break;
+                            }
+                            if (ch == '<') {
+                                break;
+                            }
+                            pre = i + 1;
+                        }
+                    }
+                    if (i == pomContent.length()) {
+                        setPositionIfMatched(pomContent, pre, pomContent
+                            .length(), pattern, attributes);
+                    }
+                }
+            }
+        }
+
+        MarkerUtilities.createMarker(file, attributes,
+            KvasirPlugin.POM_MARKER_ID);
+    }
+
+
+    private boolean setPositionIfMatched(String string, int start, int end,
+        String pattern, Map attributes)
+    {
+        String tkn = string.substring(start, end);
+        int left = getLeftSpaceLength(tkn);
+        int right = getRightSpaceLength(tkn);
+        if (pattern.equals(tkn.substring(left, tkn.length() - right))) {
+            MarkerUtilities.setCharStart(attributes, start + left);
+            MarkerUtilities.setCharEnd(attributes, end - right);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    private int getLeftSpaceLength(String tkn)
+    {
+        for (int i = 0; i < tkn.length(); i++) {
+            char ch = tkn.charAt(i);
+            if (!(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r')) {
+                return i;
+            }
+        }
+        return tkn.length();
+    }
+
+
+    private int getRightSpaceLength(String tkn)
+    {
+        for (int i = tkn.length() - 1; i >= 0; i--) {
+            char ch = tkn.charAt(i);
+            if (!(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r')) {
+                return (tkn.length() - 1 - i);
+            }
+        }
+        return tkn.length();
+    }
+
+
+    private int getLineNumber(IFile file, String pattern)
+        throws CoreException
+    {
+        InputStream in = null;
+        try {
+            in = file.getContents();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in,
+                file.getCharset()));
+            String line;
+            int lineNumber = 1;
+            while ((line = br.readLine()) != null) {
+                int idx = line.indexOf(pattern);
+                if (idx != -1) {
+                    return lineNumber;
+                }
+                lineNumber++;
+            }
+            return -1;
+        } catch (IOException ex) {
+            return -1;
+        } catch (CoreException ex) {
+            return -1;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    ;
+                }
+            }
+        }
     }
 }

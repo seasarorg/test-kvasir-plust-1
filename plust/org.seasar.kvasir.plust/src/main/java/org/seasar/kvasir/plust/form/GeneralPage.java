@@ -1,9 +1,14 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.form;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -13,6 +18,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
@@ -78,8 +84,8 @@ public class GeneralPage extends KvasirFormPage
         section.setDescription(Messages.getString("GeneralPage.description1")); //$NON-NLS-1$
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new GridLayout());
-//        toolkit.createHyperlink(sectionClient, Messages
-//            .getString("GeneralPage.link"), SWT.NONE); //$NON-NLS-1$
+        //        toolkit.createHyperlink(sectionClient, Messages
+        //            .getString("GeneralPage.link"), SWT.NONE); //$NON-NLS-1$
         section.setClient(sectionClient);
         section.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
     }
@@ -159,12 +165,18 @@ public class GeneralPage extends KvasirFormPage
                 getEditor().setActivePage(Messages.getString("GeneralPage.2")); //$NON-NLS-1$
             }
         });
-        
-        Hyperlink update = toolkit.createHyperlink(sectionClient, Messages.getString("GeneralPage.3"), SWT.NONE); //$NON-NLS-1$
+
+        Hyperlink update = toolkit.createHyperlink(sectionClient, Messages
+            .getString("GeneralPage.3"), SWT.NONE); //$NON-NLS-1$
         update.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e)
             {
-                MessageDialog.openInformation(null, "Refresh the plugin class path", "clean the plugin class path.");
+                if (!MessageDialog.openQuestion(null, Messages
+                    .getString("GeneralPage.13"), //$NON-NLS-1$
+                    Messages.getString("GeneralPage.14"))) { //$NON-NLS-1$
+                    return;
+                }
+
                 KvasirPlugin.getDefault().flushKvasirProject(getEditorInput());
             }
         });
@@ -179,14 +191,13 @@ public class GeneralPage extends KvasirFormPage
         Section section = toolkit.createSection(composite, Section.DESCRIPTION
             | Section.TITLE_BAR);
         section.setText(Messages.getString("GeneralPage.4")); //$NON-NLS-1$
-        section
-            .setDescription(Messages.getString("GeneralPage.5")); //$NON-NLS-1$
+        section.setDescription(Messages.getString("GeneralPage.5")); //$NON-NLS-1$
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new GridLayout());
 
         Composite settings = toolkit.createComposite(sectionClient);
         settings.setLayoutData(new GridData(GridData.FILL_BOTH));
-        settings.setLayout(new GridLayout(3,false));
+        settings.setLayout(new GridLayout(3, false));
         toolkit.createLabel(settings, Messages.getString("GeneralPage.6")); //$NON-NLS-1$
         toolkit.createLabel(settings, Messages.getString("GeneralPage.7")); //$NON-NLS-1$
         Text groupIdText = toolkit.createText(settings, getDescriptor()
@@ -200,7 +211,8 @@ public class GeneralPage extends KvasirFormPage
         Text artifactText = toolkit.createText(settings, getDescriptor()
             .getTestEnvironmentArtifactId());
         artifactText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        hookTextEventHandler(artifactText, PluginModel.TEST_ENVIRONMENT_ARTIFACT_ID);
+        hookTextEventHandler(artifactText,
+            PluginModel.TEST_ENVIRONMENT_ARTIFACT_ID);
 
         toolkit.createLabel(settings, Messages.getString("GeneralPage.10")); //$NON-NLS-1$
         toolkit.createLabel(settings, Messages.getString("GeneralPage.11")); //$NON-NLS-1$
@@ -212,37 +224,75 @@ public class GeneralPage extends KvasirFormPage
         Composite execute = toolkit.createComposite(sectionClient);
         execute.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         execute.setLayout(new GridLayout());
-        toolkit.createHyperlink(execute, Messages.getString("GeneralPage.12"), SWT.NONE); //$NON-NLS-1$
+        Hyperlink rebuildTestEnvironment = toolkit.createHyperlink(execute,
+            Messages.getString("GeneralPage.12"), SWT.NONE); //$NON-NLS-1$
+        rebuildTestEnvironment.addHyperlinkListener(new HyperlinkAdapter() {
+            public void linkActivated(HyperlinkEvent e)
+            {
+                if (!MessageDialog.openQuestion(null, Messages
+                    .getString("GeneralPage.15"), //$NON-NLS-1$
+                    Messages.getString("GeneralPage.16"))) { //$NON-NLS-1$
+                    return;
+                }
+
+                try {
+                    PlatformUI.getWorkbench().getProgressService().run(false,
+                        true, new IRunnableWithProgress() {
+                            public void run(IProgressMonitor monitor)
+                                throws InvocationTargetException,
+                                InterruptedException
+                            {
+                                KvasirPlugin plugin = KvasirPlugin.getDefault();
+                                IProject project = plugin
+                                    .getCurrentProject(getEditorInput());
+                                plugin.cleanTestEnvironment(project, true,
+                                    monitor);
+                                plugin.buildTestEnvironment(project, monitor);
+                            }
+                        });
+                } catch (InvocationTargetException ex) {
+                    KvasirPlugin.getDefault().log("rebuildTestEnvironment", ex); //$NON-NLS-1$
+                } catch (InterruptedException ex) {
+                    KvasirPlugin.getDefault().log("rebuildTestEnvironment", ex); //$NON-NLS-1$
+                }
+            }
+        });
         section.setClient(sectionClient);
     }
-    
-    private void hookTextEventHandler(final Text text, final String name) {
+
+
+    private void hookTextEventHandler(final Text text, final String name)
+    {
         text.addSelectionListener(new SelectionAdapter() {
-           
+
             public void widgetDefaultSelected(SelectionEvent e)
             {
-                UpdatePluginPropertyCommand cmd = new UpdatePluginPropertyCommand(name, getDescriptor(), text.getText());
+                UpdatePluginPropertyCommand cmd = new UpdatePluginPropertyCommand(
+                    name, getDescriptor(), text.getText());
                 getCommandStack().execute(cmd);
             }
         });
-        
+
         text.addFocusListener(new FocusListener() {
-            
+
             private String value;
-            
+
+
             public void focusLost(FocusEvent e)
             {
                 if (value != null && !value.equals(text.getText())) {
-                    UpdatePluginPropertyCommand cmd = new UpdatePluginPropertyCommand(name, getDescriptor(), text.getText());
+                    UpdatePluginPropertyCommand cmd = new UpdatePluginPropertyCommand(
+                        name, getDescriptor(), text.getText());
                     getCommandStack().execute(cmd);
                 }
             }
+
 
             public void focusGained(FocusEvent e)
             {
                 this.value = text.getText();
             }
-            
+
         });
     }
 }
