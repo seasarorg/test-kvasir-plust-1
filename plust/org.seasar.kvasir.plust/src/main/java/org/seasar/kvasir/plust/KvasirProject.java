@@ -58,6 +58,8 @@ public class KvasirProject
 
     private IJavaProject javaProject_;
 
+    private ProjectClassLoader projectClassLoader_;
+
     private Map pluginMap_;
 
     private SortedMap extensionPointMap_ = new TreeMap();
@@ -83,13 +85,22 @@ public class KvasirProject
     }
 
 
+    public ClassLoader getProjectClassLoader()
+        throws CoreException
+    {
+        prepareForExtensionPoints();
+
+        return projectClassLoader_;
+    }
+
+
     public void prepareForExtensionPoints()
         throws CoreException
     {
         if (initialized_) {
             return;
         }
-        
+
         //TODO 進捗を表示するようにする
         IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
@@ -97,9 +108,11 @@ public class KvasirProject
                 throws InvocationTargetException, InterruptedException
             {
                 try {
-                    monitor.beginTask(Messages.getString("KvasirProject.1"), 100); //$NON-NLS-1$
+                    monitor.beginTask(
+                        Messages.getString("KvasirProject.1"), 100); //$NON-NLS-1$
                     IProject project = javaProject_.getProject();
-                    IFolder pluginsFolder = project.getFolder(TEST_PLUGINS_PATH);
+                    IFolder pluginsFolder = project
+                        .getFolder(TEST_PLUGINS_PATH);
                     if (pluginsFolder.exists()) {
                         XOMapper mapper = newMapper();
                         IResource[] children = pluginsFolder.members();
@@ -109,39 +122,45 @@ public class KvasirProject
                                 continue;
                             }
                             IFolder folder = (IFolder)children[i];
-                            IFile pluginFile = folder.getFile(PluginAlfr.PLUGIN_XML);
+                            IFile pluginFile = folder
+                                .getFile(PluginAlfr.PLUGIN_XML);
                             if (!pluginFile.exists()) {
                                 continue;
                             }
-                            PluginDescriptor plugin = getPluginDescriptor(pluginFile,
-                                mapper);
+                            PluginDescriptor plugin = getPluginDescriptor(
+                                pluginFile, mapper);
                             I18NProperties properties = new I18NProperties(
-                                new FileResource(
-                                    new File(folder.getLocation().toOSString())),
+                                new FileResource(new File(folder.getLocation()
+                                    .toOSString())),
                                 PluginDescriptor.PROPERTIES_BASENAME,
                                 PluginDescriptor.PROPERTIES_SUFFIX);
-                            pluginMap_.put(plugin.getId(), new Plugin(mapper, plugin,
-                                properties));
+                            pluginMap_.put(plugin.getId(), new Plugin(mapper,
+                                plugin, properties));
                         }
-                        
+
                         monitor.worked(50);
                         monitor.subTask(Messages.getString("KvasirProject.2")); //$NON-NLS-1$
                         pluginMap_ = resolvePlugins(pluginMap_, mapper);
                         monitor.subTask(Messages.getString("KvasirProject.3")); //$NON-NLS-1$
-                        ClassLoader classLoader = new ProjectClassLoader(javaProject_,
-                            new FilteredClassLoader(getClass().getClassLoader(),
+                        projectClassLoader_ = new ProjectClassLoader(
+                            javaProject_,
+                            new FilteredClassLoader(
+                                getClass().getClassLoader(),
                                 new String[] { "net.skirnir.xom.annotation.*" }, //$NON-NLS-1$
                                 new String[] {}), monitor);
                         monitor.worked(5);
-                        Set importedPluginIdSet = getImportedPluginIdSet(mapper, monitor);
+                        Set importedPluginIdSet = getImportedPluginIdSet(
+                            mapper, monitor);
                         List importedExtensionPointList = new ArrayList();
-                        for (Iterator itr = pluginMap_.values().iterator(); itr.hasNext();) {
+                        for (Iterator itr = pluginMap_.values().iterator(); itr
+                            .hasNext();) {
                             Plugin info = (Plugin)itr.next();
                             org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint[] points = info
                                 .getDescriptor().getExtensionPoints();
                             for (int i = 0; i < points.length; i++) {
                                 IExtensionPoint extensionPoint = newExtensionPoint(
-                                    points[i], info, classLoader, mapper);
+                                    points[i], info, projectClassLoader_,
+                                    mapper);
                                 monitor.subTask(points[i].getFullId());
                                 extensionPointMap_.put(points[i].getFullId(),
                                     extensionPoint);
@@ -149,9 +168,10 @@ public class KvasirProject
                                 // 使用するような拡張ポイントを持っているプラグインは、requiresされていなくても
                                 // ElementClassAccessorが非nullになってしまうため、
                                 // 単に「ElementClassAccessorがnullでなければ」という風にはできない。
-                                if (importedPluginIdSet.contains(points[i].getParent()
-                                    .getId())) {
-                                    importedExtensionPointList.add(extensionPoint);
+                                if (importedPluginIdSet.contains(points[i]
+                                    .getParent().getId())) {
+                                    importedExtensionPointList
+                                        .add(extensionPoint);
                                 }
                                 monitor.worked(1);
                             }
@@ -165,13 +185,14 @@ public class KvasirProject
                     // TODO 自動生成された catch ブロック
                     e.printStackTrace();
                 }
-                
+
             }
-            
+
         };
 
         try {
-            PlatformUI.getWorkbench().getProgressService().run(false, true, runnable);
+            PlatformUI.getWorkbench().getProgressService().run(false, true,
+                runnable);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -193,7 +214,8 @@ public class KvasirProject
             if (requires != null) {
                 Import[] imports = requires.getImports();
                 for (int i = 0; i < imports.length; i++) {
-                    monitor.subTask(Messages.getString("KvasirProject.0") + imports[i].getPlugin()); //$NON-NLS-1$
+                    monitor
+                        .subTask(Messages.getString("KvasirProject.0") + imports[i].getPlugin()); //$NON-NLS-1$
                     importedPluginIdSet.add(imports[i].getPlugin());
                 }
             }

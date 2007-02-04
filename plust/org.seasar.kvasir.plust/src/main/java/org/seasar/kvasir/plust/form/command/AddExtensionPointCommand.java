@@ -1,18 +1,21 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.form.command;
 
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
+import org.seasar.kvasir.base.util.XOMUtils;
+import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
-import org.seasar.kvasir.plust.KvasirProject;
 import org.seasar.kvasir.plust.model.ExtensionPointModel;
 import org.seasar.kvasir.plust.model.PluginModel;
+
+import net.skirnir.xom.BeanAccessor;
 
 
 /**
  * @author shidat
+ * @author skirnir
  *
  */
 public class AddExtensionPointCommand
@@ -25,12 +28,16 @@ public class AddExtensionPointCommand
 
     private ExtensionPointModel point;
 
+    private IKvasirProject project;
 
-    public AddExtensionPointCommand(PluginModel root, IType extension)
+
+    public AddExtensionPointCommand(PluginModel root, IType extension,
+        IKvasirProject project)
     {
         super();
         this.root = root;
         this.extension = extension;
+        this.project = project;
     }
 
 
@@ -39,24 +46,41 @@ public class AddExtensionPointCommand
      */
     public void execute()
     {
-        String id = extension.getPackageFragment().getElementName();
-     //   id  = toUpperCase(id);
+        String id;
+        try {
+            Class elementClass = project.getProjectClassLoader().loadClass(
+                extension.getFullyQualifiedName());
+            BeanAccessor accessor = XOMUtils.newMapper().getBeanAccessor(
+                elementClass);
+            id = root.getPluginId() + "." + toMultiple(accessor.getBeanName());
+        } catch (Throwable t) {
+            KvasirPlugin.getDefault().log(
+                "Can't gather extensionPoint Element's information", t);
+            id = root.getPluginId() + "."
+                + toMultiple(extension.getElementName());
+        }
         point = new ExtensionPointModel();
         point.setId(id);
         point.setClassName(extension.getFullyQualifiedName());
         root.addExtensionPoint(point);
     }
 
-    private String toUpperCase(String source) {
-        String newStr = source.substring(1);
-        newStr = source.substring(0,1).toUpperCase() + newStr;
-        if (newStr.endsWith("y")) {
-            newStr = newStr.substring(0, newStr.length() - 1) + "ies";
-        } else {
-            newStr = newStr + "s";
+
+    String toMultiple(String name)
+    {
+        if (name == null) {
+            return null;
         }
-        return newStr;
+
+        if (name.endsWith("y")) {
+            return name.substring(0, name.length() - 1) + "ies";
+        } else if (name.endsWith("x") || name.endsWith("ch")) {
+            return name + "es";
+        } else {
+            return name + "s";
+        }
     }
+
 
     /* (non-Javadoc)
      * @see org.seasar.kvasir.plust.form.IEditorCommand#undo()

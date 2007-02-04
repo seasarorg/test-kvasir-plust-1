@@ -86,4 +86,8 @@ public interface IKvasirProject
 
     IPlugin[] getPlugins()
         throws CoreException;
+
+
+    ClassLoader getProjectClassLoader()
+        throws CoreException;
 }

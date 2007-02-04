@@ -104,7 +104,7 @@ public class ExtensionPointDetailsPage
         addModifyListener(className);
 
         toolkit.createButton(client, "...", SWT.NONE); //$NON-NLS-1$
-        toolkit.createLabel(client, "説明"); //$NON-NLS-1$
+        toolkit.createLabel(client, Messages.getString("ExtensionPointDetailsPage.0")); //$NON-NLS-1$
         toolkit.createLabel(client, ":"); //$NON-NLS-1$
         description = toolkit.createText(client, ""); //$NON-NLS-1$
         description.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

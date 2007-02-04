@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.form;
 
@@ -79,8 +79,7 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         Section section = toolkit.createSection(parent, Section.DESCRIPTION
             | Section.TITLE_BAR);
         section.setText(Messages.getString("ExtensionPointBlock.5")); //$NON-NLS-1$
-        section
-            .setDescription(Messages.getString("ExtensionPointBlock.6")); //$NON-NLS-1$
+        section.setDescription(Messages.getString("ExtensionPointBlock.6")); //$NON-NLS-1$
         section.marginWidth = 10;
         section.marginHeight = 5;
         Composite client = toolkit.createComposite(section, SWT.WRAP);
@@ -99,7 +98,8 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         buttons.setLayout(new GridLayout());
         gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
         buttons.setLayoutData(gd);
-        Button add = toolkit.createButton(buttons, Messages.getString("ExtensionPointBlock.7"), SWT.PUSH); //$NON-NLS-1$
+        Button add = toolkit.createButton(buttons, Messages
+            .getString("ExtensionPointBlock.7"), SWT.PUSH); //$NON-NLS-1$
         add.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e)
@@ -114,21 +114,26 @@ public class ExtensionPointBlock extends MasterDetailsBlock
                     IProject project = KvasirPlugin.getDefault()
                         .getCurrentProject(editorInput);
                     IJavaProject javaProject = JavaCore.create(project);
-                    IType type = javaProject.findType(ExtensionElement.class.getName());
-                    IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
+                    IType type = javaProject.findType(ExtensionElement.class
+                        .getName());
+                    IJavaSearchScope scope = SearchEngine
+                        .createHierarchyScope(type);
                     SelectionDialog dialog = JavaUI.createTypeDialog(window
                         .getShell(), window, scope,
                         IJavaElementSearchConstants.CONSIDER_CLASSES, false);
-                    dialog.setTitle(Messages.getString("ExtensionPointBlock.0")); //$NON-NLS-1$
-                    dialog.setMessage(Messages.getString("ExtensionPointBlock.1")); //$NON-NLS-1$
+                    dialog
+                        .setTitle(Messages.getString("ExtensionPointBlock.0")); //$NON-NLS-1$
+                    dialog.setMessage(Messages
+                        .getString("ExtensionPointBlock.1")); //$NON-NLS-1$
                     if (dialog.open() == Dialog.OK) {
                         Object[] result = dialog.getResult();
                         for (int i = 0; i < result.length; i++) {
                             IType object = (IType)result[i];
                             IEditorCommandStack stack = formPage
-                            .getCommandStack();
-                            stack.execute(new AddExtensionPointCommand(
-                                formPage.getDescriptor(), object));
+                                .getCommandStack();
+                            stack.execute(new AddExtensionPointCommand(formPage
+                                .getDescriptor(), object, KvasirPlugin
+                                .getDefault().getKvasirProject(project)));
                         }
 
                     }
@@ -138,7 +143,8 @@ public class ExtensionPointBlock extends MasterDetailsBlock
             }
         });
 
-        Button remove = toolkit.createButton(buttons, Messages.getString("ExtensionPointBlock.2"), SWT.PUSH); //$NON-NLS-1$
+        Button remove = toolkit.createButton(buttons, Messages
+            .getString("ExtensionPointBlock.2"), SWT.PUSH); //$NON-NLS-1$
         remove.addSelectionListener(new SelectionAdapter() {
 
         });
@@ -164,7 +170,8 @@ public class ExtensionPointBlock extends MasterDetailsBlock
     protected void createToolBarActions(IManagedForm managedForm)
     {
         final ScrolledForm form = managedForm.getForm();
-        Action haction = new Action(Messages.getString("ExtensionPointBlock.3"), Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
+        Action haction = new Action(
+            Messages.getString("ExtensionPointBlock.3"), Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
             public void run()
             {
                 sashForm.setOrientation(SWT.HORIZONTAL);
@@ -174,7 +181,8 @@ public class ExtensionPointBlock extends MasterDetailsBlock
         haction.setChecked(true);
         haction.setImageDescriptor(KvasirPlugin
             .getImageDescriptor(KvasirPlugin.IMG_HORIZONTAL));
-        Action vaction = new Action(Messages.getString("ExtensionPointBlock.4"), Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
+        Action vaction = new Action(
+            Messages.getString("ExtensionPointBlock.4"), Action.AS_RADIO_BUTTON) { //$NON-NLS-1$
             public void run()
             {
                 sashForm.setOrientation(SWT.VERTICAL);
