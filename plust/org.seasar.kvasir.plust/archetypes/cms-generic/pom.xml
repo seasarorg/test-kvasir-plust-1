@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.seasar.kvasir.plugin</groupId>
+    <artifactId>plugin-project</artifactId>
+    <version>${testEnvironmentVersion}</version>
+  </parent>
+  <groupId>${pluginId}</groupId>
+  <artifactId>${pluginId}</artifactId>
+  <version>${pluginVersion}</version>
+  <packaging>kvasir-plugin</packaging>
+  <name>${pluginName?html}</name>
+<#if license?exists>  <licenses>
+    <license>
+      <name>${license?html}</name>
+      <url>/LICENSE.txt</url>
+    </license>
+  </licenses>
+</#if>  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav</artifactId>
+        <version>1.0-beta-1</version>
+      </extension>
+    </extensions>
+    <plugins>
+      <plugin>
+        <groupId>org.seasar.kvasir.maven.plugin</groupId>
+        <artifactId>maven-kvasir-plugin</artifactId>
+        <configuration>
+          <additionalBaseLibraries>
+            kvasir-webapp
+          </additionalBaseLibraries>
+          <pluginOuterLibraries></pluginOuterLibraries>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>maven.seasar.org</id>
+      <name>The Seasar Foundation Maven2 Repository</name>
+      <url>http://maven.seasar.org/maven2</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>maven.seasar.org</id>
+      <name>The Seasar Foundation Maven2 Repository</name>
+      <url>http://maven.seasar.org/maven2</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <distributionManagement>
+    <repository>
+      <id>kvasir</id>
+      <name>Kvasir/Sora Maven2 Repository</name>
+      <url>dav:http://localhost:8080/${pluginId}/DAV/root/system/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>kvasir</id>
+      <name>Kvasir/Sora Maven2 Repository</name>
+      <url>dav:http://localhost:8080/${pluginId}/DAV/root/system/maven2</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.seasar.kvasir</groupId>
+      <artifactId>kvasir-webapp</artifactId>
+      <version>${testEnvironmentVersion}</version>
+    </dependency>
+  </dependencies>
+</project>
