@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://kvasir.sandbox.seasar.org/plugin/3.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://kvasir.sandbox.seasar.org/plugin/3.0.0 http://kvasir.sandbox.seasar.org/support/plugin-3_0_0.xsd"
+  id="${pluginId}" name="%plugin.name" version="${pluginVersion}"
+  provider-name="%plugin.provider-name">
+  <runtime>
+    <library name="conf" />
+    <library name="${pluginId}.jar">
+      <export name="**" />
+      <export name="**" resource="true" />
+    </library>
+    <library name="lib" expand="true" />
+  </runtime>
+
+  <requires>
+    <import plugin="org.seasar.kvasir.base.dao" />
+    <import plugin="org.seasar.kvasir.page" />
+    <import plugin="org.seasar.kvasir.page.ability.content" />
+    <import plugin="org.seasar.kvasir.page.ability.template" />
+    <import plugin="org.seasar.kvasir.page.ability.table" />
+    <import plugin="org.seasar.kvasir.page.auth" />
+    <import plugin="org.seasar.kvasir.cms" />
+    <import plugin="org.seasar.kvasir.cms.pop" />
+    <import plugin="org.seasar.kvasir.cms.ymir" />
+    <import plugin="net.skirnir.freyja" />
+  </requires>
+
+  <extension point="org.seasar.kvasir.page.pageGards">
+    <page-gard id="${pluginShortId}" version="${pluginVersion}"
+      singleton="true" />
+  </extension>
+
+  <extension point="org.seasar.kvasir.page.pageGardInstalls">
+    <page-gard-install gard-id="${pluginId}.${pluginShortId}" />
+  </extension>
+
+  <extension point="org.seasar.kvasir.cms.pop.pops">
+    <pop id="${pluginShortId}Pop">
+      <form-unit kind="property" id="title" />
+      <form-unit kind="group" id="group.expert" />
+      <form-unit kind="property" id="body" />
+      <form-unit kind="property" id="body-type" human-readable="false" />
+    </pop>
+  </extension>
+
+  <extension point="org.seasar.kvasir.cms.ymir.applications">
+    <application id="${pluginShortId}Application"
+      gard-id="${pluginId}.${pluginShortId}"
+      landmark="${pluginId}.${pluginClassName}" />
+  </extension>
+
+  <extension point="org.seasar.kvasir.cms.ymir.externalTemplates">
+    <external-template application-id="${pluginId}.${pluginShortId}Application">
+      <resourceset dir="pops">
+        <include name="*/*.html" />
+      </resourceset>
+    </external-template>
+  </extension>
+</plugin>
