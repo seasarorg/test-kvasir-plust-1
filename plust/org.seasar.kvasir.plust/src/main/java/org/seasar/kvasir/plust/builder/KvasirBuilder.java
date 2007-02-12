@@ -159,11 +159,11 @@ public class KvasirBuilder extends IncrementalProjectBuilder
             } else {
                 KvasirPlugin plugin = KvasirPlugin.getDefault();
 
+                plugin.buildTestEnvironment(project, monitor);
+
                 updatePomXml(project, new SubProgressMonitor(monitor, 1));
                 plugin.resetSourceCheckedSet();
                 updateClasspath(javaProject, new SubProgressMonitor(monitor, 1));
-
-                plugin.buildTestEnvironment(getProject(), monitor);
             }
 
             return null;
