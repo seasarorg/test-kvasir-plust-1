@@ -28,8 +28,10 @@ public class ExtensionElementModel
     private ExtensionElementModel parent;
 
     private ExtensionModel model;
-    
-    public ExtensionElementModel(String name, Object bean, BeanAccessor accessor, ExtensionModel model)
+
+
+    public ExtensionElementModel(String name, Object bean,
+        BeanAccessor accessor, ExtensionModel model)
     {
         super();
         this.name = name;
@@ -38,7 +40,6 @@ public class ExtensionElementModel
         this.model = model;
     }
 
-    
 
     public ExtensionElementModel getParent()
     {
@@ -46,12 +47,10 @@ public class ExtensionElementModel
     }
 
 
-
     public void setParent(ExtensionElementModel parent)
     {
         this.parent = parent;
     }
-
 
 
     public ExtensionElementModel[] getChildren()
@@ -70,13 +69,15 @@ public class ExtensionElementModel
                     for (int j = 0; j < objects.length; j++) {
                         Object object = objects[j];
                         ExtensionElementModel model = new ExtensionElementModel(
-                            name, object, childDescriptor.getTypeAccessor(), this.model);
+                            name, object, childDescriptor.getTypeAccessor(),
+                            this.model);
                         model.setParent(this);
                         rv.add(model);
                     }
                 } else {
                     ExtensionElementModel model = new ExtensionElementModel(
-                        name, obj, childDescriptor.getTypeAccessor(), this.model);
+                        name, obj, childDescriptor.getTypeAccessor(),
+                        this.model);
                     model.setParent(this);
                     rv.add(model);
                 }
@@ -95,26 +96,26 @@ public class ExtensionElementModel
         Object object = descriptor.getTypeAccessor().newInstance();
         try {
             // こんな気遣いは無用だった
-//            if (descriptor.isMultiple()) {
-//                Object[] objects = (Object[])accessor.getChild(bean, name);
-//                if (objects != null) {
-//                    Object[] newArray = new Object[objects.length + 1];
-//                    newArray[objects.length] = object;
-//                    for (int i = 0; i < objects.length; i++) {
-//                        newArray[i] = objects[i];
-//                    }
-//                    accessor.setChild(bean, name, newArray);
-//                    fillAttribute(descriptor, object);
-//                    return object;
-//                } else {
-//                    accessor.setChild(bean, name, new Object[] { object });
-//                    return object;
-//                }
-//            } else {
-                fillAttribute(descriptor, object);
-                accessor.setChild(bean, name, object);
-                return object;
-//            }
+            //            if (descriptor.isMultiple()) {
+            //                Object[] objects = (Object[])accessor.getChild(bean, name);
+            //                if (objects != null) {
+            //                    Object[] newArray = new Object[objects.length + 1];
+            //                    newArray[objects.length] = object;
+            //                    for (int i = 0; i < objects.length; i++) {
+            //                        newArray[i] = objects[i];
+            //                    }
+            //                    accessor.setChild(bean, name, newArray);
+            //                    fillAttribute(descriptor, object);
+            //                    return object;
+            //                } else {
+            //                    accessor.setChild(bean, name, new Object[] { object });
+            //                    return object;
+            //                }
+            //            } else {
+            fillAttribute(descriptor, object);
+            accessor.setChild(bean, name, object);
+            return object;
+            //            }
         } catch (TargetNotFoundException e) {
             e.printStackTrace();
         } catch (MalformedValueException e) {
@@ -123,6 +124,7 @@ public class ExtensionElementModel
         return null;
     }
 
+
     /**
      * 必須属性を設定する。
      * FIXME とりあえず空文字を突っ込んでいるが、これでよいかは微妙。
@@ -130,14 +132,16 @@ public class ExtensionElementModel
      * @param descriptor
      * @param object
      */
-    private void fillAttribute(PropertyDescriptor descriptor, Object object) 
+    private void fillAttribute(PropertyDescriptor descriptor, Object object)
     {
         BeanAccessor beanAccessor = descriptor.getTypeAccessor();
-        String[] requiredAttributeNames = beanAccessor.getRequiredAttributeNames();
+        String[] requiredAttributeNames = beanAccessor
+            .getRequiredAttributeNames();
         for (int i = 0; i < requiredAttributeNames.length; i++) {
             String name = requiredAttributeNames[i];
             try {
-                String value = beanAccessor.getAttributeDescriptor(name).getDefault();
+                String value = beanAccessor.getAttributeDescriptor(name)
+                    .getDefault();
                 if (value == null) {
                     value = "";
                 }
@@ -149,7 +153,8 @@ public class ExtensionElementModel
             }
         }
     }
-    
+
+
     public Object addChild(String name, Object object)
     {
         PropertyDescriptor descriptor = accessor.getChildDescriptor(name);
@@ -176,11 +181,10 @@ public class ExtensionElementModel
         }
         return null;
     }
-    
+
+
     /**
      * 子要素を削除する。
-     * FIXME 削除するためのインタフェースが無いので、setChildで新しい配列を作って突っ込んでいる。
-     * しかし、新しい配列で上書きされない。
      * @param name
      * @param object
      */
@@ -198,9 +202,10 @@ public class ExtensionElementModel
                             newArray.add(o);
                         }
                     }
-                    accessor.setChild(bean, name, (Object[])newArray.toArray(new Object[newArray.size()]) );
+                    accessor.replaceChildren(bean, name, (Object[])newArray
+                        .toArray(new Object[newArray.size()]));
                 } else {
-                    accessor.setChild(bean, name, new Object[] {});
+                    accessor.replaceChildren(bean, name, new Object[] {});
                 }
             } else {
                 accessor.setChild(bean, name, null);
@@ -209,7 +214,7 @@ public class ExtensionElementModel
             e.printStackTrace();
         } catch (MalformedValueException e) {
             e.printStackTrace();
-        }        
+        }
     }
 
 
@@ -220,7 +225,8 @@ public class ExtensionElementModel
             String[] names = accessor.getChildNames();
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];
-                PropertyDescriptor descriptor = accessor.getChildDescriptor(name);
+                PropertyDescriptor descriptor = accessor
+                    .getChildDescriptor(name);
                 if (descriptor.isMultiple()) {
                     rv.add(name);
                 } else {
@@ -274,7 +280,9 @@ public class ExtensionElementModel
         this.name = name;
     }
 
-    public void refresh() {
+
+    public void refresh()
+    {
         if (this.model != null) {
             this.model.refresh();
         }
