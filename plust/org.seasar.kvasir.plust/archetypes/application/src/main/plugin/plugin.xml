@@ -30,17 +30,20 @@
     <page-gard id="${pluginShortId}" version="${pluginVersion}" />
   </extension>
 
+<!--
   <extension point="org.seasar.kvasir.page.pageGardInstalls">
     <page-gard-install
       gard-id="${pluginId}.${pluginShortId}"
-      pathname="/plugins/${pluginShortId}" />
+      pathname="/path/to/install" />
   </extension>
+-->
 
   <extension point="org.seasar.kvasir.cms.pop.pops">
     <pop id="${pluginShortId}Pop">
       <form-unit kind="property" id="title" />
-      <form-unit kind="property" id="body-type" human-readable="false" />
+      <form-unit kind="group" id="group.expert" />
       <form-unit kind="property" id="body" />
+      <form-unit kind="property" id="body-type" human-readable="false" />
     </pop>
   </extension>
 

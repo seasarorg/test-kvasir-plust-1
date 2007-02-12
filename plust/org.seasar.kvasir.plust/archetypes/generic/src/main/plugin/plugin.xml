@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://www.seasar.org/kvasir_plugin/4.0.0"
+<plugin xmlns="http://kvasir.sandbox.seasar.org/plugin/3.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.seasar.org/kvasir_plugin/4.0.0 http://www.skirnir.net/~skirnir/kvasir_plugin.xsd"
-  id="${pluginId}" name="${pluginName?xml}" version="${pluginVersion}"
-  provider-name="${pluginProviderName?xml}">
+  xsi:schemaLocation="http://kvasir.sandbox.seasar.org/plugin/3.0.0 http://kvasir.sandbox.seasar.org/support/plugin-3_0_0.xsd"
+  id="${pluginId}" name="%plugin.name" version="${pluginVersion}"
+  provider-name="%plugin.provider-name">
   <runtime>
     <library name="conf" />
-    <library name="${pluginId}-${pluginVersion}.jar">
-      <export name="*" />
+    <library name="${pluginId}.jar">
+      <export name="**" />
+      <export name="**" resource="true" />
     </library>
+    <library name="lib" expand="true" />
   </runtime>
 </plugin>

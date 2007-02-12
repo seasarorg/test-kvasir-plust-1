@@ -12,15 +12,13 @@
   <version>${pluginVersion}</version>
   <packaging>kvasir-plugin</packaging>
   <name>${pluginName?html}</name>
-  <#if license?exists>
-  <licenses>
+<#if license?exists>  <licenses>
     <license>
       <name>${license?html}</name>
       <url>/LICENSE.txt</url>
     </license>
   </licenses>
-  </#if>
-  <build>
+</#if>  <build>
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>

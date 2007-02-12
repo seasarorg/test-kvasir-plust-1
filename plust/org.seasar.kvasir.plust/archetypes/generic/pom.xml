@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.seasar.kvasir.plugin</groupId>
     <artifactId>plugin-project</artifactId>
-    <version>3.0.0-EA3</version>
+    <version>${testEnvironmentVersion}</version>
   </parent>
   <groupId>${pluginId}</groupId>
   <artifactId>${pluginId}</artifactId>
@@ -19,6 +19,13 @@
     </license>
   </licenses>
 </#if>  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav</artifactId>
+        <version>1.0-beta-1</version>
+      </extension>
+    </extensions>
     <plugins>
       <plugin>
         <groupId>org.seasar.kvasir.maven.plugin</groupId>
@@ -43,4 +50,18 @@
       <url>http://maven.seasar.org/maven2</url>
     </pluginRepository>
   </pluginRepositories>
+  <distributionManagement>
+    <repository>
+      <id>kvasir</id>
+      <name>Kvasir/Sora Maven2 Repository</name>
+      <url>dav:http://localhost:8080/${pluginId}/DAV/root/system/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>kvasir</id>
+      <name>Kvasir/Sora Maven2 Repository</name>
+      <url>dav:http://localhost:8080/${pluginId}/DAV/root/system/maven2</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <dependencies>
+  </dependencies>
 </project>

@@ -8,7 +8,7 @@ public class ${pluginClassName}IT extends KvasirPluginTestCase
 {
     protected String getTargetPluginId()
     {
-        return "${pluginId}";
+        return ${pluginClassName}.ID;
     }
 
 

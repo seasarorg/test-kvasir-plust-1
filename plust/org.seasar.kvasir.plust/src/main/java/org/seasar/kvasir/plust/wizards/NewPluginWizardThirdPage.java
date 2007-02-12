@@ -28,6 +28,12 @@ public class NewPluginWizardThirdPage extends WizardPage
             KvasirPlugin
                 .getString("NewPluginWizardThirdPage.TEMPLATE_GENERIC_DESCRIPTION")), //$NON-NLS-1$
         new TemplateMetaData(
+            "cms-generic", //$NON-NLS-1$
+            KvasirPlugin
+                .getString("NewPluginWizardThirdPage.TEMPLATE_CMS_GENERIC"), //$NON-NLS-1$
+            KvasirPlugin
+                .getString("NewPluginWizardThirdPage.TEMPLATE_CMS_GENERIC_DESCRIPTION")), //$NON-NLS-1$
+        new TemplateMetaData(
             "pop", KvasirPlugin.getString("NewPluginWizardThirdPage.TEMPLATE_POP"), //$NON-NLS-1$ //$NON-NLS-2$
             KvasirPlugin
                 .getString("NewPluginWizardThirdPage.TEMPLATE_POP_DESCRIPTION")), //$NON-NLS-1$
