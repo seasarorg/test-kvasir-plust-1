@@ -17,6 +17,11 @@ public interface IKvasirProject
 
     String BUILD_PATH = "build";
 
+    String OUTERLIBRARIES_FILE_NAME = "outerLibraries.properties";
+
+    String OUTERLIBRARIES_FILE_PATH = BUILD_PATH + "/"
+        + OUTERLIBRARIES_FILE_NAME;
+
     String WEBAPP_PATH = BUILD_PATH + "/webapp";
 
     String WEBAPP_WEBINF_CLASSES_PATH = WEBAPP_PATH + "/WEB-INF/classes";
@@ -27,11 +32,10 @@ public interface IKvasirProject
 
     String TEST_RTWORK_PATH = WEBAPP_PATH + "/kvasir/rtwork";
 
-    String TEST_PLUGIN_TARGET_PATH = TEST_PLUGINS_PATH + "/TARGET";
-
-    String TEST_PLUGIN_LIB_PATH = TEST_PLUGIN_TARGET_PATH + "/lib";
-
     String METAINF_KVASIR = "META-INF/kvasir/";
+
+    String CUSTOM_XPROPERTIES_FILE_PATH = WEBAPP_WEBINF_CLASSES_PATH
+        + "/custom.xproperties";
 
 
     /**

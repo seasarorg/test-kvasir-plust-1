@@ -1,5 +1,7 @@
 package org.seasar.kvasir.plust;
 
+import static org.seasar.kvasir.base.Globals.PROP_SYSTEM_DEVELOPEDPLUGIN_ADDITIONALJARS;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -70,7 +72,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.seasar.kvasir.maven.plugin.ArtifactNotFoundException;
 import org.seasar.kvasir.maven.plugin.ArtifactPattern;
-import org.seasar.kvasir.maven.plugin.ArtifactUtils;
 import org.seasar.kvasir.maven.plugin.KvasirPluginUtils;
 import org.seasar.kvasir.plust.builder.GatherArtifactsTask;
 import org.seasar.kvasir.plust.launch.console.KvasirConsole;
@@ -136,11 +137,11 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     private KvasirConsole console_;
 
-    private Set sourceCheckedArtifactIdSet_ = new HashSet();
+    private Set<String> sourceCheckedArtifactIdSet_ = new HashSet<String>();
 
-    private ImageRegistry imageRegistry;
+    private ImageRegistry imageRegistry_;
 
-    private Map projectCache = new HashMap();
+    private Map<IProject, IKvasirProject> projectCache_ = new HashMap<IProject, IKvasirProject>();
 
 
     /**
@@ -150,13 +151,13 @@ public class KvasirPlugin extends AbstractUIPlugin
     {
         plugin = this;
 
-        imageRegistry = new ImageRegistry();
-        imageRegistry.put(IMG_REQUIRED, getImageDescriptor(IMG_REQUIRED));
-        imageRegistry.put(IMG_LIBRARY, getImageDescriptor(IMG_LIBRARY));
-        imageRegistry.put(IMG_EXTENSION_POINT,
+        imageRegistry_ = new ImageRegistry();
+        imageRegistry_.put(IMG_REQUIRED, getImageDescriptor(IMG_REQUIRED));
+        imageRegistry_.put(IMG_LIBRARY, getImageDescriptor(IMG_LIBRARY));
+        imageRegistry_.put(IMG_EXTENSION_POINT,
             getImageDescriptor(IMG_EXTENSION_POINT));
-        imageRegistry.put(IMG_EXTENSION, getImageDescriptor(IMG_EXTENSION));
-        imageRegistry.put(IMG_ELEMENT, getImageDescriptor(IMG_ELEMENT));
+        imageRegistry_.put(IMG_EXTENSION, getImageDescriptor(IMG_EXTENSION));
+        imageRegistry_.put(IMG_ELEMENT, getImageDescriptor(IMG_ELEMENT));
     }
 
 
@@ -428,8 +429,8 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
-    public void resolveClasspathEntries(Set libraryEntries,
-        Set moduleArtifacts, IFile pomFile, boolean recursive,
+    public void resolveClasspathEntries(Set<IClasspathEntry> libraryEntries,
+        Set<String> moduleArtifacts, IFile pomFile, boolean recursive,
         boolean downloadSources, IProgressMonitor monitor)
     {
         monitor.beginTask("Reading " + pomFile.getLocation(),
@@ -718,13 +719,21 @@ public class KvasirPlugin extends AbstractUIPlugin
     public Properties loadBuildProperties(IProject project)
         throws CoreException
     {
+        Properties prop = loadProperties(project.getFile("build.properties"));
+        prop.setProperty("projectRoot", project.getLocation().toOSString()); //$NON-NLS-1$
+        return prop;
+    }
+
+
+    public Properties loadProperties(IFile file)
+        throws CoreException
+    {
         Properties prop = new Properties();
 
-        IFile buildProperties = project.getFile("build.properties");
-        if (buildProperties.exists()) {
+        if (file.exists()) {
             InputStream is = null;
             try {
-                is = buildProperties.getContents();
+                is = file.getContents();
                 prop.load(is);
             } catch (IOException ex) {
                 throw new CoreException(constructStatus(
@@ -734,13 +743,11 @@ public class KvasirPlugin extends AbstractUIPlugin
                     try {
                         is.close();
                     } catch (IOException ex) {
-                        log("Can't close input stream: " + buildProperties, ex);
+                        log("Can't close input stream: " + file, ex);
                     }
                 }
             }
         }
-
-        prop.setProperty("projectRoot", project.getLocation().toOSString()); //$NON-NLS-1$
 
         return prop;
     }
@@ -749,8 +756,14 @@ public class KvasirPlugin extends AbstractUIPlugin
     public void storeBuildProperties(IProject project, Properties prop)
         throws CoreException
     {
-        IFile buildProperties = project.getFile("build.properties");
-        File outputFile = buildProperties.getLocation().toFile();
+        storeProperties(prop, project.getFile("build.properties"));
+    }
+
+
+    public void storeProperties(Properties prop, IFile file)
+        throws CoreException
+    {
+        File outputFile = file.getLocation().toFile();
         OutputStream os = null;
         try {
             os = new FileOutputStream(outputFile);
@@ -760,10 +773,10 @@ public class KvasirPlugin extends AbstractUIPlugin
             bos.close();
             os = null;
 
-            buildProperties.refreshLocal(IResource.DEPTH_ZERO, null);
+            file.refreshLocal(IResource.DEPTH_ZERO, null);
         } catch (IOException ex) {
             throw new CoreException(KvasirPlugin.constructStatus(
-                "Can't output " + buildProperties, ex));
+                "Can't output " + file, ex));
         } finally {
             if (os != null) {
                 try {
@@ -924,16 +937,16 @@ public class KvasirPlugin extends AbstractUIPlugin
     public KvasirProject getKvasirProject(IEditorInput input)
     {
         IProject project = getCurrentProject(input);
-        if (!projectCache.containsKey(project)) {
+        if (!projectCache_.containsKey(project)) {
             createKvasirProject(project);
         }
-        return (KvasirProject)projectCache.get(project);
+        return (KvasirProject)projectCache_.get(project);
     }
 
 
     public KvasirProject getKvasirProject(IProject project)
     {
-        Object object = projectCache.get(project);
+        Object object = projectCache_.get(project);
         if (object instanceof KvasirProject) {
             return (KvasirProject)object;
         }
@@ -946,7 +959,7 @@ public class KvasirPlugin extends AbstractUIPlugin
         IJavaProject javaProject = JavaCore.create(project);
 
         KvasirProject kvasirProject = new KvasirProject(javaProject);
-        projectCache.put(project, kvasirProject);
+        projectCache_.put(project, kvasirProject);
         return kvasirProject;
     }
 
@@ -954,7 +967,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     public void flushKvasirProject(IEditorInput input)
     {
         IProject project = getCurrentProject(input);
-        projectCache.remove(project);
+        projectCache_.remove(project);
     }
 
 
@@ -967,7 +980,7 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public Image getImage(String key)
     {
-        return imageRegistry.get(key);
+        return imageRegistry_.get(key);
     }
 
 
@@ -1063,7 +1076,7 @@ public class KvasirPlugin extends AbstractUIPlugin
 
     public void buildTestEnvironment(IProject project, IProgressMonitor monitor)
     {
-        monitor.beginTask("Building test environment", 150);
+        monitor.beginTask("Building test environment", 140);
         try {
             Properties prop = loadBuildProperties(project);
             String testEnvironmentGroupId = prop
@@ -1097,9 +1110,7 @@ public class KvasirPlugin extends AbstractUIPlugin
             deployStaticResources(project, prop.getProperty("archetypeId"),
                 monitor);
             monitor.worked(10);
-            deployPluginResourcesToTestEnvironment(project, monitor);
-            monitor.worked(10);
-            deployLibToTestEnvironment(project, artifacts, monitor);
+            updateOuterLibrariesProperties(project, artifacts, monitor);
             monitor.worked(10);
         } catch (CoreException ex) {
             log("Can' execute prepareTestEnvironment", ex);
@@ -1234,9 +1245,8 @@ public class KvasirPlugin extends AbstractUIPlugin
                 return;
             }
 
-            KvasirPlugin plugin = KvasirPlugin.getDefault();
-            plugin.createInstanceFromArchetype(project, true,
-                new SubProgressMonitor(monitor, 1));
+            createInstanceFromArchetype(project, true, new SubProgressMonitor(
+                monitor, 1));
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
@@ -1283,95 +1293,73 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
-    void deployPluginResourcesToTestEnvironment(IProject project,
-        IProgressMonitor monitor)
-        throws CoreException
-    {
-        monitor.beginTask("Deploying plugin resources",
-            IProgressMonitor.UNKNOWN);
-        try {
-            IFolder pluginResources = project
-                .getFolder(IKvasirProject.PLUGIN_RESOURCES_PATH);
-            if (!pluginResources.exists()) {
-                return;
-            }
-
-            KvasirPlugin.copy(pluginResources, project.getFullPath().append(
-                IKvasirProject.TEST_PLUGIN_TARGET_PATH), false,
-                new SubProgressMonitor(monitor, 1));
-        } finally {
-            monitor.done();
-        }
-    }
-
-
-    public void deployLibToTestEnvironment(IProject project,
+    public void updateOuterLibrariesProperties(IProject project,
         Artifact[] artifacts, IProgressMonitor monitor)
         throws CoreException
     {
-        monitor.beginTask("Updating lib", IProgressMonitor.UNKNOWN);
+        monitor.beginTask("Updating outerLibraries' information",
+            IProgressMonitor.UNKNOWN);
+        IFile pomFile = null;
         try {
-            if (artifacts == null) {
-                return;
-            }
-            IFile pomFile = project.getFile(IKvasirProject.POM_FILE_NAME);
-            if (!pomFile.exists()) {
-                return;
-            }
-            KvasirPlugin.getDefault().deleteMarkers(pomFile);
-            MavenProject pom = KvasirPlugin.getDefault().getMavenProject(
-                pomFile, monitor);
-            if (pom == null) {
-                return;
-            }
-            Build build = pom.getBuild();
-            if (build == null) {
-                return;
-            }
-            Plugin plugin = (Plugin)build.getPluginsAsMap().get(
-                "org.seasar.kvasir.maven.plugin:maven-kvasir-plugin");
-            if (plugin == null) {
-                return;
-            }
-            Xpp3Dom configuration = (Xpp3Dom)plugin.getConfiguration();
-            Xpp3Dom[] children = configuration.getChildren();
-            String outerLibraries = null;
-            for (int i = 0; i < children.length; i++) {
-                if ("pluginOuterLibraries".equals(children[i].getName())) {
-                    outerLibraries = children[i].getValue();
+            Properties prop = new Properties();
+            do {
+                if (artifacts == null) {
                     break;
                 }
-            }
-            if (outerLibraries == null) {
-                return;
-            }
-
-            IFolder target = project
-                .getFolder(IKvasirProject.TEST_PLUGIN_TARGET_PATH);
-            if (!target.exists()) {
-                return;
-            }
-            IFolder lib = project
-                .getFolder(IKvasirProject.TEST_PLUGIN_LIB_PATH);
-            if (lib.exists()) {
-                IResource[] members = lib.members();
-                for (int i = 0; i < members.length; i++) {
-                    members[i]
-                        .delete(false, new SubProgressMonitor(monitor, 1));
+                pomFile = project.getFile(IKvasirProject.POM_FILE_NAME);
+                if (!pomFile.exists()) {
+                    pomFile = null;
+                    break;
                 }
-            }
+                KvasirPlugin.getDefault().deleteMarkers(pomFile);
+                MavenProject pom = getMavenProject(pomFile, monitor);
+                if (pom == null) {
+                    break;
+                }
+                Build build = pom.getBuild();
+                if (build == null) {
+                    break;
+                }
+                Plugin plugin = (Plugin)build.getPluginsAsMap().get(
+                    "org.seasar.kvasir.maven.plugin:maven-kvasir-plugin");
+                if (plugin == null) {
+                    break;
+                }
+                Xpp3Dom configuration = (Xpp3Dom)plugin.getConfiguration();
+                Xpp3Dom[] children = configuration.getChildren();
+                String outerLibraries = null;
+                for (int i = 0; i < children.length; i++) {
+                    if ("pluginOuterLibraries".equals(children[i].getName())) {
+                        outerLibraries = children[i].getValue();
+                        break;
+                    }
+                }
+                if (outerLibraries == null) {
+                    break;
+                }
+                prop = KvasirPluginUtils.getOuterLibrariesProperties(null,
+                    outerLibraries, new HashSet<Artifact>(Arrays
+                        .asList(artifacts)));
+            } while (false);
+            storeProperties(prop, project
+                .getFile(IKvasirProject.OUTERLIBRARIES_FILE_PATH));
 
-            try {
-                ArtifactUtils.copyPluginOuterLibraries(null, target
-                    .getLocation().toFile(), "lib", ArtifactUtils
-                    .parseLibraries(outerLibraries), new HashSet(Arrays
-                    .asList(artifacts)));
-            } catch (IOException ex) {
-                KvasirPlugin.getDefault().log(
-                    "Can't copy plugin outer libraries to "
-                        + target.getLocation().toPortableString() + "/lib", ex);
-                return;
-            } catch (ArtifactNotFoundException ex) {
+            IFile custom = project
+                .getFile(IKvasirProject.CUSTOM_XPROPERTIES_FILE_PATH);
+            Properties customProp = loadProperties(custom);
+            String value = prop.getProperty("outerLibraries");
+            if (value != null) {
+                customProp.setProperty(
+                    PROP_SYSTEM_DEVELOPEDPLUGIN_ADDITIONALJARS, value);
+            } else {
+                customProp.remove(PROP_SYSTEM_DEVELOPEDPLUGIN_ADDITIONALJARS);
+            }
+            storeProperties(customProp, custom);
+        } catch (IOException ex) {
+            KvasirPlugin.getDefault().log(
+                "Can't update outerLibraries' information", ex);
+        } catch (ArtifactNotFoundException ex) {
+            if (pomFile != null) {
                 ArtifactPattern[] patterns = ex.getArtifactPatterns();
                 if (patterns != null) {
                     for (int i = 0; i < patterns.length; i++) {
@@ -1381,9 +1369,6 @@ public class KvasirPlugin extends AbstractUIPlugin
                     createMarker(pomFile, null);
                 }
             }
-
-            target.refreshLocal(IResource.DEPTH_INFINITE,
-                new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
@@ -1393,7 +1378,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     private void createMarker(IFile file, String pattern)
         throws CoreException
     {
-        Map attributes = new HashMap();
+        Map<String, Integer> attributes = new HashMap<String, Integer>();
         attributes.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
         String message;
         if (pattern == null) {

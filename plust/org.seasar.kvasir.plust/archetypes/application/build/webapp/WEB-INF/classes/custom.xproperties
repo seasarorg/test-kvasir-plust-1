@@ -1,3 +1,4 @@
 system.developedPlugin.project.dir=${projectRoot?j_string}
+system.developedPlugin.home.dir=${projectRoot?j_string}/src/main/plugin
 system.developedPlugin.classes.dir=${projectRoot?j_string}/build/classes
 system.developedPluginId=${pluginId}
