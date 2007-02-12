@@ -853,33 +853,61 @@ public class KvasirPlugin extends AbstractUIPlugin
                 evaluateTemplate(templateRootPath, relativePath, forBuilding,
                     location, project, cfg, bundle, prop, archetypeId, monitor);
             } else {
-                byte[] evaluated;
-                try {
-                    sw = new StringWriter();
-                    cfg.getTemplate(path).process(prop, sw);
-                    evaluated = sw.toString().getBytes("UTF-8");
-                } catch (TemplateException ex) {
-                    throw new CoreException(KvasirPlugin.constructStatus(
-                        "Can't process template '" + path + "' in archetype '"
-                            + archetypeId + "'", ex));
-                } catch (IOException ex) {
-                    throw new CoreException(KvasirPlugin.constructStatus(
-                        "Can't process template '" + path + "' in archetype '"
-                            + archetypeId + "'", ex));
-                }
-
-                IFile outputFile = project.getFile(theLocation);
-                if (outputFile.exists()) {
-                    outputFile.setContents(new ByteArrayInputStream(evaluated),
-                        false, false, new SubProgressMonitor(monitor, 1));
+                InputStream in;
+                if (shouldEvaluateAsTemplate(path)) {
+                    byte[] evaluated;
+                    try {
+                        sw = new StringWriter();
+                        cfg.getTemplate(path).process(prop, sw);
+                        evaluated = sw.toString().getBytes("UTF-8");
+                    } catch (TemplateException ex) {
+                        throw new CoreException(KvasirPlugin.constructStatus(
+                            "Can't process template '" + path
+                                + "' in archetype '" + archetypeId + "'", ex));
+                    } catch (IOException ex) {
+                        throw new CoreException(KvasirPlugin.constructStatus(
+                            "Can't process template '" + path
+                                + "' in archetype '" + archetypeId + "'", ex));
+                    }
+                    in = new ByteArrayInputStream(evaluated);
                 } else {
-                    KvasirPlugin.mkdirs(outputFile.getParent(),
-                        new SubProgressMonitor(monitor, 1));
-                    outputFile.create(new ByteArrayInputStream(evaluated),
-                        false, new SubProgressMonitor(monitor, 1));
+                    try {
+                        in = bundle.getEntry(path).openStream();
+                    } catch (IOException ex) {
+                        throw new CoreException(KvasirPlugin.constructStatus(
+                            "Can't process template '" + path
+                                + "' in archetype '" + archetypeId + "'", ex));
+                    }
+                }
+                try {
+                    IFile outputFile = project.getFile(theLocation);
+                    if (outputFile.exists()) {
+                        outputFile.setContents(in, false, false,
+                            new SubProgressMonitor(monitor, 1));
+                    } else {
+                        KvasirPlugin.mkdirs(outputFile.getParent(),
+                            new SubProgressMonitor(monitor, 1));
+                        outputFile.create(in, false, new SubProgressMonitor(
+                            monitor, 1));
+                    }
+                } finally {
+                    try {
+                        in.close();
+                    } catch (IOException ignore) {
+                    }
                 }
             }
         }
+    }
+
+
+    boolean shouldEvaluateAsTemplate(String path)
+    {
+        return !(path.endsWith(".gif") || path.endsWith(".jpg")
+            || path.endsWith(".png") || path.endsWith(".pdf")
+            || path.endsWith(".zip") || path.endsWith(".tar")
+            || path.endsWith(".gz") || path.endsWith(".jar")
+            || path.endsWith(".war") || path.endsWith(".ear"));
     }
 
 
