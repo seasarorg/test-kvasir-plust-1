@@ -65,7 +65,6 @@ public class ExtensionElementModel
                 Object obj = accessor.getChild(bean, name);
                 if (childDescriptor.isMultiple()) {
                     Object[] objects = (Object[])obj;
-                    System.out.println(objects.length);
                     for (int j = 0; j < objects.length; j++) {
                         Object object = objects[j];
                         ExtensionElementModel model = new ExtensionElementModel(

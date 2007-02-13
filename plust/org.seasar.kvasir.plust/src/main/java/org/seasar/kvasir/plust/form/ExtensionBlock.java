@@ -47,6 +47,7 @@ import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
 import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.form.command.AddExtensionCommand;
+import org.seasar.kvasir.plust.form.command.AddRootElementCommand;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
 import org.seasar.kvasir.plust.form.command.RemoveExtensionCommand;
 import org.seasar.kvasir.plust.model.ExtensionElementModel;
@@ -226,6 +227,7 @@ public class ExtensionBlock extends MasterDetailsBlock
         hookContextMenu();
     }
 
+
     /**
      * 必須属性を設定する。
      * FIXME とりあえず空文字を突っ込んでいるが、これでよいかは微妙。
@@ -233,13 +235,15 @@ public class ExtensionBlock extends MasterDetailsBlock
      * @param descriptor
      * @param object
      */
-    private void fillAttribute(BeanAccessor beanAccessor, Object object) 
+    private void fillAttribute(BeanAccessor beanAccessor, Object object)
     {
-        String[] requiredAttributeNames = beanAccessor.getRequiredAttributeNames();
+        String[] requiredAttributeNames = beanAccessor
+            .getRequiredAttributeNames();
         for (int i = 0; i < requiredAttributeNames.length; i++) {
             String name = requiredAttributeNames[i];
             try {
-                String value = beanAccessor.getAttributeDescriptor(name).getDefault();
+                String value = beanAccessor.getAttributeDescriptor(name)
+                    .getDefault();
                 if (value == null) {
                     value = "";
                 }
@@ -251,7 +255,8 @@ public class ExtensionBlock extends MasterDetailsBlock
             }
         }
     }
-    
+
+
     private void hookContextMenu()
     {
         MenuManager menuMgr = new MenuManager(Messages
@@ -285,6 +290,12 @@ public class ExtensionBlock extends MasterDetailsBlock
                 }
                 manager.add(new RemoveElementAction(formPage.getCommandStack(),
                     model));
+            }
+            if (element instanceof ExtensionModel) {
+                ExtensionModel model = (ExtensionModel)element;
+                String name = model.getChildRootName();
+                manager.add(new AddRootElementAction(name, model, formPage
+                    .getCommandStack()));
             }
         }
     }
@@ -344,7 +355,7 @@ public class ExtensionBlock extends MasterDetailsBlock
                     e.printStackTrace();
                 }
             }
-        //    viewer.setInput(formPage.getDescriptor().getExtensions());
+            //    viewer.setInput(formPage.getDescriptor().getExtensions());
             viewer.refresh();
         }
     }
