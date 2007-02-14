@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.model;
 
@@ -111,7 +111,9 @@ public class ExtensionElementModel
             //                    return object;
             //                }
             //            } else {
-            fillAttribute(descriptor, object);
+            // requiredな属性に値を入れるのは難しいので（どんな値を入れればいいか分からないから）、
+            // XOMapper#setStrict(false)してrequiredチェックをスキップさせる。（skirnir）
+//            fillAttribute(descriptor, object);
             accessor.setChild(bean, name, object);
             return object;
             //            }
@@ -131,27 +133,27 @@ public class ExtensionElementModel
      * @param descriptor
      * @param object
      */
-    private void fillAttribute(PropertyDescriptor descriptor, Object object)
-    {
-        BeanAccessor beanAccessor = descriptor.getTypeAccessor();
-        String[] requiredAttributeNames = beanAccessor
-            .getRequiredAttributeNames();
-        for (int i = 0; i < requiredAttributeNames.length; i++) {
-            String name = requiredAttributeNames[i];
-            try {
-                String value = beanAccessor.getAttributeDescriptor(name)
-                    .getDefault();
-                if (value == null) {
-                    value = "";
-                }
-                beanAccessor.setAttribute(object, name, value);
-            } catch (TargetNotFoundException e) {
-                e.printStackTrace();
-            } catch (MalformedValueException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private void fillAttribute(PropertyDescriptor descriptor, Object object)
+//    {
+//        BeanAccessor beanAccessor = descriptor.getTypeAccessor();
+//        String[] requiredAttributeNames = beanAccessor
+//            .getRequiredAttributeNames();
+//        for (int i = 0; i < requiredAttributeNames.length; i++) {
+//            String name = requiredAttributeNames[i];
+//            try {
+//                String value = beanAccessor.getAttributeDescriptor(name)
+//                    .getDefault();
+//                if (value == null) {
+//                    value = "";
+//                }
+//                beanAccessor.setAttribute(object, name, value);
+//            } catch (TargetNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (MalformedValueException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
 
     public Object addChild(String name, Object object)

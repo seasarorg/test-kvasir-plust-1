@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.form;
 
@@ -63,6 +63,7 @@ import net.skirnir.xom.Node;
 import net.skirnir.xom.PropertyDescriptor;
 import net.skirnir.xom.TargetNotFoundException;
 import net.skirnir.xom.ValidationException;
+import net.skirnir.xom.XOMapper;
 
 
 /**
@@ -164,11 +165,14 @@ public class ExtensionBlock extends MasterDetailsBlock
                                 .getElementClassAccessor();
                             Object object = accessor.newInstance();
                             model.setKvasirProject(kvasirProject);
-                            //requiredな値を埋める
-                            fillAttribute(accessor, object);
+                            XOMapper mapper = accessor.getMapper();
                             try {
-                                model.setProperty(new Element[] { accessor
-                                    .getMapper().toElement(object) });
+                                // requiredな値を埋めるのは難しいのでrequiredチェックをスキップさせる。（skirnir）
+                                mapper.setStrict(false);
+                                //requiredな値を埋める
+                                //                            fillAttribute(accessor, object);
+                                model.setProperty(new Element[] { mapper
+                                    .toElement(object) });
                             } catch (ValidationException ex) {
                                 // object中の、requiredな値が埋まっていない。
                                 // FIXME OKボタンの処理を中断して、required
@@ -178,6 +182,8 @@ public class ExtensionBlock extends MasterDetailsBlock
                                 // object生成時に同時にrequiredな値で埋めてやる必要あり。
                                 throw new RuntimeException("Validation Error",
                                     ex);
+                            } finally {
+                                mapper.setStrict(true);
                             }
                             formPage.getCommandStack().execute(
                                 new AddExtensionCommand(formPage
@@ -235,28 +241,26 @@ public class ExtensionBlock extends MasterDetailsBlock
      * @param descriptor
      * @param object
      */
-    private void fillAttribute(BeanAccessor beanAccessor, Object object)
-    {
-        String[] requiredAttributeNames = beanAccessor
-            .getRequiredAttributeNames();
-        for (int i = 0; i < requiredAttributeNames.length; i++) {
-            String name = requiredAttributeNames[i];
-            try {
-                String value = beanAccessor.getAttributeDescriptor(name)
-                    .getDefault();
-                if (value == null) {
-                    value = "";
-                }
-                beanAccessor.setAttribute(object, name, value);
-            } catch (TargetNotFoundException e) {
-                e.printStackTrace();
-            } catch (MalformedValueException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
+    //    private void fillAttribute(BeanAccessor beanAccessor, Object object)
+    //    {
+    //        String[] requiredAttributeNames = beanAccessor
+    //            .getRequiredAttributeNames();
+    //        for (int i = 0; i < requiredAttributeNames.length; i++) {
+    //            String name = requiredAttributeNames[i];
+    //            try {
+    //                String value = beanAccessor.getAttributeDescriptor(name)
+    //                    .getDefault();
+    //                if (value == null) {
+    //                    value = "";
+    //                }
+    //                beanAccessor.setAttribute(object, name, value);
+    //            } catch (TargetNotFoundException e) {
+    //                e.printStackTrace();
+    //            } catch (MalformedValueException e) {
+    //                e.printStackTrace();
+    //            }
+    //        }
+    //    }
     private void hookContextMenu()
     {
         MenuManager menuMgr = new MenuManager(Messages

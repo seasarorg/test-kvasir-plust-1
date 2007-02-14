@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.model;
 
@@ -98,10 +98,17 @@ public class ExtensionModel extends PlustModel
                     Element element = elements[i];
                     BeanAccessor accessor = extensionPoint
                         .getElementClassAccessor();
-                    accessor.getMapper().setBeanAccessorFactory(
-                        new AnnotationBeanAccessorFactory());
-                    Object object = accessor.getMapper().toBean(element,
-                        accessor.getBeanClass());
+                    XOMapper mapper = accessor.getMapper();
+                    mapper
+                        .setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
+                    Object object;
+                    try {
+                        mapper.setStrict(false);
+                        object = mapper
+                            .toBean(element, accessor.getBeanClass());
+                    } finally {
+                        mapper.setStrict(true);
+                    }
                     model = new ExtensionElementModel(element.getName(),
                         object, accessor, this);
                     rv.add(model);
@@ -116,24 +123,35 @@ public class ExtensionModel extends PlustModel
             .size()]);
     }
 
-    public Element addRootElement() 
+
+    public Element addRootElement()
     {
         try {
-            IExtensionPoint extensionPoint = kvasirProject.getExtensionPoint(point);
+            IExtensionPoint extensionPoint = kvasirProject
+                .getExtensionPoint(point);
             if (extensionPoint != null) {
-                BeanAccessor accessor = extensionPoint.getElementClassAccessor();
+                BeanAccessor accessor = extensionPoint
+                    .getElementClassAccessor();
                 Object object = accessor.newInstance();
                 String[] names = accessor.getAttributeNames();
                 for (int i = 0; i < names.length; i++) {
                     String string = names[i];
-                    PropertyDescriptor descriptor = accessor.getAttributeDescriptor(string);
+                    PropertyDescriptor descriptor = accessor
+                        .getAttributeDescriptor(string);
                     if (descriptor.isRequired()) {
                         accessor.setAttribute(object, string, string);
                     }
                 }
                 XOMapper mapper = accessor.getMapper();
-                mapper.setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
-                Element element = mapper.toElement(object);
+                mapper
+                    .setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
+                Element element;
+                try {
+                    mapper.setStrict(false);
+                    element = mapper.toElement(object);
+                } finally {
+                    mapper.setStrict(true);
+                }
                 List l = new ArrayList();
                 for (int i = 0; i < elements.length; i++) {
                     l.add(elements[i]);
@@ -154,25 +172,29 @@ public class ExtensionModel extends PlustModel
         return null;
     }
 
+
     public void removeRootElement(Element element)
     {
         List newElements = new ArrayList();
         for (int i = 0; i < elements.length; i++) {
             Element e = elements[i];
-            if (!e.equals(element))
-            {
+            if (!e.equals(element)) {
                 newElements.add(e);
             }
         }
-        this.elements = (Element[])newElements.toArray(new Element[newElements.size()]);
+        this.elements = (Element[])newElements.toArray(new Element[newElements
+            .size()]);
     }
-    
+
+
     public String getChildRootName()
     {
         try {
-            IExtensionPoint extensionPoint = kvasirProject.getExtensionPoint(point);
+            IExtensionPoint extensionPoint = kvasirProject
+                .getExtensionPoint(point);
             if (extensionPoint != null) {
-                BeanAccessor elementClassAccessor = extensionPoint.getElementClassAccessor();
+                BeanAccessor elementClassAccessor = extensionPoint
+                    .getElementClassAccessor();
                 return elementClassAccessor.getBeanName();
             }
         } catch (CoreException e) {
@@ -189,6 +211,7 @@ public class ExtensionModel extends PlustModel
             XOMapper mapper = accessor.getMapper();
             Element element;
             try {
+                mapper.setStrict(false);
                 element = mapper.toElement(model.getBean());
                 this.elements[0] = element;
             } catch (ValidationException ex) {
@@ -196,6 +219,8 @@ public class ExtensionModel extends PlustModel
                 MessageDialog.openError(null, "Required attribute is not set",
                     ex.getMessage());
                 //    throw new RuntimeException("Can't happen!", ex);
+            } finally {
+                mapper.setStrict(true);
             }
         }
     }
