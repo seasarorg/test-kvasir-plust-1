@@ -5,6 +5,7 @@ package org.seasar.kvasir.plust.form.command;
 
 import org.seasar.kvasir.plust.model.ExtensionElementModel;
 
+
 /**
  * @author shidat
  *
@@ -14,12 +15,12 @@ public class AddElementCommand
 {
 
     private ExtensionElementModel model;
-    
+
     private String name;
-    
-    private Object object;
-    
-    
+
+    private ExtensionElementModel addedModel;
+
+
     public AddElementCommand(ExtensionElementModel model, String name)
     {
         super();
@@ -33,7 +34,7 @@ public class AddElementCommand
      */
     public void execute()
     {
-        object = model.addChild(name);
+        addedModel = model.addChild(name);
     }
 
 
@@ -52,7 +53,7 @@ public class AddElementCommand
      */
     public void undo()
     {
-        model.removeChild(name, object);
+        model.removeChild(name, addedModel);
     }
 
 }

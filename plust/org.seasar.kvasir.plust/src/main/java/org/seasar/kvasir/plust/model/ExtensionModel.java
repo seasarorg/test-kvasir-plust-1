@@ -4,7 +4,6 @@
 package org.seasar.kvasir.plust.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -14,9 +13,6 @@ import org.seasar.kvasir.plust.KvasirProject;
 
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
-import net.skirnir.xom.MalformedValueException;
-import net.skirnir.xom.PropertyDescriptor;
-import net.skirnir.xom.TargetNotFoundException;
 import net.skirnir.xom.ValidationException;
 import net.skirnir.xom.XOMapper;
 import net.skirnir.xom.annotation.impl.AnnotationBeanAccessorFactory;
@@ -45,7 +41,7 @@ public class ExtensionModel extends PlustModel
 
     private KvasirProject kvasirProject;
 
-    private ExtensionElementModel model;
+    private ExtensionElementModel[] models;
 
 
     public KvasirProject getKvasirProject()
@@ -82,6 +78,7 @@ public class ExtensionModel extends PlustModel
     public void setProperty(Element[] property)
     {
         this.elements = property;
+        this.models = null;
         firePropertyChange("property", property);
     }
 
@@ -89,42 +86,44 @@ public class ExtensionModel extends PlustModel
     public ExtensionElementModel[] getRootElements()
         throws ValidationException
     {
-        List rv = new ArrayList();
-        try {
-            IExtensionPoint extensionPoint = kvasirProject
-                .getExtensionPoint(point);
-            if (extensionPoint != null) {
-                for (int i = 0; i < elements.length; i++) {
-                    Element element = elements[i];
-                    BeanAccessor accessor = extensionPoint
-                        .getElementClassAccessor();
-                    XOMapper mapper = accessor.getMapper();
-                    mapper
-                        .setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
-                    Object object;
-                    try {
-                        mapper.setStrict(false);
-                        object = mapper
-                            .toBean(element, accessor.getBeanClass());
-                    } finally {
-                        mapper.setStrict(true);
+        if (models == null) {
+            List<ExtensionElementModel> rv = new ArrayList<ExtensionElementModel>();
+            try {
+                IExtensionPoint extensionPoint = kvasirProject
+                    .getExtensionPoint(point);
+                if (extensionPoint != null) {
+                    for (int i = 0; i < elements.length; i++) {
+                        Element element = elements[i];
+                        BeanAccessor accessor = extensionPoint
+                            .getElementClassAccessor();
+                        XOMapper mapper = accessor.getMapper();
+                        mapper
+                            .setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
+                        Object object;
+                        try {
+                            mapper.setStrict(false);
+                            object = mapper.toBean(element, accessor
+                                .getBeanClass());
+                        } finally {
+                            mapper.setStrict(true);
+                        }
+                        rv.add(new ExtensionElementModel(element.getName(), i,
+                            object, accessor, this, true));
                     }
-                    model = new ExtensionElementModel(element.getName(),
-                        object, accessor, this);
-                    rv.add(model);
                 }
+            } catch (ValidationException e) {
+                throw e;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (ValidationException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
+            models = (ExtensionElementModel[])rv
+                .toArray(new ExtensionElementModel[rv.size()]);
         }
-        return (ExtensionElementModel[])rv.toArray(new ExtensionElementModel[rv
-            .size()]);
+        return models;
     }
 
 
-    public Element addRootElement()
+    public ExtensionElementModel addRootElement()
     {
         try {
             IExtensionPoint extensionPoint = kvasirProject
@@ -133,15 +132,6 @@ public class ExtensionModel extends PlustModel
                 BeanAccessor accessor = extensionPoint
                     .getElementClassAccessor();
                 Object object = accessor.newInstance();
-                String[] names = accessor.getAttributeNames();
-                for (int i = 0; i < names.length; i++) {
-                    String string = names[i];
-                    PropertyDescriptor descriptor = accessor
-                        .getAttributeDescriptor(string);
-                    if (descriptor.isRequired()) {
-                        accessor.setAttribute(object, string, string);
-                    }
-                }
                 XOMapper mapper = accessor.getMapper();
                 mapper
                     .setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
@@ -152,19 +142,17 @@ public class ExtensionModel extends PlustModel
                 } finally {
                     mapper.setStrict(true);
                 }
-                List l = new ArrayList();
+                List<Element> l = new ArrayList<Element>();
                 for (int i = 0; i < elements.length; i++) {
                     l.add(elements[i]);
                 }
                 l.add(element);
-                this.elements = (Element[])l.toArray(new Element[l.size()]);
-                return element;
+                this.elements = l.toArray(new Element[l.size()]);
+                models = null;
+                return new ExtensionElementModel(accessor.getBeanName(),
+                    elements.length - 1, element, accessor, this, true);
             }
         } catch (CoreException e) {
-            e.printStackTrace();
-        } catch (TargetNotFoundException e) {
-            e.printStackTrace();
-        } catch (MalformedValueException e) {
             e.printStackTrace();
         } catch (ValidationException e) {
             e.printStackTrace();
@@ -173,17 +161,16 @@ public class ExtensionModel extends PlustModel
     }
 
 
-    public void removeRootElement(Element element)
+    public void removeRootElement(ExtensionElementModel element)
     {
-        List newElements = new ArrayList();
+        List<Element> newElements = new ArrayList<Element>();
         for (int i = 0; i < elements.length; i++) {
-            Element e = elements[i];
-            if (!e.equals(element)) {
-                newElements.add(e);
+            if (i != element.getOrder()) {
+                newElements.add(elements[i]);
             }
         }
-        this.elements = (Element[])newElements.toArray(new Element[newElements
-            .size()]);
+        this.elements = newElements.toArray(new Element[newElements.size()]);
+        models = null;
     }
 
 
@@ -206,22 +193,37 @@ public class ExtensionModel extends PlustModel
 
     public void refresh()
     {
-        if (model != null) {
-            BeanAccessor accessor = model.getAccessor();
-            XOMapper mapper = accessor.getMapper();
-            Element element;
+        if (models != null) {
+            List<Element> elementList = new ArrayList<Element>();
             try {
-                mapper.setStrict(false);
-                element = mapper.toElement(model.getBean());
-                this.elements[0] = element;
-            } catch (ValidationException ex) {
-                // object中の、requiredな値が埋まっていない。
-                MessageDialog.openError(null, "Required attribute is not set",
-                    ex.getMessage());
-                //    throw new RuntimeException("Can't happen!", ex);
-            } finally {
-                mapper.setStrict(true);
+                IExtensionPoint extensionPoint = kvasirProject
+                    .getExtensionPoint(point);
+                if (extensionPoint != null) {
+                    BeanAccessor accessor = extensionPoint
+                        .getElementClassAccessor();
+                    XOMapper mapper = accessor.getMapper();
+                    try {
+                        mapper.setStrict(false);
+                        for (int i = 0; i < models.length; i++) {
+                            try {
+                                elementList.add(mapper.toElement(models[i]
+                                    .getBean()));
+                            } catch (ValidationException ex) {
+                                // object中の、requiredな値が埋まっていない。
+                                MessageDialog.openError(null,
+                                    "Required attribute is not set", ex
+                                        .getMessage());
+                                //    throw new RuntimeException("Can't happen!", ex);
+                            }
+                        }
+                    } finally {
+                        mapper.setStrict(true);
+                    }
+                }
+            } catch (CoreException ex) {
+                ex.printStackTrace();
             }
+            elements = elementList.toArray(new Element[0]);
         }
     }
 }

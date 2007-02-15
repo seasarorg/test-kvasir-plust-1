@@ -1,11 +1,11 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.form.command;
 
+import org.seasar.kvasir.plust.model.ExtensionElementModel;
 import org.seasar.kvasir.plust.model.ExtensionModel;
 
-import net.skirnir.xom.Element;
 
 /**
  * @author shidat
@@ -16,14 +16,16 @@ public class AddRootElementCommand
 {
 
     private ExtensionModel model;
-    
-    private Element element;
-    
+
+    private ExtensionElementModel element;
+
+
     public AddRootElementCommand(ExtensionModel model)
     {
-       this.model = model; 
+        this.model = model;
     }
-    
+
+
     /* (non-Javadoc)
      * @see org.seasar.kvasir.plust.form.command.IEditorCommand#execute()
      */

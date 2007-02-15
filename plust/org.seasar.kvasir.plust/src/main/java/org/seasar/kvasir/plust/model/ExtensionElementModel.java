@@ -3,6 +3,7 @@
  */
 package org.seasar.kvasir.plust.model;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,8 @@ public class ExtensionElementModel
 
     private String name;
 
+    private int order;
+
     private Object bean;
 
     private BeanAccessor accessor;
@@ -29,15 +32,31 @@ public class ExtensionElementModel
 
     private ExtensionModel model;
 
+    private boolean root;
 
-    public ExtensionElementModel(String name, Object bean,
-        BeanAccessor accessor, ExtensionModel model)
+
+    public ExtensionElementModel(String name, int order, Object bean,
+        BeanAccessor accessor, ExtensionModel model, boolean root)
     {
         super();
         this.name = name;
+        this.order = order;
         this.bean = bean;
         this.accessor = accessor;
         this.model = model;
+        this.root = root;
+    }
+
+
+    public int getOrder()
+    {
+        return order;
+    }
+
+
+    public boolean isRoot()
+    {
+        return root;
     }
 
 
@@ -68,15 +87,15 @@ public class ExtensionElementModel
                     for (int j = 0; j < objects.length; j++) {
                         Object object = objects[j];
                         ExtensionElementModel model = new ExtensionElementModel(
-                            name, object, childDescriptor.getTypeAccessor(),
-                            this.model);
+                            name, i, object, childDescriptor.getTypeAccessor(),
+                            this.model, false);
                         model.setParent(this);
                         rv.add(model);
                     }
                 } else {
                     ExtensionElementModel model = new ExtensionElementModel(
-                        name, obj, childDescriptor.getTypeAccessor(),
-                        this.model);
+                        name, i, obj, childDescriptor.getTypeAccessor(),
+                        this.model, false);
                     model.setParent(this);
                     rv.add(model);
                 }
@@ -89,7 +108,7 @@ public class ExtensionElementModel
     }
 
 
-    public Object addChild(String name)
+    public ExtensionElementModel addChild(String name)
     {
         PropertyDescriptor descriptor = accessor.getChildDescriptor(name);
         Object object = descriptor.getTypeAccessor().newInstance();
@@ -113,9 +132,16 @@ public class ExtensionElementModel
             //            } else {
             // requiredな属性に値を入れるのは難しいので（どんな値を入れればいいか分からないから）、
             // XOMapper#setStrict(false)してrequiredチェックをスキップさせる。（skirnir）
-//            fillAttribute(descriptor, object);
+            //            fillAttribute(descriptor, object);
             accessor.setChild(bean, name, object);
-            return object;
+            int order;
+            if (descriptor.isMultiple()) {
+                order = Array.getLength(accessor.getChild(bean, name)) - 1;
+            } else {
+                order = 0;
+            }
+            return new ExtensionElementModel(name, order, object, accessor,
+                model, false);
             //            }
         } catch (TargetNotFoundException e) {
             e.printStackTrace();
@@ -133,48 +159,49 @@ public class ExtensionElementModel
      * @param descriptor
      * @param object
      */
-//    private void fillAttribute(PropertyDescriptor descriptor, Object object)
-//    {
-//        BeanAccessor beanAccessor = descriptor.getTypeAccessor();
-//        String[] requiredAttributeNames = beanAccessor
-//            .getRequiredAttributeNames();
-//        for (int i = 0; i < requiredAttributeNames.length; i++) {
-//            String name = requiredAttributeNames[i];
-//            try {
-//                String value = beanAccessor.getAttributeDescriptor(name)
-//                    .getDefault();
-//                if (value == null) {
-//                    value = "";
-//                }
-//                beanAccessor.setAttribute(object, name, value);
-//            } catch (TargetNotFoundException e) {
-//                e.printStackTrace();
-//            } catch (MalformedValueException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
-
-    public Object addChild(String name, Object object)
+    //    private void fillAttribute(PropertyDescriptor descriptor, Object object)
+    //    {
+    //        BeanAccessor beanAccessor = descriptor.getTypeAccessor();
+    //        String[] requiredAttributeNames = beanAccessor
+    //            .getRequiredAttributeNames();
+    //        for (int i = 0; i < requiredAttributeNames.length; i++) {
+    //            String name = requiredAttributeNames[i];
+    //            try {
+    //                String value = beanAccessor.getAttributeDescriptor(name)
+    //                    .getDefault();
+    //                if (value == null) {
+    //                    value = "";
+    //                }
+    //                beanAccessor.setAttribute(object, name, value);
+    //            } catch (TargetNotFoundException e) {
+    //                e.printStackTrace();
+    //            } catch (MalformedValueException e) {
+    //                e.printStackTrace();
+    //            }
+    //        }
+    //    }
+    public ExtensionElementModel addChild(String name, Object object)
     {
         PropertyDescriptor descriptor = accessor.getChildDescriptor(name);
         try {
+            int order = 0;
             if (descriptor.isMultiple()) {
                 Object[] objects = (Object[])accessor.getChild(bean, name);
                 if (objects != null) {
+                    order = objects.length;
                     Object[] newArray = new Object[objects.length + 1];
+                    System.arraycopy(objects, 0, newArray, 0, objects.length);
                     newArray[objects.length] = object;
-                    accessor.setChild(bean, name, newArray);
-                    return object;
+                    accessor.replaceChildren(bean, name, newArray);
                 } else {
-                    accessor.setChild(bean, name, new Object[] { object });
-                    return object;
+                    accessor.replaceChildren(bean, name,
+                        new Object[] { object });
                 }
             } else {
                 accessor.setChild(bean, name, object);
-                return object;
             }
+            return new ExtensionElementModel(name, order, object, accessor,
+                model, false);
         } catch (TargetNotFoundException e) {
             e.printStackTrace();
         } catch (MalformedValueException e) {
@@ -187,9 +214,9 @@ public class ExtensionElementModel
     /**
      * 子要素を削除する。
      * @param name
-     * @param object
+     * @param child
      */
-    public void removeChild(String name, Object object)
+    public void removeChild(String name, ExtensionElementModel child)
     {
         PropertyDescriptor descriptor = accessor.getChildDescriptor(name);
         try {
@@ -198,9 +225,8 @@ public class ExtensionElementModel
                 if (objects != null) {
                     List newArray = new ArrayList();
                     for (int i = 0; i < objects.length; i++) {
-                        Object o = objects[i];
-                        if (!o.equals(object)) {
-                            newArray.add(o);
+                        if (i != child.getOrder()) {
+                            newArray.add(objects[i]);
                         }
                     }
                     accessor.replaceChildren(bean, name, (Object[])newArray
@@ -287,5 +313,11 @@ public class ExtensionElementModel
         if (this.model != null) {
             this.model.refresh();
         }
+    }
+
+
+    public ExtensionModel getExtensionModel()
+    {
+        return model;
     }
 }

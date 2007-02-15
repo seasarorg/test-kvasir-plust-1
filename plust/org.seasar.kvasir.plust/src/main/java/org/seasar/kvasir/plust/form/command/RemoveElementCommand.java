@@ -1,9 +1,10 @@
 /**
- * 
+ *
  */
 package org.seasar.kvasir.plust.form.command;
 
 import org.seasar.kvasir.plust.model.ExtensionElementModel;
+
 
 /**
  * @author shidat
@@ -14,20 +15,25 @@ public class RemoveElementCommand
 {
     private ExtensionElementModel model;
 
-    
+
     public RemoveElementCommand(ExtensionElementModel model)
     {
         super();
         this.model = model;
     }
 
+
     /* (non-Javadoc)
      * @see org.seasar.kvasir.plust.form.command.IEditorCommand#execute()
      */
     public void execute()
     {
-        ExtensionElementModel parent = model.getParent();
-        parent.removeChild(model.getName(), model.getBean());
+        if (model.isRoot()) {
+            model.getExtensionModel().removeRootElement(model);
+        } else {
+            ExtensionElementModel parent = model.getParent();
+            parent.removeChild(model.getName(), model);
+        }
     }
 
 
@@ -45,7 +51,6 @@ public class RemoveElementCommand
      */
     public void undo()
     {
-        model.getParent().addChild(model.getName(), model.getBean());
     }
 
 }
