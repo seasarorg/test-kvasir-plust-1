@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.maven.embedder.MavenEmbedder;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -77,7 +78,11 @@ public class UpdatePomXMLTask
             // プラグインのバージョン情報を更新する。
             String pluginVersion = descriptor_.getVersionString();
             if (pluginVersion != null) {
-                pom.setVersion(pluginVersion);
+                Parent parent = pom.getParent();
+                if (parent == null
+                    || !pluginVersion.equals(parent.getVersion())) {
+                    pom.setVersion(pluginVersion);
+                }
             }
 
             // 依存pluginの情報を更新する。
