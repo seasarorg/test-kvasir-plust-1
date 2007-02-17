@@ -159,11 +159,16 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 return;
             }
 
-            String version = descriptor.getVersionString();
-            if (version != null) {
+            String pluginVersion = descriptor.getVersionString();
+            if (pluginVersion != null) {
                 Properties prop = plugin.loadBuildProperties(project);
-                prop.setProperty(KvasirPlugin.PROP_PLUGINVERSION, version);
-                plugin.storeBuildProperties(project, prop);
+                String version = prop
+                    .getProperty(KvasirPlugin.PROP_PLUGINVERSION);
+                if (!pluginVersion.equals(version)) {
+                    prop.setProperty(KvasirPlugin.PROP_PLUGINVERSION,
+                        pluginVersion);
+                    plugin.storeBuildProperties(project, prop);
+                }
             }
         } catch (CoreException ex) {
             KvasirPlugin.getDefault().log(ex);
