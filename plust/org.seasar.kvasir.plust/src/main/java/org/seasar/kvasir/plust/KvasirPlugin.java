@@ -1288,8 +1288,7 @@ public class KvasirPlugin extends AbstractUIPlugin
                         continue;
                     }
 
-                    KvasirPlugin.getDefault().unzip(artifacts[i].getFile(),
-                        destinationFolder, true,
+                    unzip(artifacts[i].getFile(), destinationFolder, true,
                         new SubProgressMonitor(monitor, 1));
                 }
             } finally {
