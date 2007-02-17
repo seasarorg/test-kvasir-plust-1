@@ -1,9 +1,6 @@
 package org.seasar.kvasir.plust.builder;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -26,17 +23,17 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
+import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
 
 import net.skirnir.freyja.TemplateEvaluator;
+import net.skirnir.xom.IllegalSyntaxException;
+import net.skirnir.xom.ValidationException;
 
 
 public class KvasirBuilder extends IncrementalProjectBuilder
 {
-    private TemplateEvaluator readPluginXmlEvaluator = new TemplateEvaluator(
-        new ReadPluginXmlTagEvaluator(), null);
-
     private TemplateEvaluator writePluginXmlEvaluator = new TemplateEvaluator(
         new WritePluginXmlTagEvaluator(), null);
 
@@ -76,22 +73,26 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 boolean updateClassPath;
                 boolean updateDependingPlugins;
                 boolean updateLib;
+                boolean updateBuildProperties;
 
                 if (verifier.pluginXmlUpdated) {
                     updatePomXml = true;
                     updateClassPath = true;
                     updateDependingPlugins = true;
                     updateLib = false;
+                    updateBuildProperties = true;
                 } else if (verifier.pomXmlUpdated) {
                     updatePomXml = false;
                     updateClassPath = true;
                     updateDependingPlugins = false;
                     updateLib = true;
+                    updateBuildProperties = false;
                 } else {
                     updatePomXml = false;
                     updateClassPath = false;
                     updateDependingPlugins = false;
                     updateLib = false;
+                    updateBuildProperties = false;
                 }
 
                 Artifact[] artifacts = null;
@@ -116,6 +117,10 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     plugin.updateOuterLibrariesProperties(project, artifacts,
                         new SubProgressMonitor(monitor, 1));
                 }
+                if (updateBuildProperties) {
+                    updateBuildProperties(project, new SubProgressMonitor(
+                        monitor, 1));
+                }
             } else {
                 KvasirPlugin plugin = KvasirPlugin.getDefault();
 
@@ -124,6 +129,8 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                 updatePomXml(project, new SubProgressMonitor(monitor, 1));
                 plugin.resetSourceCheckedSet();
                 updateClasspath(javaProject, new SubProgressMonitor(monitor, 1));
+                updateBuildProperties(project, new SubProgressMonitor(monitor,
+                    1));
             }
 
             return null;
@@ -133,40 +140,70 @@ public class KvasirBuilder extends IncrementalProjectBuilder
     }
 
 
+    void updateBuildProperties(IProject project, IProgressMonitor monitor)
+    {
+        monitor.beginTask("Updating build.properties", 1);
+        try {
+            PluginDescriptor descriptor;
+            KvasirPlugin plugin = KvasirPlugin.getDefault();
+            try {
+                descriptor = plugin.loadPluginDescriptor(project);
+            } catch (ValidationException ex) {
+                plugin.log(ex);
+                return;
+            } catch (IllegalSyntaxException ex) {
+                plugin.log(ex);
+                return;
+            } catch (IOException ex) {
+                plugin.log(ex);
+                return;
+            }
+
+            String version = descriptor.getVersionString();
+            if (version != null) {
+                Properties prop = plugin.loadBuildProperties(project);
+                prop.setProperty(KvasirPlugin.PROP_PLUGINVERSION, version);
+                plugin.storeBuildProperties(project, prop);
+            }
+        } catch (CoreException ex) {
+            KvasirPlugin.getDefault().log(ex);
+        } finally {
+            monitor.done();
+        }
+    }
+
+
     void updatePomXml(IProject project, IProgressMonitor monitor)
     {
         monitor.beginTask("Updating pom.xml", 1);
+        KvasirPlugin plugin = KvasirPlugin.getDefault();
         try {
-            IFile pluginFile = project.getFile(IKvasirProject.PLUGIN_FILE_PATH);
-            if (!pluginFile.exists()) {
-                return;
-            }
             IFile pomFile = project.getFile(IKvasirProject.POM_FILE_NAME);
             if (!pomFile.exists()) {
                 return;
             }
 
-            KvasirTemplateContext context = (KvasirTemplateContext)readPluginXmlEvaluator
-                .newContext();
-            readPluginXmlEvaluator.evaluate(context, new BufferedReader(
-                new InputStreamReader(new FileInputStream(pluginFile
-                    .getLocation().toFile()), "UTF-8")));
-            Import[] imports = context.getImports();
+            PluginDescriptor descriptor;
+            try {
+                descriptor = plugin.loadPluginDescriptor(project);
+            } catch (ValidationException ex) {
+                plugin.log(ex);
+                return;
+            } catch (IllegalSyntaxException ex) {
+                plugin.log(ex);
+                return;
+            }
 
-            Properties prop = KvasirPlugin.getDefault().loadBuildProperties(
-                project);
+            Properties prop = plugin.loadBuildProperties(project);
             String testEnvironmentVersion = prop
                 .getProperty(KvasirPlugin.PROP_TESTENVIRONMENTVERSION);
 
-            KvasirPlugin.getDefault()
-                .executeInEmbedder(
-                    new UpdatePluginDependenciesTask(project, imports,
-                        testEnvironmentVersion),
-                    new SubProgressMonitor(monitor, 1));
+            plugin.executeInEmbedder(new UpdatePomXMLTask(project, descriptor,
+                testEnvironmentVersion), new SubProgressMonitor(monitor, 1));
         } catch (CoreException ex) {
-            KvasirPlugin.getDefault().log(ex);
+            plugin.log(ex);
         } catch (IOException ex) {
-            KvasirPlugin.getDefault().log(ex);
+            plugin.log(ex);
         } finally {
             monitor.done();
         }

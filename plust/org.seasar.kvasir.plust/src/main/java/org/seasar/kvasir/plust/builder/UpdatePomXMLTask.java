@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,28 +27,31 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.seasar.kvasir.base.Version;
+import org.seasar.kvasir.base.plugin.descriptor.Import;
+import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
 
 
-public class UpdatePluginDependenciesTask
+public class UpdatePomXMLTask
     implements MavenEmbedderCallback
 {
     private IProject project_;
 
     private IFile pomFile_;
 
-    private Import[] imports_;
+    private PluginDescriptor descriptor_;
 
     private String defaultVersion_ = "RELEASE";
 
 
-    public UpdatePluginDependenciesTask(IProject project, Import[] imports,
+    public UpdatePomXMLTask(IProject project, PluginDescriptor descriptor,
         String defaultVersion)
     {
         project_ = project;
         pomFile_ = project.getFile(IKvasirProject.POM_FILE_PATH);
-        imports_ = imports;
+        descriptor_ = descriptor;
         if (defaultVersion != null) {
             defaultVersion_ = defaultVersion;
         }
@@ -72,9 +74,24 @@ public class UpdatePluginDependenciesTask
                 return null;
             }
 
+            // プラグインのバージョン情報を更新する。
+            String pluginVersion = descriptor_.getVersionString();
+            if (pluginVersion != null) {
+                pom.setVersion(pluginVersion);
+            }
+
+            // 依存pluginの情報を更新する。
+            Import[] imports;
+            Requires requires = descriptor_.getRequires();
+            if (requires != null) {
+                imports = requires.getImports();
+            } else {
+                imports = new Import[0];
+            }
+
             List curDependencies = pom.getDependencies();
             List newDependencies = new ArrayList(curDependencies.size()
-                + imports_.length);
+                + imports.length);
             Map pluginVersionMap = new HashMap();
             for (Iterator itr = curDependencies.iterator(); itr.hasNext();) {
                 Dependency dependency = (Dependency)itr.next();
@@ -93,10 +110,10 @@ public class UpdatePluginDependenciesTask
                     newDependencies.add(dependency);
                 }
             }
-            for (int i = 0; i < imports_.length; i++) {
+            for (int i = 0; i < imports.length; i++) {
                 Dependency dependency = new Dependency();
-                String plugin = imports_[i].getPlugin();
-                String version = imports_[i].getVersion();
+                String plugin = imports[i].getPlugin();
+                String version = imports[i].getVersionString();
                 if (version == null) {
                     version = (String)pluginVersionMap.get(plugin);
                     if (version == null) {

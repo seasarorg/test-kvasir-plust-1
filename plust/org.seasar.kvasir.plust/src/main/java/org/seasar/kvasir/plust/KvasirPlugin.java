@@ -7,6 +7,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +71,8 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
+import org.seasar.kvasir.base.util.XOMUtils;
 import org.seasar.kvasir.maven.plugin.ArtifactNotFoundException;
 import org.seasar.kvasir.maven.plugin.ArtifactPattern;
 import org.seasar.kvasir.maven.plugin.KvasirPluginUtils;
@@ -82,6 +85,9 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
+import net.skirnir.xom.IllegalSyntaxException;
+import net.skirnir.xom.ValidationException;
 
 
 /**
@@ -107,6 +113,8 @@ public class KvasirPlugin extends AbstractUIPlugin
     public static final String PROP_TESTENVIRONMENTARTIFACTID = "testEnvironmentArtifactId";
 
     public static final String PROP_TESTENVIRONMENTVERSION = "testEnvironmentVersion";
+
+    public static final String PROP_PLUGINVERSION = "pluginVersion";
 
     public static final String IMG_VERTICAL = "icons/th_vertical.gif";
 
@@ -1523,5 +1531,19 @@ public class KvasirPlugin extends AbstractUIPlugin
                 }
             }
         }
+    }
+
+
+    public PluginDescriptor loadPluginDescriptor(IProject project)
+        throws ValidationException, IllegalSyntaxException, IOException
+    {
+        IFile pluginFile = project.getFile(IKvasirProject.PLUGIN_FILE_PATH);
+        if (!pluginFile.exists()) {
+            return null;
+        }
+
+        return XOMUtils.toBean(new BufferedReader(new InputStreamReader(
+            new FileInputStream(pluginFile.getLocation().toFile()), "UTF-8")),
+            PluginDescriptor.class);
     }
 }
