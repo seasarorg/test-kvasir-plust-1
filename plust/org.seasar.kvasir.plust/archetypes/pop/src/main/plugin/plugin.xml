@@ -55,6 +55,10 @@
       <resourceset dir="pops">
         <include name="*/*.html" />
       </resourceset>
+      <ignore-variable>containerPage</ignore-variable>
+      <ignore-variable>plugin</ignore-variable>
+      <ignore-variable>pop</ignore-variable>
+      <ignore-variable>transient</ignore-variable>
     </external-template>
   </extension>
 </plugin>
