@@ -44,7 +44,7 @@ public class WritePluginXmlTagEvaluator
 
 
     public Macro getMacro(TemplateEvaluator arg0, String arg1,
-        Attribute[] arg2, Element[] arg3, String arg4)
+        Attribute[] arg2, Element[] arg3, String arg4, Element arg5)
     {
         return null;
     }
