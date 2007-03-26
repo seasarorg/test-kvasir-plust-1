@@ -3,7 +3,7 @@
    <description url="http://eclipse.seasar.org/updates/3.1beta/">
       The seasar project Eclipse plugin update site.
    </description>
-   <feature url="features/org.seasar.kvasir.plust.feature_0.0.4.jar" id="org.seasar.kvasir.plust.feature" version="0.0.4" os="linux,macosx,win32" ws="carbon,gtk,motif,win32" nl="en,ja_JP,ja" arch="x86,x86_64">
+   <feature url="features/org.seasar.kvasir.plust.feature_0.0.4.jar" id="org.seasar.kvasir.plust.feature" version="0.0.4">
       <category name="Kvasir"/>
    </feature>
    <category-def name="Kvasir" label="Kvasir/Sora">
