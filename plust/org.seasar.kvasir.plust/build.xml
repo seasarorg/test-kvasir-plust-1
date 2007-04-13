@@ -134,16 +134,16 @@
 			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/maven-embedder-2.0.4-dep.jar"/>
 			<pathelement path="lib/plexus-archiver-1.0-alpha-4.jar"/>
 			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/plexus-archiver-1.0-alpha-4.jar"/>
-			<pathelement path="lib/freyja-1.0.5.jar"/>
-			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/freyja-1.0.5.jar"/>
+			<pathelement path="lib/freyja-1.0.6.jar"/>
+			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/freyja-1.0.6.jar"/>
 			<pathelement path="lib/kvasir-base-3.0.0-RC1.jar"/>
 			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/kvasir-base-3.0.0-RC1.jar"/>
 			<pathelement path="lib/kvasir-util-3.0.0-RC1.jar"/>
 			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/kvasir-util-3.0.0-RC1.jar"/>
-			<pathelement path="lib/xom-0.0.5.jar"/>
-			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/xom-0.0.5.jar"/>
-			<pathelement path="lib/xom-tiger-0.0.5.jar"/>
-			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/xom-tiger-0.0.5.jar"/>
+			<pathelement path="lib/xom-0.0.6.jar"/>
+			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/xom-0.0.6.jar"/>
+			<pathelement path="lib/xom-tiger-0.0.6.jar"/>
+			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/xom-tiger-0.0.6.jar"/>
 			<pathelement path="lib/maven-kvasir-plugin-3.0.0-RC1.jar"/>
 			<pathelement path="${build.result.folder}/../org.seasar.kvasir.plust/lib/maven-kvasir-plugin-3.0.0-RC1.jar"/>
 		</path>

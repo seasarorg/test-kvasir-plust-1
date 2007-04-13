@@ -6,12 +6,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/maven-embedder-2.0.4-dep.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/plexus-archiver-1.0-alpha-4.jar"/>
-	<classpathentry kind="lib" path="lib/freyja-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/freyja-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/kvasir-base-3.0.0-RC1.jar"/>
 	<classpathentry kind="lib" path="lib/kvasir-util-3.0.0-RC1.jar"/>
 	<classpathentry kind="lib" path="lib/maven-kvasir-plugin-3.0.0-RC1.jar"/>
-	<classpathentry kind="lib" path="lib/xom-0.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/xom-tiger-0.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/xom-0.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/xom-tiger-0.0.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="build/classes"/>
