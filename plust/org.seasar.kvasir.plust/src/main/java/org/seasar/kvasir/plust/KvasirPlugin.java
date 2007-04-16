@@ -278,7 +278,8 @@ public class KvasirPlugin extends AbstractUIPlugin
             name = path;
         }
         return name.equalsIgnoreCase(".svn") || name.equalsIgnoreCase("_svn")
-            || name.equalsIgnoreCase("CVS");
+            || name.equalsIgnoreCase("CVS")
+            || name.equalsIgnoreCase("_DELETEME");
     }
 
 
