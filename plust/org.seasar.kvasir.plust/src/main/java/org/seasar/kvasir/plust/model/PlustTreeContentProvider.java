@@ -7,6 +7,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.Messages;
 
 import net.skirnir.xom.ValidationException;
 
@@ -32,8 +33,12 @@ public class PlustTreeContentProvider
             try {
                 return extension.getRootElements();
             } catch (ValidationException e) {
-                MessageDialog.openWarning(null, "拡張プロパティの取得に失敗", "指定された拡張定義をJavaBeanに変換することができませんでした。依存するKvasirのバージョンを確認してください。\n" + e.getMessage());
-                KvasirPlugin.getDefault().log("拡張の取得に失敗", e);
+                MessageDialog
+                    .openWarning(
+                        null,
+                        Messages.getString("PlustTreeContentProvider.0"), Messages.getString("PlustTreeContentProvider.1") + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+                KvasirPlugin.getDefault().log(
+                    Messages.getString("PlustTreeContentProvider.2"), e); //$NON-NLS-1$
             }
         }
         if (parentElement instanceof ExtensionElementModel) {
@@ -58,12 +63,11 @@ public class PlustTreeContentProvider
      */
     public boolean hasChildren(Object element)
     {
-        if (element.getClass().isArray())
-        {
+        if (element.getClass().isArray()) {
             return true;
         }
-        if (element instanceof ExtensionModel || element instanceof ExtensionElementModel)
-        {
+        if (element instanceof ExtensionModel
+            || element instanceof ExtensionElementModel) {
             return true;
         }
         return false;
