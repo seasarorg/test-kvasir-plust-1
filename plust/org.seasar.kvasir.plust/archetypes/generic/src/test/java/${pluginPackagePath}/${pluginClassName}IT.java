@@ -4,7 +4,7 @@ import junit.framework.Test;
 import org.seasar.kvasir.test.KvasirPluginTestCase;
 
 
-public class ${pluginClassName}IT extends KvasirPluginTestCase
+public class ${pluginClassName}IT extends KvasirPluginTestCase<${pluginClassName}>
 {
     protected String getTargetPluginId()
     {
