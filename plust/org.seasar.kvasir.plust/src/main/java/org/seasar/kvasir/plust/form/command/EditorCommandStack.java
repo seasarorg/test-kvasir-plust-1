@@ -17,11 +17,11 @@ public class EditorCommandStack
     implements IEditorCommandStack
 {
 
-    private Stack stack = new Stack();
+    private Stack<IEditorCommand> stack = new Stack<IEditorCommand>();
 
-    private Stack undoStack = new Stack();
+    private Stack<IEditorCommand> undoStack = new Stack<IEditorCommand>();
 
-    private List listeners = new ArrayList();
+    private List<IEditorCommandStackListener> listeners = new ArrayList<IEditorCommandStackListener>();
 
 
     /* (non-Javadoc)
@@ -59,7 +59,7 @@ public class EditorCommandStack
     public void redo()
     {
         if (!undoStack.isEmpty()) {
-            IEditorCommand command = (IEditorCommand)undoStack.pop();
+            IEditorCommand command = undoStack.pop();
             command.redo();
             notifyStackChanged();
         }
@@ -82,7 +82,7 @@ public class EditorCommandStack
     public void undo()
     {
         if (!stack.isEmpty()) {
-            IEditorCommand command = (IEditorCommand)stack.pop();
+            IEditorCommand command = stack.pop();
             command.undo();
             undoStack.push(command);
             notifyStackChanged();
@@ -92,9 +92,9 @@ public class EditorCommandStack
 
     private void notifyStackChanged()
     {
-        for (Iterator iter = listeners.iterator(); iter.hasNext();) {
-            IEditorCommandStackListener listener = (IEditorCommandStackListener)iter
-                .next();
+        for (Iterator<IEditorCommandStackListener> iter = listeners.iterator(); iter
+            .hasNext();) {
+            IEditorCommandStackListener listener = iter.next();
             listener.fireCommandStachChanged();
         }
     }

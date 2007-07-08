@@ -98,7 +98,8 @@ public class PluginsFormEditor extends FormEditor
                 Messages.getString("PluginsFormEditor.warn"), e); //$NON-NLS-1$
             descriptor = new PluginModel();
         }
-        setPartName(file.getProject().getName() + Messages.getString("PluginsFormEditor.1")); //$NON-NLS-1$
+        setPartName(file.getProject().getName()
+            + Messages.getString("PluginsFormEditor.1")); //$NON-NLS-1$
     }
 
 
@@ -108,7 +109,8 @@ public class PluginsFormEditor extends FormEditor
         super.init(site, input);
         ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
     }
-    
+
+
     private PluginModel loadXML(File file, MavenProject project,
         Properties properties)
         throws IllegalSyntaxException, FileNotFoundException, IOException,
@@ -120,9 +122,11 @@ public class PluginsFormEditor extends FormEditor
         mapper.setBeanAccessorFactory(new AnnotationBeanAccessorFactory());
         PluginDescriptor descriptor = (PluginDescriptor)mapper.toBean(document
             .getRootElement(), PluginDescriptor.class);
-        
-        KvasirProject kvasirProject = KvasirPlugin.getDefault().getKvasirProject(editorInput);
-        return PlustMapper.toPlustModel(descriptor, project, properties, kvasirProject);
+
+        KvasirProject kvasirProject = KvasirPlugin.getDefault()
+            .getKvasirProject(editorInput);
+        return PlustMapper.toPlustModel(descriptor, project, properties,
+            kvasirProject);
     }
 
 
@@ -157,14 +161,16 @@ public class PluginsFormEditor extends FormEditor
         IFile file = editorInput.getFile();
         String string = PlustMapper.toPluginXML(descriptor);
         try {
-            KvasirPlugin.getDefault().storeBuildProperties(file.getProject(), PlustMapper.toBuildProperty(descriptor));
-            file.setContents(new ByteArrayInputStream(string.getBytes()),IFile.KEEP_HISTORY, monitor);
+            KvasirPlugin.getDefault().storeBuildProperties(file.getProject(),
+                PlustMapper.toBuildProperty(descriptor));
+            file.setContents(new ByteArrayInputStream(string.getBytes()),
+                IFile.KEEP_HISTORY, monitor);
         } catch (CoreException e) {
             e.printStackTrace();
         }
-        
+
         this.commandStack.clear();
-        
+
         //        XOMapper mapper = XOMapperFactory.newInstance();
         //        StringWriter writer = new StringWriter();
         //        mapper.toXML(descriptor, writer);
@@ -186,6 +192,7 @@ public class PluginsFormEditor extends FormEditor
     }
 
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter)
     {
         if (IEditorCommandStack.class.equals(adapter)) {
@@ -217,7 +224,7 @@ public class PluginsFormEditor extends FormEditor
                 } else if (event.getType() == IResourceChangeEvent.PRE_DELETE) {
                     this.close(false);
                 }
-                
+
             }
         }
     }

@@ -438,6 +438,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
+    @SuppressWarnings("unchecked")
     public void resolveClasspathEntries(Set<IClasspathEntry> libraryEntries,
         Set<String> moduleArtifacts, IFile pomFile, boolean recursive,
         boolean downloadSources, IProgressMonitor monitor)
@@ -669,6 +670,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
+    @SuppressWarnings("unchecked")
     public void unzip(File zipArchive, IFolder destination,
         boolean forceOverwite, IProgressMonitor monitor)
         throws CoreException
@@ -834,6 +836,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
+    @SuppressWarnings("unchecked")
     void evaluateTemplate(String templateRootPath, String templateRelativePath,
         boolean forBuilding, IPath location, IProject project,
         Configuration cfg, final Bundle bundle, Properties prop,
@@ -1057,7 +1060,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
-    boolean cleanFolder(IFolder folder, Set exclusiveSet,
+    boolean cleanFolder(IFolder folder, Set<IPath> exclusiveSet,
         IProgressMonitor monitor)
         throws CoreException
     {
@@ -1460,6 +1463,7 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
+    @SuppressWarnings("unchecked")
     private boolean setPositionIfMatched(String string, int start, int end,
         String pattern, Map attributes)
     {

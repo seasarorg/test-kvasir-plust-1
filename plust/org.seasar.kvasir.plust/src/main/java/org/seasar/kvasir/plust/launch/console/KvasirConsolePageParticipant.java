@@ -46,6 +46,7 @@ public class KvasirConsolePageParticipant
     }
 
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter)
     {
         return null;

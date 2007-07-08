@@ -24,6 +24,7 @@ public class GatherArtifactsTask
     }
 
 
+    @SuppressWarnings("unchecked")
     public Object run(MavenEmbedder mavenEmbedder, IProgressMonitor monitor)
     {
         monitor.beginTask("Gathering required plugin artifacts",

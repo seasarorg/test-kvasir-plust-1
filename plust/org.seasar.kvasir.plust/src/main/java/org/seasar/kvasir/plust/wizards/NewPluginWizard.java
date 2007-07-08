@@ -192,7 +192,7 @@ public class NewPluginWizard extends Wizard
             }
 
             IProjectDescription description = project_.getDescription();
-            List newNatureList = new ArrayList();
+            List<String> newNatureList = new ArrayList<String>();
             newNatureList.add(JavaCore.NATURE_ID);
             newNatureList.add(KvasirPlugin.NATURE_ID);
             if (Platform.getBundle(Globals.BUNDLENAME_TOMCATPLUGIN) != null) {
@@ -269,7 +269,7 @@ public class NewPluginWizard extends Wizard
         try {
             // remove classpatch container from JavaProject
             IClasspathEntry[] entries = javaProject_.getRawClasspath();
-            ArrayList newEntries = new ArrayList();
+            ArrayList<IClasspathEntry> newEntries = new ArrayList<IClasspathEntry>();
             for (int i = 0; i < entries.length; i++) {
                 if (!Maven2ClasspathContainer
                     .isMaven2ClasspathContainer(entries[i].getPath())) {

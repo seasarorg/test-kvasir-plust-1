@@ -72,13 +72,14 @@ public class PluginModel extends PlustModel
 
     private String pluginClassNameXML;
 
-    private List runtime = new ArrayList();
+    private List<LibraryModel> runtime = new ArrayList<LibraryModel>();
 
-    private List requires = new ArrayList();
+    private List<ImportModel> requires = new ArrayList<ImportModel>();
 
-    private List extensions = new ArrayList();
+    private List<ExtensionModel> extensions = new ArrayList<ExtensionModel>();
 
-    private List extensionPoints = new ArrayList();
+    private List<ExtensionPointModel> extensionPoints = new ArrayList<ExtensionPointModel>();
+
 
     public String getArchetypeId()
     {
@@ -95,12 +96,12 @@ public class PluginModel extends PlustModel
 
     public ExtensionPointModel[] getExtensionPoints()
     {
-        return (ExtensionPointModel[])extensionPoints
-            .toArray(new ExtensionPointModel[extensionPoints.size()]);
+        return extensionPoints.toArray(new ExtensionPointModel[extensionPoints
+            .size()]);
     }
 
 
-    public void setExtensionPoints(List extensionPoints)
+    public void setExtensionPoints(List<ExtensionPointModel> extensionPoints)
     {
         this.extensionPoints = extensionPoints;
     }
@@ -122,12 +123,11 @@ public class PluginModel extends PlustModel
 
     public ExtensionModel[] getExtensions()
     {
-        return (ExtensionModel[])extensions
-            .toArray(new ExtensionModel[extensions.size()]);
+        return extensions.toArray(new ExtensionModel[extensions.size()]);
     }
 
 
-    public void setExtensions(List extensions)
+    public void setExtensions(List<ExtensionModel> extensions)
     {
         this.extensions = extensions;
     }
@@ -253,12 +253,11 @@ public class PluginModel extends PlustModel
 
     public ImportModel[] getRequires()
     {
-        return (ImportModel[])requires
-            .toArray(new ImportModel[requires.size()]);
+        return requires.toArray(new ImportModel[requires.size()]);
     }
 
 
-    public void setRequires(List requires)
+    public void setRequires(List<ImportModel> requires)
     {
         this.requires = requires;
     }
@@ -279,12 +278,11 @@ public class PluginModel extends PlustModel
 
     public LibraryModel[] getRuntime()
     {
-        return (LibraryModel[])runtime
-            .toArray(new LibraryModel[runtime.size()]);
+        return runtime.toArray(new LibraryModel[runtime.size()]);
     }
 
 
-    public void setRuntime(List runtime)
+    public void setRuntime(List<LibraryModel> runtime)
     {
         this.runtime = runtime;
     }
@@ -296,11 +294,13 @@ public class PluginModel extends PlustModel
         firePropertyChange("runtime", library);
     }
 
+
     public void removeRuntime(LibraryModel library)
     {
         this.runtime.remove(library);
         firePropertyChange("runtime", library);
     }
+
 
     public String getTestEnviromentVersion()
     {
@@ -317,14 +317,16 @@ public class PluginModel extends PlustModel
 
     public String getTestEnvironmentArtifactId()
     {
-        return testEnvironmentArtifactId != null ? testEnvironmentArtifactId : "";
+        return testEnvironmentArtifactId != null ? testEnvironmentArtifactId
+            : "";
     }
 
 
     public void setTestEnvironmentArtifactId(String testEnvironmentArtifactId)
     {
         this.testEnvironmentArtifactId = testEnvironmentArtifactId;
-        firePropertyChange("textEnviromentArtifactId", testEnvironmentArtifactId);
+        firePropertyChange("textEnviromentArtifactId",
+            testEnvironmentArtifactId);
     }
 
 
@@ -339,6 +341,7 @@ public class PluginModel extends PlustModel
         this.testEnvironmentGroupId = testEnvironmentGroupId;
         firePropertyChange("textEnvironmentGroupId", testEnvironmentGroupId);
     }
+
 
     public void updateValue(String name, String value)
     {
@@ -368,7 +371,8 @@ public class PluginModel extends PlustModel
             setPluginName(value);
         }
     }
-    
+
+
     public String getValue(String name)
     {
         if (TEST_ENVIROMENT_GROUP_ID.equals(name)) {

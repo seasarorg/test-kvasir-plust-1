@@ -48,7 +48,7 @@ public class AddExtensionPointCommand
     {
         String id;
         try {
-            Class elementClass = project.getProjectClassLoader().loadClass(
+            Class<?> elementClass = project.getProjectClassLoader().loadClass(
                 extension.getFullyQualifiedName());
             BeanAccessor accessor = XOMUtils.newMapper().getBeanAccessor(
                 elementClass);

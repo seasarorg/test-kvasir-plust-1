@@ -111,7 +111,7 @@ public class DependencyPage extends KvasirFormPage
                     .getKvasirProject(getEditorInput());
                 try {
                     IPlugin[] plugins = kvasirProject.getPlugins();
-                    List inculdablePlugins = new ArrayList();
+                    List<ImportModel> inculdablePlugins = new ArrayList<ImportModel>();
 
                     for (int i = 0; i < plugins.length; i++) {
                         IPlugin plugin = plugins[i];
@@ -169,6 +169,7 @@ public class DependencyPage extends KvasirFormPage
             .getString("DependencyPage.5"), SWT.PUSH); //$NON-NLS-1$
         del.addSelectionListener(new SelectionAdapter() {
 
+            @SuppressWarnings("unchecked")
             public void widgetSelected(SelectionEvent e)
             {
                 if (viewer.getSelection() != null) {

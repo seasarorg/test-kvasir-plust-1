@@ -60,9 +60,9 @@ public class KvasirProject
 
     private ProjectClassLoader projectClassLoader_;
 
-    private Map pluginMap_;
+    private Map<String, Plugin> pluginMap_;
 
-    private SortedMap extensionPointMap_ = new TreeMap();
+    private SortedMap<String, IExtensionPoint> extensionPointMap_ = new TreeMap<String, IExtensionPoint>();
 
     private IExtensionPoint[] importedExtensionPoints_ = new IExtensionPoint[0];
 
@@ -116,7 +116,7 @@ public class KvasirProject
                     if (pluginsFolder.exists()) {
                         XOMapper mapper = newMapper();
                         IResource[] children = pluginsFolder.members();
-                        pluginMap_ = new HashMap();
+                        pluginMap_ = new HashMap<String, Plugin>();
                         for (int i = 0; i < children.length; i++) {
                             if (children[i].getType() != IResource.FOLDER) {
                                 continue;
@@ -149,12 +149,12 @@ public class KvasirProject
                                 new String[] { "net.skirnir.xom.annotation.*" }, //$NON-NLS-1$
                                 new String[] {}), monitor);
                         monitor.worked(5);
-                        Set importedPluginIdSet = getImportedPluginIdSet(
+                        Set<String> importedPluginIdSet = getImportedPluginIdSet(
                             mapper, monitor);
-                        List importedExtensionPointList = new ArrayList();
-                        for (Iterator itr = pluginMap_.values().iterator(); itr
-                            .hasNext();) {
-                            Plugin info = (Plugin)itr.next();
+                        List<IExtensionPoint> importedExtensionPointList = new ArrayList<IExtensionPoint>();
+                        for (Iterator<Plugin> itr = pluginMap_.values()
+                            .iterator(); itr.hasNext();) {
+                            Plugin info = itr.next();
                             org.seasar.kvasir.base.plugin.descriptor.ExtensionPoint[] points = info
                                 .getDescriptor().getExtensionPoints();
                             for (int i = 0; i < points.length; i++) {
@@ -201,10 +201,10 @@ public class KvasirProject
     }
 
 
-    Set getImportedPluginIdSet(XOMapper mapper, IProgressMonitor monitor)
+    Set<String> getImportedPluginIdSet(XOMapper mapper, IProgressMonitor monitor)
         throws CoreException
     {
-        Set importedPluginIdSet = new TreeSet();
+        Set<String> importedPluginIdSet = new TreeSet<String>();
         IProject project = javaProject_.getProject();
         IFile pluginFile = project.getFile(PLUGIN_FILE_PATH);
         if (pluginFile.exists()) {
@@ -224,12 +224,14 @@ public class KvasirProject
     }
 
 
-    Map resolvePlugins(Map pluginMap, XOMapper mapper)
+    Map<String, Plugin> resolvePlugins(Map<String, Plugin> pluginMap,
+        XOMapper mapper)
         throws CoreException
     {
-        Map resolved = new HashMap();
-        for (Iterator itr = pluginMap.values().iterator(); itr.hasNext();) {
-            Plugin info = (Plugin)itr.next();
+        Map<String, Plugin> resolved = new HashMap<String, Plugin>();
+        for (Iterator<Plugin> itr = pluginMap.values().iterator(); itr
+            .hasNext();) {
+            Plugin info = itr.next();
             resolvePlugin(info, pluginMap, mapper);
             resolved.put(info.getDescriptor().getId(), info);
         }
@@ -237,15 +239,16 @@ public class KvasirProject
     }
 
 
-    void resolvePlugin(Plugin info, Map pluginMap, XOMapper mapper)
+    void resolvePlugin(Plugin info, Map<String, Plugin> pluginMap,
+        XOMapper mapper)
         throws CoreException
     {
         resolvePlugin(info, pluginMap, info.getDescriptor().getId(), mapper);
     }
 
 
-    void resolvePlugin(Plugin info, Map pluginMap, String startPluginId,
-        XOMapper mapper)
+    void resolvePlugin(Plugin info, Map<String, Plugin> pluginMap,
+        String startPluginId, XOMapper mapper)
         throws CoreException
     {
         PluginDescriptor plugin = info.getDescriptor();
@@ -338,7 +341,7 @@ public class KvasirProject
         BeanAccessor accessor = null;
         String elementClassName = point.getElementClassName();
         try {
-            Class elementClass = classLoader.loadClass(elementClassName);
+            Class<?> elementClass = classLoader.loadClass(elementClassName);
             accessor = mapper.getBeanAccessor(elementClass);
         } catch (ClassNotFoundException ignore) {
         } catch (NoClassDefFoundError ignore) {

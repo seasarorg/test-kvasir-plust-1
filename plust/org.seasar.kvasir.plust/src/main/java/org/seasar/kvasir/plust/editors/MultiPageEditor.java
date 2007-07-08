@@ -278,7 +278,7 @@ public class MultiPageEditor extends MultiPageEditorPart
 
         StringTokenizer tokenizer = new StringTokenizer(editorText,
             " \t\n\r\f!@#\u0024%^&*()-_=+`~[]{};:'\",.<>/?|\\");
-        ArrayList editorWords = new ArrayList();
+        ArrayList<String> editorWords = new ArrayList<String>();
         while (tokenizer.hasMoreTokens()) {
             editorWords.add(tokenizer.nextToken());
         }

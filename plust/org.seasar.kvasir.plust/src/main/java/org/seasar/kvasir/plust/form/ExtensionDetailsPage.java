@@ -6,7 +6,6 @@ package org.seasar.kvasir.plust.form;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -14,7 +13,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
-import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.model.ExtensionModel;
 

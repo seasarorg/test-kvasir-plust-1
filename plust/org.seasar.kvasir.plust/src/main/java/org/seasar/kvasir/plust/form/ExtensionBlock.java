@@ -3,9 +3,7 @@
  */
 package org.seasar.kvasir.plust.form;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.core.runtime.CoreException;
@@ -41,13 +39,11 @@ import org.eclipse.ui.forms.SectionPart;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
-import org.eclipse.ui.texteditor.ValidateStateException;
 import org.seasar.kvasir.plust.IExtensionPoint;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.KvasirProject;
 import org.seasar.kvasir.plust.Messages;
 import org.seasar.kvasir.plust.form.command.AddExtensionCommand;
-import org.seasar.kvasir.plust.form.command.AddRootElementCommand;
 import org.seasar.kvasir.plust.form.command.IEditorCommandStackListener;
 import org.seasar.kvasir.plust.form.command.RemoveExtensionCommand;
 import org.seasar.kvasir.plust.model.ExtensionElementModel;
@@ -55,13 +51,8 @@ import org.seasar.kvasir.plust.model.ExtensionModel;
 import org.seasar.kvasir.plust.model.PlustLabelProvider;
 import org.seasar.kvasir.plust.model.PlustTreeContentProvider;
 
-import net.skirnir.xom.Attribute;
 import net.skirnir.xom.BeanAccessor;
 import net.skirnir.xom.Element;
-import net.skirnir.xom.MalformedValueException;
-import net.skirnir.xom.Node;
-import net.skirnir.xom.PropertyDescriptor;
-import net.skirnir.xom.TargetNotFoundException;
 import net.skirnir.xom.ValidationException;
 import net.skirnir.xom.XOMapper;
 
@@ -200,6 +191,7 @@ public class ExtensionBlock extends MasterDetailsBlock
             .getString("ExtensionBlock.3"), SWT.PUSH); //$NON-NLS-1$
         remove.addSelectionListener(new SelectionAdapter() {
 
+            @SuppressWarnings("unchecked")
             public void widgetSelected(SelectionEvent e)
             {
                 if (viewer.getSelection() != null) {

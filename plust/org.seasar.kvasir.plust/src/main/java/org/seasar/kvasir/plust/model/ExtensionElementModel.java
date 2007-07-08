@@ -74,7 +74,7 @@ public class ExtensionElementModel
 
     public ExtensionElementModel[] getChildren()
     {
-        List rv = new ArrayList();
+        List<ExtensionElementModel> rv = new ArrayList<ExtensionElementModel>();
         try {
             String[] childNames = accessor.getChildNames();
             for (int i = 0; i < childNames.length; i++) {
@@ -223,7 +223,7 @@ public class ExtensionElementModel
             if (descriptor.isMultiple()) {
                 Object[] objects = (Object[])accessor.getChild(bean, name);
                 if (objects != null) {
-                    List newArray = new ArrayList();
+                    List<Object> newArray = new ArrayList<Object>();
                     for (int i = 0; i < objects.length; i++) {
                         if (i != child.getOrder()) {
                             newArray.add(objects[i]);
@@ -248,7 +248,7 @@ public class ExtensionElementModel
     public String[] getChildNames()
     {
         if (accessor != null) {
-            List rv = new ArrayList();
+            List<String> rv = new ArrayList<String>();
             String[] names = accessor.getChildNames();
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];

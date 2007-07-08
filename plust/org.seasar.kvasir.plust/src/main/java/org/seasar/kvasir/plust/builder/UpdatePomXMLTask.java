@@ -59,6 +59,7 @@ public class UpdatePomXMLTask
     }
 
 
+    @SuppressWarnings("unchecked")
     public Object run(MavenEmbedder mavenEmbedder, IProgressMonitor monitor)
     {
         monitor.beginTask("Updating plugin dependencies", 1);
@@ -94,19 +95,21 @@ public class UpdatePomXMLTask
                 imports = new Import[0];
             }
 
-            List curDependencies = pom.getDependencies();
-            List newDependencies = new ArrayList(curDependencies.size()
-                + imports.length);
-            Map pluginVersionMap = new HashMap();
-            for (Iterator itr = curDependencies.iterator(); itr.hasNext();) {
-                Dependency dependency = (Dependency)itr.next();
+            List<Dependency> curDependencies = pom.getDependencies();
+            List<Dependency> newDependencies = new ArrayList<Dependency>(
+                curDependencies.size() + imports.length);
+            Map<String, String> pluginVersionMap = new HashMap<String, String>();
+            for (Iterator<Dependency> itr = curDependencies.iterator(); itr
+                .hasNext();) {
+                Dependency dependency = itr.next();
                 if ("zip".equals(dependency.getType())) {
                     pluginVersionMap.put(dependency.getArtifactId(), dependency
                         .getVersion());
                 }
             }
-            for (Iterator itr = curDependencies.iterator(); itr.hasNext();) {
-                Dependency dependency = (Dependency)itr.next();
+            for (Iterator<Dependency> itr = curDependencies.iterator(); itr
+                .hasNext();) {
+                Dependency dependency = itr.next();
                 String groupId = dependency.getGroupId();
                 String artifactId = dependency.getArtifactId();
                 if (!(groupId.equals(artifactId) && pluginVersionMap
@@ -188,7 +191,7 @@ public class UpdatePomXMLTask
             KvasirPlugin.getDefault().log(ex);
             return null;
         }
-        List versionList = new ArrayList();
+        List<Version> versionList = new ArrayList<Version>();
         for (int i = 0; i < children.length; i++) {
             IResource child = children[i];
             String name = child.getName();
@@ -196,7 +199,7 @@ public class UpdatePomXMLTask
                 versionList.add(new Version(name.substring(prefix.length())));
             }
         }
-        Version[] versions = (Version[])versionList.toArray(new Version[0]);
+        Version[] versions = versionList.toArray(new Version[0]);
         if (versions.length == 0) {
             return null;
         } else {
