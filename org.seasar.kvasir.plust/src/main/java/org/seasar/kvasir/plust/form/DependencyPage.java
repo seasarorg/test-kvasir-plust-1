@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.eclipse.ui.forms.FormColors;
+import org.eclipse.ui.forms.IFormColors;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -79,7 +79,7 @@ public class DependencyPage extends KvasirFormPage
         section.setActiveToggleColor(toolkit.getHyperlinkGroup()
             .getActiveForeground());
         section.setToggleColor(toolkit.getColors().getColor(
-            FormColors.SEPARATOR));
+            IFormColors.SEPARATOR));
         Composite client = toolkit.createComposite(section, SWT.WRAP);
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;

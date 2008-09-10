@@ -108,8 +108,11 @@
             label="%plust.decorator.label"
             lightweight="true"
             location="TOP_LEFT"
-            objectClass="org.eclipse.core.resources.IProject"
-            state="true"/>
+            state="true">
+            <enablement>
+                <objectClass name="org.eclipse.core.resources.IProject"/> 
+            </enablement>
+      </decorator>
    </extension>
 
 </plugin>
