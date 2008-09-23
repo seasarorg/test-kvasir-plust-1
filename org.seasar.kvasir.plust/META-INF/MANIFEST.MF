@@ -234,3 +234,4 @@ Export-Package: com.jcraft.jsch,
  org.seasar.kvasir.util.parametrized,
  org.seasar.kvasir.util.pathlock,
  org.seasar.kvasir.util.wiki
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

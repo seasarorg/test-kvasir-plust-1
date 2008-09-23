@@ -107,7 +107,7 @@
             id="org.seasar.kvasir.plust.decorator"
             label="%plust.decorator.label"
             lightweight="true"
-            location="TOP_LEFT"
+            location="BOTTOM_LEFT"
             state="true">
             <enablement>
                 <objectClass name="org.eclipse.core.resources.IProject"/> 
