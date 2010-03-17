@@ -10,17 +10,11 @@ import org.eclipse.ui.part.IPageBookViewPage;
 public class KvasirConsolePageParticipant
     implements IConsolePageParticipant
 {
-    private KvasirConsole console_;
-
-    private IPageBookViewPage page_;
-
     private KvasirConsoleRemoveAction consoleRemoveAction_;
 
 
     public void init(IPageBookViewPage page, IConsole console)
     {
-        console_ = (KvasirConsole)console;
-        page_ = page;
         consoleRemoveAction_ = new KvasirConsoleRemoveAction();
         IActionBars bars = page.getSite().getActionBars();
         bars.getToolBarManager().appendToGroup(IConsoleConstants.LAUNCH_GROUP,
@@ -31,8 +25,6 @@ public class KvasirConsolePageParticipant
     public void dispose()
     {
         consoleRemoveAction_ = null;
-        page_ = null;
-        console_ = null;
     }
 
 

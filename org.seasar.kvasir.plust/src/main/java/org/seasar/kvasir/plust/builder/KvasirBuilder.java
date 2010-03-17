@@ -1,10 +1,8 @@
 package org.seasar.kvasir.plust.builder;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.eclipse.core.resources.IContainer;
@@ -17,27 +15,18 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
 
-import net.skirnir.freyja.TemplateEvaluator;
 import net.skirnir.xom.IllegalSyntaxException;
 import net.skirnir.xom.ValidationException;
 
 
 public class KvasirBuilder extends IncrementalProjectBuilder
 {
-    private TemplateEvaluator writePluginXmlEvaluator = new TemplateEvaluator(
-        new WritePluginXmlTagEvaluator(), null);
-
-
     /*
      * (non-Javadoc)
      * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
@@ -107,8 +96,8 @@ public class KvasirBuilder extends IncrementalProjectBuilder
                     updatePomXml(project, new SubProgressMonitor(monitor, 1));
                 }
                 if (updateClasspath) {
-//                    updateClasspath(javaProject, new SubProgressMonitor(
-//                        monitor, 1));
+                    //                    updateClasspath(javaProject, new SubProgressMonitor(
+                    //                        monitor, 1));
                 }
                 if (updateDependingPlugins) {
                     plugin.deployRequiredPluginsToTestEnvironment(project,
@@ -129,7 +118,7 @@ public class KvasirBuilder extends IncrementalProjectBuilder
 
                 updatePomXml(project, new SubProgressMonitor(monitor, 1));
                 plugin.resetSourceCheckedSet();
-//                updateClasspath(javaProject, new SubProgressMonitor(monitor, 1));
+                //                updateClasspath(javaProject, new SubProgressMonitor(monitor, 1));
                 updateBuildProperties(project, new SubProgressMonitor(monitor,
                     1));
             }
@@ -213,25 +202,6 @@ public class KvasirBuilder extends IncrementalProjectBuilder
         } finally {
             monitor.done();
         }
-    }
-
-
-    private void updateClasspath(IJavaProject javaProject,
-        IProgressMonitor monitor)
-        throws JavaModelException
-    {
-        Set<IClasspathEntry> entries = new HashSet<IClasspathEntry>();
-        Set<String> moduleArtifacts = new HashSet<String>();
-        IFile pomFile = javaProject.getProject().getFile(
-            IKvasirProject.POM_FILE_NAME);
-        KvasirPlugin.getDefault().resolveClasspathEntries(entries,
-            moduleArtifacts, pomFile, true, true, monitor);
-
-        Maven2ClasspathContainer container = new Maven2ClasspathContainer(
-            entries);
-        JavaCore.setClasspathContainer(container.getPath(),
-            new IJavaProject[] { javaProject },
-            new IClasspathContainer[] { container }, monitor);
     }
 
 

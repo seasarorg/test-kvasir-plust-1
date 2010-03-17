@@ -158,14 +158,6 @@ public class KvasirPlugin extends AbstractUIPlugin
     public KvasirPlugin()
     {
         plugin = this;
-
-        imageRegistry_ = getImageRegistry();
-        imageRegistry_.put(IMG_REQUIRED, getImageDescriptor(IMG_REQUIRED));
-        imageRegistry_.put(IMG_LIBRARY, getImageDescriptor(IMG_LIBRARY));
-        imageRegistry_.put(IMG_EXTENSION_POINT,
-            getImageDescriptor(IMG_EXTENSION_POINT));
-        imageRegistry_.put(IMG_EXTENSION, getImageDescriptor(IMG_EXTENSION));
-        imageRegistry_.put(IMG_ELEMENT, getImageDescriptor(IMG_ELEMENT));
     }
 
 
@@ -176,6 +168,14 @@ public class KvasirPlugin extends AbstractUIPlugin
         throws Exception
     {
         super.start(context);
+
+        imageRegistry_ = getImageRegistry();
+        imageRegistry_.put(IMG_REQUIRED, getImageDescriptor(IMG_REQUIRED));
+        imageRegistry_.put(IMG_LIBRARY, getImageDescriptor(IMG_LIBRARY));
+        imageRegistry_.put(IMG_EXTENSION_POINT,
+            getImageDescriptor(IMG_EXTENSION_POINT));
+        imageRegistry_.put(IMG_EXTENSION, getImageDescriptor(IMG_EXTENSION));
+        imageRegistry_.put(IMG_ELEMENT, getImageDescriptor(IMG_ELEMENT));
 
         try {
             console_ = new KvasirConsole();
@@ -384,9 +384,9 @@ public class KvasirPlugin extends AbstractUIPlugin
         MavenEmbedder embedder = new MavenEmbedder();
         MavenEmbedderLogger logger = new ConsoleMavenEmbeddedLogger(
             getConsole());
-        final boolean debugEnabled = false;
-        logger.setThreshold(debugEnabled ? MavenEmbedderLogger.LEVEL_DEBUG
-            : MavenEmbedderLogger.LEVEL_INFO);
+        //        int level = MavenEmbedderLogger.LEVEL_DEBUG;
+        int level = MavenEmbedderLogger.LEVEL_INFO;
+        logger.setThreshold(level);
         embedder.setLogger(logger);
 
         // TODO find a better ClassLoader

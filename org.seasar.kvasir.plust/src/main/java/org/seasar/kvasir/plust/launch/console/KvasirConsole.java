@@ -188,19 +188,6 @@ public class KvasirConsole extends MessageConsole
     }
 
 
-    private void showConsole(boolean show)
-    {
-        IConsoleManager manager = ConsolePlugin.getDefault()
-            .getConsoleManager();
-        if (!visible) {
-            manager.addConsoles(new IConsole[] { this });
-        }
-        if (show) {
-            manager.showConsoleView(this);
-        }
-    }
-
-
     private void bringConsoleToFront()
     {
         IConsoleManager manager = ConsolePlugin.getDefault()

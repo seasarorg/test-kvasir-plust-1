@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
@@ -58,8 +57,6 @@ public class NewPluginWizard extends Wizard
 
     private IWorkbench workbench_;
 
-    private ISelection selection_;
-
     private IConfigurationElement config_;
 
     private IProject project_;
@@ -88,7 +85,6 @@ public class NewPluginWizard extends Wizard
     public void init(IWorkbench workbench, IStructuredSelection selection)
     {
         workbench_ = workbench;
-        selection_ = selection;
 
         setNeedsProgressMonitor(true);
     }
