@@ -1,15 +1,9 @@
 package org.seasar.kvasir.plust;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.lucene.index.IndexWriter;
 import org.apache.maven.wagon.WagonConstants;
 import org.apache.maven.wagon.events.TransferEvent;
 import org.apache.maven.wagon.events.TransferListener;
-import org.apache.maven.wagon.resource.Resource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.maven.ide.eclipse.index.Indexer;
 
 
 public class TransferListenerAdapter
@@ -77,22 +71,6 @@ public class TransferListenerAdapter
 
         // monitor.subTask("100% "+e.getWagon().getRepository()+"/"+e.getResource().getName());
         monitor.subTask("");
-
-        // updating local index
-        String repository = e.getWagon().getRepository().getName();
-        Resource r = e.getResource();
-        String indexPath = new File(KvasirPlugin.getDefault().getIndexDir(),
-            "local").getAbsolutePath();
-        try {
-            IndexWriter w = Indexer.createIndexWriter(indexPath, false);
-            Indexer.addDocument(w, repository, r.getName(), r
-                .getContentLength(), r.getLastModified());
-            w.optimize();
-            w.close();
-
-        } catch (IOException ex) {
-            // TODO Auto-generated catch block
-        }
     }
 
 

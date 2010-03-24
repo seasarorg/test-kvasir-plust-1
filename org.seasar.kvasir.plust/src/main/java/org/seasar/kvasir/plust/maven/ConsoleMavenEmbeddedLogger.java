@@ -1,7 +1,7 @@
 package org.seasar.kvasir.plust.maven;
 
 import org.apache.maven.embedder.MavenEmbedderLogger;
-import org.seasar.kvasir.plust.launch.console.KvasirConsole;
+import org.seasar.kvasir.plust.maven.internal.KvasirConsole;
 
 
 public class ConsoleMavenEmbeddedLogger
@@ -163,5 +163,13 @@ public class ConsoleMavenEmbeddedLogger
     public int getThreshold()
     {
         return treshold_;
+    }
+
+
+    public void close()
+    {
+        if (console_ != null) {
+            console_.closeConsole();
+        }
     }
 }

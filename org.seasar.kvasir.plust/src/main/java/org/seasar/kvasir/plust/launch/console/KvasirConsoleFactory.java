@@ -4,6 +4,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
+import org.maven.ide.eclipse.core.MavenConsole;
 import org.seasar.kvasir.plust.KvasirPlugin;
 
 
@@ -26,7 +27,7 @@ public class KvasirConsoleFactory
 
     public static void showConsole()
     {
-        KvasirConsole console = KvasirPlugin.getDefault().getConsole();
+        MavenConsole console = KvasirPlugin.getDefault().getConsole();
         if (console != null) {
             IConsoleManager manager = ConsolePlugin.getDefault()
                 .getConsoleManager();
@@ -48,11 +49,11 @@ public class KvasirConsoleFactory
     {
         IConsoleManager manager = ConsolePlugin.getDefault()
             .getConsoleManager();
-        KvasirConsole console = KvasirPlugin.getDefault().getConsole();
+        MavenConsole console = KvasirPlugin.getDefault().getConsole();
         if (console != null) {
             manager.removeConsoles(new IConsole[] { console });
             ConsolePlugin.getDefault().getConsoleManager().addConsoleListener(
-                console.new MyLifecycle());
+                console.newLifecycle());
         }
     }
 }

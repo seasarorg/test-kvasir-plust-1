@@ -34,12 +34,13 @@ import java.util.zip.ZipFile;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.InvalidArtifactRTException;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.apache.maven.embedder.ContainerCustomizer;
 import org.apache.maven.embedder.MavenEmbedder;
 import org.apache.maven.embedder.MavenEmbedderException;
-import org.apache.maven.embedder.MavenEmbedderLogger;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -68,7 +69,12 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.MarkerUtilities;
-import org.maven.ide.eclipse.MavenEmbedderCallback;
+import org.maven.ide.eclipse.MavenPlugin;
+import org.maven.ide.eclipse.core.MavenConsole;
+import org.maven.ide.eclipse.core.MavenLogger;
+import org.maven.ide.eclipse.embedder.MavenEmbedderManager;
+import org.maven.ide.eclipse.embedder.MavenRuntimeManager;
+import org.maven.ide.eclipse.internal.embedder.MavenEmbeddedRuntime;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
@@ -77,8 +83,8 @@ import org.seasar.kvasir.maven.plugin.ArtifactNotFoundException;
 import org.seasar.kvasir.maven.plugin.ArtifactPattern;
 import org.seasar.kvasir.maven.plugin.KvasirPluginUtils;
 import org.seasar.kvasir.plust.builder.GatherArtifactsTask;
-import org.seasar.kvasir.plust.launch.console.KvasirConsole;
-import org.seasar.kvasir.plust.maven.ConsoleMavenEmbeddedLogger;
+import org.seasar.kvasir.plust.maven.MavenEmbedderCallback;
+import org.seasar.kvasir.plust.maven.internal.KvasirConsole;
 
 import freemarker.cache.URLTemplateLoader;
 import freemarker.template.Configuration;
@@ -104,9 +110,6 @@ public class KvasirPlugin extends AbstractUIPlugin
     public static final String POM_MARKER_ID = PLUGIN_ID + ".pomMarker";
 
     public static final String LICENSES_PATH = "licenses";
-
-    /** reise embedder instance or create new one on every operation */
-    private static final boolean REUSE_EMBEDDER = false;
 
     public static final String PROP_TESTENVIRONMENTGROUPID = "testEnvironmentGroupId";
 
@@ -141,9 +144,11 @@ public class KvasirPlugin extends AbstractUIPlugin
     //The shared instance.
     private static KvasirPlugin plugin;
 
-    private MavenEmbedder mavenEmbedder_;
+    private MavenEmbedderManager embedderManager_;
 
-    private KvasirConsole console_;
+    private MavenRuntimeManager runtimeManager_;
+
+    private MavenConsole console_;
 
     private Set<String> sourceCheckedArtifactIdSet_ = new HashSet<String>();
 
@@ -177,12 +182,19 @@ public class KvasirPlugin extends AbstractUIPlugin
         imageRegistry_.put(IMG_EXTENSION, getImageDescriptor(IMG_EXTENSION));
         imageRegistry_.put(IMG_ELEMENT, getImageDescriptor(IMG_ELEMENT));
 
+        MavenLogger.setLog(getLog());
+
         try {
-            console_ = new KvasirConsole();
+            console_ = new KvasirConsole(MavenPlugin
+                .getImageDescriptor("icons/kvasir.gif")); //$NON-NLS-1$
         } catch (RuntimeException ex) {
-            log(new Status(IStatus.ERROR, PLUGIN_ID, -1,
+            MavenLogger.log(new Status(IStatus.ERROR, PLUGIN_ID, -1,
                 "Unable to start console: " + ex.toString(), ex));
         }
+
+        runtimeManager_ = new MavenRuntimeManager(getPreferenceStore());
+        embedderManager_ = new MavenEmbedderManager(console_, runtimeManager_);
+        runtimeManager_.setEmbeddedRuntime(new MavenEmbeddedRuntime(context));
     }
 
 
@@ -194,7 +206,10 @@ public class KvasirPlugin extends AbstractUIPlugin
     {
         super.stop(context);
 
-        stopEmbedder();
+        if (embedderManager_ != null) {
+            embedderManager_.shutdown();
+        }
+
         if (console_ != null) {
             console_.shutdown();
         }
@@ -373,47 +388,9 @@ public class KvasirPlugin extends AbstractUIPlugin
     }
 
 
-    public KvasirConsole getConsole()
+    public MavenConsole getConsole()
     {
         return console_;
-    }
-
-
-    private MavenEmbedder createEmbedder()
-    {
-        MavenEmbedder embedder = new MavenEmbedder();
-        MavenEmbedderLogger logger = new ConsoleMavenEmbeddedLogger(
-            getConsole());
-        //        int level = MavenEmbedderLogger.LEVEL_DEBUG;
-        int level = MavenEmbedderLogger.LEVEL_INFO;
-        logger.setThreshold(level);
-        embedder.setLogger(logger);
-
-        // TODO find a better ClassLoader
-        // ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        embedder.setClassLoader(getClass().getClassLoader());
-        embedder.setInteractiveMode(false);
-
-        try {
-            embedder.start();
-        } catch (MavenEmbedderException ex) {
-            log("Unable to start MavenEmbedder", ex);
-        }
-
-        return embedder;
-    }
-
-
-    private void stopEmbedder()
-    {
-        if (mavenEmbedder_ != null) {
-            try {
-                mavenEmbedder_.stop();
-                mavenEmbedder_ = null;
-            } catch (MavenEmbedderException ex) {
-                log("Unable to stop MavenEmbedder", ex);
-            }
-        }
     }
 
 
@@ -627,20 +604,25 @@ public class KvasirPlugin extends AbstractUIPlugin
     public Object executeInEmbedder(MavenEmbedderCallback template,
         IProgressMonitor monitor)
     {
+        MavenEmbedder embedder = getMavenEmbedder();
         try {
-            return template.run(getMavenEmbedder(), monitor);
+            return template.run(embedder, monitor);
         } finally {
-            if (!REUSE_EMBEDDER)
-                stopEmbedder();
+            try {
+                embedder.stop();
+            } catch (MavenEmbedderException ex) {
+                MavenLogger.log(new Status(IStatus.ERROR, PLUGIN_ID, -1,
+                    "Unable to stop MavenEmbedder", ex));
+            }
         }
     }
 
 
     public Object executeInEmbedder(String name, MavenEmbedderCallback template)
     {
+        MavenEmbedder embedder = getMavenEmbedder();
         try {
-            EmbedderJob job = new EmbedderJob(name, template,
-                getMavenEmbedder());
+            EmbedderJob job = new EmbedderJob(name, template, embedder);
             job.schedule();
             try {
                 job.join();
@@ -651,21 +633,28 @@ public class KvasirPlugin extends AbstractUIPlugin
                 return null;
             }
         } finally {
-            if (!REUSE_EMBEDDER)
-                stopEmbedder();
+            try {
+                embedder.stop();
+            } catch (MavenEmbedderException ex) {
+                MavenLogger.log(new Status(IStatus.ERROR, PLUGIN_ID, -1,
+                    "Unable to stop MavenEmbedder", ex));
+            }
         }
     }
 
 
     private synchronized MavenEmbedder getMavenEmbedder()
     {
-        if (REUSE_EMBEDDER) {
-            if (mavenEmbedder_ == null) {
-                mavenEmbedder_ = createEmbedder();
-            }
-            return mavenEmbedder_;
-        } else {
-            return createEmbedder();
+        try {
+            return embedderManager_.createEmbedder(new ContainerCustomizer() {
+                public void customize(PlexusContainer container)
+                {
+                }
+            });
+        } catch (CoreException ex) {
+            MavenLogger.log(new Status(IStatus.ERROR, PLUGIN_ID, -1,
+                "Cannot create MavenEmbedder", ex));
+            throw new RuntimeException(ex);
         }
     }
 
@@ -1549,5 +1538,11 @@ public class KvasirPlugin extends AbstractUIPlugin
         return XOMUtils.toBean(new BufferedReader(new InputStreamReader(
             new FileInputStream(pluginFile.getLocation().toFile()), "UTF-8")),
             PluginDescriptor.class);
+    }
+
+
+    public MavenEmbedderManager getMavenEmbedderManager()
+    {
+        return embedderManager_;
     }
 }

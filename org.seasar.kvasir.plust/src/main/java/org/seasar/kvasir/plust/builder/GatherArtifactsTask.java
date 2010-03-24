@@ -1,15 +1,15 @@
 package org.seasar.kvasir.plust.builder;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.embedder.MavenEmbedder;
+import org.apache.maven.execution.DefaultMavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.maven.ide.eclipse.MavenEmbedderCallback;
-import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.TransferListenerAdapter;
+import org.seasar.kvasir.plust.maven.MavenEmbedderCallback;
 
 
 public class GatherArtifactsTask
@@ -33,18 +33,14 @@ public class GatherArtifactsTask
             if (!pomFile_.exists()) {
                 return null;
             }
-            TransferListenerAdapter listener = new TransferListenerAdapter(
-                monitor);
-            MavenProject pom = mavenEmbedder.readProjectWithDependencies(
-                pomFile_.getLocation().toFile(), listener);
+            MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+            request.setPom(pomFile_.getLocation().toFile());
+            request.setTransferListener(new TransferListenerAdapter(monitor));
+            MavenExecutionResult result = mavenEmbedder
+                .readProjectWithDependencies(request);
+            MavenProject pom = result.getProject();
 
             return (Artifact[])pom.getArtifacts().toArray(new Artifact[0]);
-        } catch (AbstractArtifactResolutionException ex) {
-            KvasirPlugin.getDefault().log(ex);
-            return null;
-        } catch (ProjectBuildingException ex) {
-            KvasirPlugin.getDefault().log(ex);
-            return null;
         } finally {
             monitor.done();
         }

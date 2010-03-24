@@ -26,13 +26,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.maven.ide.eclipse.MavenEmbedderCallback;
 import org.seasar.kvasir.base.Version;
 import org.seasar.kvasir.base.plugin.descriptor.Import;
 import org.seasar.kvasir.base.plugin.descriptor.PluginDescriptor;
 import org.seasar.kvasir.base.plugin.descriptor.Requires;
 import org.seasar.kvasir.plust.IKvasirProject;
 import org.seasar.kvasir.plust.KvasirPlugin;
+import org.seasar.kvasir.plust.maven.MavenEmbedderCallback;
 
 
 public class UpdatePomXMLTask

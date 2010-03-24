@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/doxia-sink-api-1.0-alpha-9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsch-0.1.27.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jtidy-4aug2000r7-dev.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-reporting-api-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-toolchain-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-workspace-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/aspectjrt-1.5.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-classworlds-1.2-alpha-12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-container-default-1.0-alpha-44.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-interactivity-api-1.0-alpha-6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-interpolation-1.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-file-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-http-lightweight-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-http-shared-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-provider-api-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-ssh-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-ssh-common-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wagon-ssh-external-1.0-beta-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-core-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-lifecycle-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-plugin-api-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-profile-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-project-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-utils-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-model-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-artifact-3.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/maven-embedder-2.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.maven.ide.eclipse_light_0.9.7.200811301758-2009031201.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/freemarker-2.3.4.jar"/>
-	<classpathentry kind="lib" path="lib/m2plugin-0.0.5.jar" sourcepath="/org.maven.ide.eclipse/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.0.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/maven-embedder-2.0.4-dep.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/plexus-archiver-1.0-alpha-4.jar"/>
 	<classpathentry kind="lib" path="lib/freyja-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/kvasir-base-3.0.0-SNAPSHOT.jar"/>

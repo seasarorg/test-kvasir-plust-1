@@ -5,7 +5,7 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.embedder.MavenEmbedder;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.maven.ide.eclipse.MavenEmbedderCallback;
+import org.seasar.kvasir.plust.maven.MavenEmbedderCallback;
 
 
 public class PrepareTestEnvironmentTask

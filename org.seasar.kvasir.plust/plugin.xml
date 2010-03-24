@@ -86,7 +86,7 @@
             class="org.seasar.kvasir.plust.launch.console.KvasirConsolePageParticipant"
             id="org.seasar.kvasir.plust.launch.console.KvasirConsolePageParticipant">
          <enablement>
-            <instanceof value="org.seasar.kvasir.plust.launch.console.KvasirConsole"/>
+            <instanceof value="org.seasar.kvasir.plust.maven.internal.KvasirConsole"/>
          </enablement>
       </consolePageParticipant>
    </extension>

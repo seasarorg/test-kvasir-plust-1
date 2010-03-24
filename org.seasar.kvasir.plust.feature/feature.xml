@@ -2,7 +2,7 @@
 <feature
       id="org.seasar.kvasir.plust.feature"
       label="+PLUST Feature"
-      version="0.0.5.qualifier"
+      version="0.1.0.qualifier"
       provider-name="The Seasar Project">
 
    <description url="http://www.example.com/description">

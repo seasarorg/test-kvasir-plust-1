@@ -37,8 +37,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
-import org.maven.ide.eclipse.Maven2Plugin;
-import org.maven.ide.eclipse.container.Maven2ClasspathContainer;
+import org.maven.ide.eclipse.core.IMavenConstants;
 import org.seasar.kvasir.plust.Globals;
 import org.seasar.kvasir.plust.KvasirPlugin;
 import org.seasar.kvasir.plust.form.PluginsFormEditor;
@@ -49,6 +48,8 @@ import net.skirnir.xom.XOMUtils;
 public class NewPluginWizard extends Wizard
     implements INewWizard, IExecutableExtension
 {
+    private static final String BUNDLENAME_M2ECLIPSE_LIGHT = "org.maven.ide.eclipse_light"; //$NON-NLS-1$
+
     private NewPluginWizardFirstPage firstPage_;
 
     private NewPluginWizardSecondPage secondPage_;
@@ -191,6 +192,9 @@ public class NewPluginWizard extends Wizard
             List<String> newNatureList = new ArrayList<String>();
             newNatureList.add(JavaCore.NATURE_ID);
             newNatureList.add(KvasirPlugin.NATURE_ID);
+            if (Platform.getBundle(BUNDLENAME_M2ECLIPSE_LIGHT) != null) {
+                newNatureList.add(IMavenConstants.NATURE_ID);
+            }
             if (Platform.getBundle(Globals.BUNDLENAME_TOMCATPLUGIN) != null) {
                 newNatureList.add(Globals.NATURE_ID_TOMCAT);
             }
@@ -204,8 +208,13 @@ public class NewPluginWizard extends Wizard
             }
 
             javaProject_ = JavaCore.create(project_);
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
 
-            constructMavenDependencies(new SubProgressMonitor(monitor, 1));
+            if (Platform.getBundle(BUNDLENAME_M2ECLIPSE_LIGHT) != null) {
+                constructMavenDependencies(new SubProgressMonitor(monitor, 1));
+            }
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
@@ -267,13 +276,12 @@ public class NewPluginWizard extends Wizard
             IClasspathEntry[] entries = javaProject_.getRawClasspath();
             ArrayList<IClasspathEntry> newEntries = new ArrayList<IClasspathEntry>();
             for (int i = 0; i < entries.length; i++) {
-                if (!Maven2ClasspathContainer
-                    .isMaven2ClasspathContainer(entries[i].getPath())) {
+                if (!isMaven2ClasspathContainer(entries[i].getPath())) {
                     newEntries.add(entries[i]);
                 }
             }
             newEntries.add(JavaCore.newContainerEntry(new Path(
-                Maven2Plugin.CONTAINER_ID)));
+                IMavenConstants.CONTAINER_ID)));
             javaProject_.setRawClasspath((IClasspathEntry[])newEntries
                 .toArray(new IClasspathEntry[newEntries.size()]), null);
 
@@ -282,6 +290,13 @@ public class NewPluginWizard extends Wizard
         } finally {
             monitor.done();
         }
+    }
+
+
+    boolean isMaven2ClasspathContainer(IPath containerPath)
+    {
+        return containerPath != null && containerPath.segmentCount() > 0
+            && IMavenConstants.CONTAINER_ID.equals(containerPath.segment(0));
     }
 
 
