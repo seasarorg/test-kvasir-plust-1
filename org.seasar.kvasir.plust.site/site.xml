@@ -6,6 +6,9 @@
    <feature url="features/org.seasar.kvasir.plust.feature_0.0.4.jar" id="org.seasar.kvasir.plust.feature" version="0.0.4">
       <category name="Kvasir"/>
    </feature>
+   <feature url="features/org.seasar.kvasir.plust.feature_0.0.5.201003171506.jar" id="org.seasar.kvasir.plust.feature" version="0.0.5.201003171506">
+      <category name="Kvasir"/>
+   </feature>
    <category-def name="Kvasir" label="Kvasir/Sora">
       <description>
          The Eclipse plugins and some other tools for Kvasir/Sora development.
