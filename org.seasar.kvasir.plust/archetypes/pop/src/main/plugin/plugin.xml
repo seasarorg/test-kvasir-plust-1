@@ -27,12 +27,12 @@
   </requires>
 
   <extension point="org.seasar.kvasir.page.pageGards">
-    <page-gard id="${pluginShortId}" version="${pluginVersion}"
+    <page-gard id="${pluginShortId}Gard" version="${pluginVersion}"
       singleton="true" />
   </extension>
 
   <extension point="org.seasar.kvasir.page.pageGardInstalls">
-    <page-gard-install gard-id="${pluginId}.${pluginShortId}" />
+    <page-gard-install gard-id="${pluginId}.${pluginShortId}Gard" />
   </extension>
 
   <extension point="org.seasar.kvasir.cms.pop.pops">

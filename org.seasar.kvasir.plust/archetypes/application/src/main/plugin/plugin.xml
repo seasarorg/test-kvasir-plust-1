@@ -27,13 +27,13 @@
   </requires>
 
   <extension point="org.seasar.kvasir.page.pageGards">
-    <page-gard id="${pluginShortId}" version="${pluginVersion}" />
+    <page-gard id="${pluginShortId}Gard" version="${pluginVersion}" />
   </extension>
 
 <!--
   <extension point="org.seasar.kvasir.page.pageGardInstalls">
     <page-gard-install
-      gard-id="${pluginId}.${pluginShortId}"
+      gard-id="${pluginId}.${pluginShortId}Gard"
       pathname="/path/to/install" />
   </extension>
 -->
@@ -49,7 +49,7 @@
 
   <extension point="org.seasar.kvasir.cms.ymir.applications">
     <application id="${pluginShortId}Application"
-      gard-id="${pluginId}.${pluginShortId}"
+      gard-id="${pluginId}.${pluginShortId}Gard"
       landmark="${pluginId}.${pluginClassName}" />
   </extension>
 
