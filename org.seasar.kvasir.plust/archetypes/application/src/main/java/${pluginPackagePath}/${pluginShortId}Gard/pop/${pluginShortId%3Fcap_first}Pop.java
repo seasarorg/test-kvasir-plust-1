@@ -1,4 +1,4 @@
-package ${pluginId}.${pluginShortId}.pop;
+package ${pluginId}.${pluginShortId}Gard.pop;
 
 import org.seasar.kvasir.cms.pop.pop.GenericPop;
 

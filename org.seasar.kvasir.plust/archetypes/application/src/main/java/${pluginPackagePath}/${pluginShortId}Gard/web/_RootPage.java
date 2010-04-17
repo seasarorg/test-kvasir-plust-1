@@ -1,4 +1,4 @@
-package ${pluginId}.${pluginShortId}.web;
+package ${pluginId}.${pluginShortId}Gard.web;
 
 public class _RootPage
 {
