@@ -22,6 +22,7 @@
     <import plugin="org.seasar.kvasir.page.auth" />
     <import plugin="org.seasar.kvasir.cms" />
     <import plugin="org.seasar.kvasir.cms.pop" />
+    <import plugin="org.seasar.kvasir.cms.java" />
     <import plugin="org.seasar.kvasir.cms.ymir" />
     <import plugin="net.skirnir.freyja" />
   </requires>
